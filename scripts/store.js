@@ -2,36 +2,50 @@
  * Power-ups store functionality
  */
 
+function getI18nApi() {
+    return window.HebrewGame && window.HebrewGame.i18n
+        ? window.HebrewGame.i18n
+        : null;
+}
+
+function t(key, vars) {
+    const i18nApi = getI18nApi();
+    if (i18nApi && typeof i18nApi.t === 'function') {
+        return i18nApi.t(key, vars);
+    }
+    return key;
+}
+
 // Power-up definitions
 const powerUps = [
     {
         id: 'double_points',
-        name: 'Doppelte Punkte',
-        description: 'Verdoppelt die Punkte für das aktuelle Wort',
+        nameKey: 'powerup.double_points.name',
+        descriptionKey: 'powerup.double_points.description',
         basePrice: 6,
         effect: 'doublePoints',
         iconId: 'starburst'
     },
     {
         id: 'letter_filter',
-        name: 'Buchstabenfilter',
-        description: 'Deaktiviert ähnlich klingende Buchstaben, die im aktuellen Wort nicht vorkommen',
+        nameKey: 'powerup.letter_filter.name',
+        descriptionKey: 'powerup.letter_filter.description',
         basePrice: 2,
         effect: 'letterFilter',
         iconId: 'warning'
     },
     {
         id: 'second_chance_round',
-        name: 'Zweite Chance',
-        description: 'Erneuter Versuch bei Fehlern (gesamte Runde)',
+        nameKey: 'powerup.second_chance_round.name',
+        descriptionKey: 'powerup.second_chance_round.description',
         basePrice: 4,
         effect: 'secondChanceRound',
         iconId: 'badge-blue'
     },
     {
         id: 'easier_word',
-        name: 'Einfacheres Wort',
-        description: 'Gibt ein leichteres Wort mit weniger Buchstaben (stapelbar)',
+        nameKey: 'powerup.easier_word.name',
+        descriptionKey: 'powerup.easier_word.description',
         basePrice: 2,
         effect: 'easierWord',
         iconId: 'easy'
@@ -99,6 +113,8 @@ function generateStoreUI(storeContainerId, playerCoins, roundNumber, onPurchase)
     powerUps.forEach(powerUp => {
         const price = calculatePowerUpPrice(powerUp, roundNumber);
         const canAfford = playerCoins >= price;
+        const powerUpName = t(powerUp.nameKey);
+        const powerUpDescription = t(powerUp.descriptionKey);
         
         const storeItem = document.createElement('div');
         storeItem.className = 'store-item pixel-frame-parchment';
@@ -117,18 +133,18 @@ function generateStoreUI(storeContainerId, playerCoins, roundNumber, onPurchase)
                 <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
                 <div class="store-item-icon pixel-chip">${renderPixelIcon(powerUp.iconId)}</div>
             </div>
-            <div class="store-item-name pixel-title-plate">${powerUp.name}</div>
+            <div class="store-item-name pixel-title-plate">${powerUpName}</div>
             <div class="store-item-price pixel-chip">${renderPixelIcon('coin')} ${price}</div>
-            <div class="store-item-inventory pixel-chip">Besitz: <span id="inventory-${powerUp.id}">${inventoryCount}</span></div>
+            <div class="store-item-inventory pixel-chip">${t('store.ownedLabel')}: <span id="inventory-${powerUp.id}">${inventoryCount}</span></div>
             <button 
                 class="store-item-button" 
                 id="buy-${powerUp.id}"
                 data-power-up-id="${powerUp.id}" 
                 data-testid="buy-${powerUp.id}"
-                aria-label="${powerUp.name} kaufen"
+                aria-label="${t('store.buyAria', { name: powerUpName })}"
                 aria-disabled="${canAfford ? 'false' : 'true'}"
             >
-                Bonus kaufen
+                ${t('store.buy')}
             </button>
         `;
         
@@ -163,14 +179,14 @@ function generateStoreUI(storeContainerId, playerCoins, roundNumber, onPurchase)
                     
                     // Show feedback
                     toast({
-                        title: "Bonus gekauft",
-                        description: `${powerUp.name} wurde gekauft.`,
+                        title: t('store.purchasedTitle'),
+                        description: t('store.purchasedDesc', { name: t(powerUp.nameKey) }),
                         variant: "default"
                     });
                 } else {
                     toast({
-                        title: "Nicht genug Münzen",
-                        description: `${powerUp.name} kostet ${price} Münzen.`,
+                        title: t('store.notEnoughTitle'),
+                        description: t('store.notEnoughDesc', { name: t(powerUp.nameKey), price }),
                         variant: "destructive"
                     });
                 }
@@ -251,8 +267,8 @@ function generatePowerUpsPanel(panelId, onUse) {
             powerUpButton.className = 'power-up-button';
             powerUpButton.dataset.powerUpId = powerUp.id;
             powerUpButton.innerHTML = `
-                <div class="power-up-title pixel-title-plate">${renderPixelIcon(powerUp.iconId)} ${powerUp.name} (${count})</div>
-                <div class="power-up-description pixel-chip">${powerUp.description}</div>
+                <div class="power-up-title pixel-title-plate">${renderPixelIcon(powerUp.iconId)} ${t(powerUp.nameKey)} (${count})</div>
+                <div class="power-up-description pixel-chip">${t(powerUp.descriptionKey)}</div>
             `;
             
             powerUpButton.addEventListener('click', () => {

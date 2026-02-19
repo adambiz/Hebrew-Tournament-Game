@@ -1,5 +1,32 @@
 # 1 Against 95 - Hebrew Learning Game
 
+## Bilingual UI (English + German)
+
+- The UI now supports two languages: `English` and `Deutsch`.
+- A language selector is shown on the start screen as two buttons: `English` and `Deutsch`.
+- First load defaults to English (`en`).
+- The selected UI language is persisted in `localStorage` under `hebrewGame_uiLanguage_v1`.
+- On reload, the saved language is restored automatically.
+
+### Prompt Source Behavior
+
+- The prompt above the Hebrew input keeps using `#german-word` for compatibility.
+- In runtime, the displayed source text is selected by language:
+  - `en`: uses `english`, then falls back to `german`, then `hebrew`.
+  - `de`: uses `german`, then falls back to `english`, then `hebrew`.
+- This fallback logic is implemented via `window.HebrewGame.i18n.getPromptText(...)`, so prompts are never blank.
+
+### i18n Runtime API
+
+- Namespace: `window.HebrewGame.i18n`
+- Methods:
+  - `t(key, vars?)`
+  - `getLanguage()`
+  - `setLanguage(lang)`
+  - `getPromptText(wordData)`
+  - `applyStaticDomTranslations(root?)`
+- Event: `hebrewGame:languageChanged` with `detail: { language }`
+
 ## Project Structure
 
 ```

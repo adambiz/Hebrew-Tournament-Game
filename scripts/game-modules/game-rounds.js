@@ -2,16 +2,6 @@
  * Round management functions
  */
 
-// Round descriptions for next round preview
-const roundDescriptions = {
-    1: "Einzelwörter mit 2 hebräischen Buchstaben",
-    2: "Einzelwörter mit 4 hebräischen Buchstaben",
-    3: "Einzelwörter mit 6 hebräischen Buchstaben",
-    4: "Hebräische Ausdrücke mit zwei Wörtern",
-    5: "Hebräische Sätze mit drei Wörtern",
-    6: "Hebräische Sätze mit vier Wörtern"
-};
-
 let storeOverlayKeydownHandler = null;
 let finalScreenAnimationToken = 0;
 
@@ -20,6 +10,24 @@ const FINAL_SCORE_ANIMATION_DURATIONS = {
     bonus: 560,
     total: 760
 };
+
+function getI18nApi() {
+    return window.HebrewGame && window.HebrewGame.i18n
+        ? window.HebrewGame.i18n
+        : null;
+}
+
+function t(key, vars) {
+    const i18nApi = getI18nApi();
+    if (i18nApi && typeof i18nApi.t === 'function') {
+        return i18nApi.t(key, vars);
+    }
+    return key;
+}
+
+function getRoundDescription(roundNumber) {
+    return t(`round.description.${roundNumber}`);
+}
 
 function announceUi(message) {
     if (
@@ -64,7 +72,8 @@ function renderRoundHeroNameMarkup(hero, options = {}) {
     }
 
     const fallbackName = hero && hero.name ? hero.name : '';
-    return `${escapeRoundUiText(fallbackName)}${options.playerSuffix ? ' (Du)' : ''}`;
+    const playerLabel = options.playerLabel || t('label.you');
+    return `${escapeRoundUiText(fallbackName)}${options.playerSuffix ? ` (${escapeRoundUiText(playerLabel)})` : ''}`;
 }
 
 function renderRoundHeroAvatarMarkup(hero, options = {}) {
@@ -117,7 +126,7 @@ function updateMainBattleTitle() {
 
     const titleParts = [
         '<span class="title-number title-number-player">1</span>',
-        '<span class="title-word">gegen</span>'
+        `<span class="title-word">${escapeRoundUiText(t('title.against'))}</span>`
     ];
 
     if (showCrossedBase) {
@@ -154,7 +163,7 @@ function updateNextRoundPreview() {
 
     const nextRound = Math.min(gameState.maxRounds, gameState.currentRound + 1);
     nextRoundNumberEl.textContent = String(nextRound);
-    nextRoundDescriptionEl.textContent = roundDescriptions[nextRound] || 'Finale Ergebnisse';
+    nextRoundDescriptionEl.textContent = getRoundDescription(nextRound) || t('round.description.finalResults');
 }
  
 // Start the next round
@@ -218,8 +227,8 @@ function startNextRound() {
     
     if (!gameState.roundWords || gameState.roundWords.length === 0) {
         toast({
-            title: "Keine Wörter verfügbar",
-            description: "Die Wortdaten für diese Runde konnten nicht geladen werden.",
+            title: t('round.noWordsTitle'),
+            description: t('round.noWordsDesc'),
             variant: "destructive"
         });
         showScreen('start-screen');
@@ -261,24 +270,27 @@ function startNextRound() {
     
     if (typeof window.logDebug === 'function') window.logDebug('Round started:', gameState.currentRound);
     playRoundSfx('roundStart', { round: gameState.currentRound });
-    announceUi(`Runde ${gameState.currentRound} gestartet. ${gameState.roundWords.length} Wörter in dieser Runde.`);
+    announceUi(t('round.startedAnnounce', {
+        round: gameState.currentRound,
+        words: gameState.roundWords.length
+    }));
     
     // Show round info for higher rounds
     if (gameState.currentRound >= 4) {
         let roundTypeMessage = "";
         
         if (gameState.currentRound === 4) {
-            roundTypeMessage = "Diese Runde enthält Ausdrücke mit zwei Wörtern.";
+            roundTypeMessage = t('round.type.twoWords');
         } else if (gameState.currentRound === 5) {
-            roundTypeMessage = "Diese Runde enthält Sätze mit drei Wörtern.";
+            roundTypeMessage = t('round.type.threeWords');
         } else {
-            roundTypeMessage = "Diese Runde enthält Sätze mit vier Wörtern.";
+            roundTypeMessage = t('round.type.fourWords');
         }
             
-        const clickHint = "Klicke auf einen Buchstaben, um diese Position zu bearbeiten.";
+        const clickHint = t('round.clickHint');
         
         toast({
-            title: `Runde ${gameState.currentRound}: Sätze`,
+            title: t('round.sentencesToastTitle', { round: gameState.currentRound }),
             description: `${roundTypeMessage} ${clickHint}`,
             variant: "default"
         });
@@ -390,7 +402,7 @@ function forceWinCurrentRoundForDebug() {
             targetPlayerScore
         });
     }
-    announceUi(`Debug-Cheat aktiv. Runde ${gameState.currentRound} als Spitzenplatz abgeschlossen.`);
+    announceUi(t('round.debugCheatAnnounce', { round: gameState.currentRound }));
     window.completeRound();
     return true;
 }
@@ -462,7 +474,10 @@ window.completeRound = function completeRound() {
 
         window.showScreen('round-results');
         playRoundSfx('roundComplete', { round: gameState.currentRound });
-        announceUi(`Runde ${gameState.currentRound} abgeschlossen. Du hast ${gameState.roundCoinsEarned} Münzen verdient.`);
+        announceUi(t('round.completedAnnounce', {
+            round: gameState.currentRound,
+            coins: gameState.roundCoinsEarned
+        }));
 
         const storeBtn = document.getElementById('visit-store');
         if (storeBtn) {
@@ -524,7 +539,7 @@ function closeStoreOverlay() {
     }
     gameState.ui.lastFocusedElement = null;
     playRoundSfx('storeClose');
-    announceUi('Shop geschlossen.');
+    announceUi(t('store.closedAnnounce'));
     return true;
 }
 
@@ -540,7 +555,7 @@ function openStoreOverlay(triggerElement) {
     overlay.className = 'game-overlay active';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
-    overlay.setAttribute('aria-label', 'Bonus-Shop');
+    overlay.setAttribute('aria-label', t('store.overlayAria'));
     overlay.setAttribute('data-testid', 'store-overlay');
 
     overlay.innerHTML = `
@@ -548,18 +563,18 @@ function openStoreOverlay(triggerElement) {
             <div class="store-header">
                 <h2 class="pixel-title-plate">
                     <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
-                    <span>Bonus-Shop</span>
+                    <span>${escapeRoundUiText(t('store.title'))}</span>
                 </h2>
                 <div class="player-coins pixel-chip" aria-live="polite">
                     <span class="coin-icon">${renderUiIcon('coin')}</span>
-                    <span id="overlay-store-coins">${gameState.playerCoins}</span> Münzen
+                    <span id="overlay-store-coins">${gameState.playerCoins}</span> ${escapeRoundUiText(t('store.coinsSuffix'))}
                 </div>
-                <button id="close-store-x" class="close-store-x-button" type="button" aria-label="Shop schließen">
+                <button id="close-store-x" class="close-store-x-button" type="button" aria-label="${escapeRoundUiText(t('store.closeAria'))}">
                     ${renderUiIcon('close')}
                 </button>
             </div>
             <div id="overlay-store-items"></div>
-            <button id="close-store" class="close-overlay-button" type="button">Zurück zu den Ergebnissen</button>
+            <button id="close-store" class="close-overlay-button" type="button">${escapeRoundUiText(t('store.backToResults'))}</button>
         </div>
     `;
 
@@ -568,7 +583,7 @@ function openStoreOverlay(triggerElement) {
     gameState.ui.activeOverlayId = 'store-overlay';
     gameState.ui.lastFocusedElement = triggerElement || document.activeElement;
     playRoundSfx('storeOpen');
-    announceUi('Shop geöffnet.');
+    announceUi(t('store.openedAnnounce'));
 
     const closeButton = document.getElementById('close-store');
     if (closeButton) closeButton.addEventListener('click', closeStoreOverlay);
@@ -763,7 +778,7 @@ function renderFinalComparisonList(finalists, playerFinalScore, showComparison) 
         name.className = 'final-comparison-name';
         name.innerHTML = renderRoundHeroNameMarkup(entry.hero, {
             playerSuffix: entry.hero === gameState.player,
-            playerLabel: 'You',
+            playerLabel: t('label.you'),
             nameClass: 'final-comparison-name-text',
             avatarClass: 'hero-avatar-final-comparison'
         });
@@ -787,7 +802,7 @@ function renderFinalLeaderboard(scores, playerName) {
     if (!Array.isArray(scores) || scores.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'high-score-item high-score-empty pixel-chip';
-        empty.textContent = 'Noch keine Highscores. Sei die erste Person!';
+        empty.textContent = t('highscores.empty');
         finalHighScoresList.appendChild(empty);
         return;
     }
@@ -860,7 +875,7 @@ function renderFinalPodium(rankedContestants) {
 
         const name = document.createElement('span');
         name.className = 'final-podium-name';
-        name.textContent = `${entry.hero.name}${entry.isPlayer ? ' (Du)' : ''}`;
+        name.textContent = `${entry.hero.name}${entry.isPlayer ? ` (${t('label.you')})` : ''}`;
 
         const score = document.createElement('span');
         score.className = 'final-podium-score pixel-chip';
@@ -884,24 +899,24 @@ function updateFinalResultCopy(playerRank, reason) {
     gameOverScreen.classList.remove('result-win', 'result-strong', 'result-loss');
 
     if (playerRank === 1) {
-        if (gameResultTitle) gameResultTitle.textContent = 'Jackpot-Champion!';
-        else gameResult.textContent = 'Jackpot-Champion!';
-        gameResultCopy.textContent = 'Du hast Platz 1 erreicht und die volle Punktejagd gewonnen.';
+        if (gameResultTitle) gameResultTitle.textContent = t('final.titleChampion');
+        else gameResult.textContent = t('final.titleChampion');
+        gameResultCopy.textContent = t('final.copyChampion');
         gameOverScreen.classList.add('result-win');
         return;
     }
 
     if (reason === 'eliminated') {
-        if (gameResultTitle) gameResultTitle.textContent = 'Starker Lauf!';
-        else gameResult.textContent = 'Starker Lauf!';
-        gameResultCopy.textContent = 'Du warst voll dabei und hast trotzdem ein starkes Endergebnis geholt.';
+        if (gameResultTitle) gameResultTitle.textContent = t('final.titleStrongRun');
+        else gameResult.textContent = t('final.titleStrongRun');
+        gameResultCopy.textContent = t('final.copyStrongRun');
         gameOverScreen.classList.add('result-loss');
         return;
     }
 
-    if (gameResultTitle) gameResultTitle.textContent = 'Starkes Finale!';
-    else gameResult.textContent = 'Starkes Finale!';
-    gameResultCopy.textContent = 'Sauber abgeschlossen. Du hast viele Punkte ins Finale gebracht.';
+    if (gameResultTitle) gameResultTitle.textContent = t('final.titleStrongFinale');
+    else gameResult.textContent = t('final.titleStrongFinale');
+    gameResultCopy.textContent = t('final.copyStrongFinale');
     gameOverScreen.classList.add('result-strong');
 }
 
@@ -935,7 +950,10 @@ function endGame(context = {}) {
 
     const finalRankEl = document.getElementById('final-rank');
     if (finalRankEl) {
-        finalRankEl.textContent = `${playerRank} von ${totalContestants}`;
+        finalRankEl.textContent = t('final.rankValue', {
+            rank: playerRank,
+            total: totalContestants
+        });
     }
     const finalScoreCompatEl = document.getElementById('final-score');
     if (finalScoreCompatEl) {
@@ -972,7 +990,10 @@ function endGame(context = {}) {
     const highScoreDetails = document.getElementById('high-score-details');
     if (highScoreEntry && highScoreDetails && improvedScore && playerPosition > 0) {
         highScoreEntry.classList.remove('hidden');
-        highScoreDetails.textContent = `Du bist mit ${formatScoreValue(finalScore)} Punkten auf Platz #${playerPosition} vorgerückt.`;
+        highScoreDetails.textContent = t('final.highScoreDetails', {
+            score: formatScoreValue(finalScore),
+            position: playerPosition
+        });
     } else if (highScoreEntry) {
         highScoreEntry.classList.add('hidden');
     }
@@ -985,7 +1006,11 @@ function endGame(context = {}) {
     window.showScreen('game-over');
     playRoundSfx('gameComplete', { rank: playerRank, reason });
     runFinalScoreAnimation(baseScore, coinBonus, finalScore);
-    announceUi(`Turnier abgeschlossen. Endstand ${finalScore} Punkte. Rang ${playerRank} von ${totalContestants}.`);
+    announceUi(t('final.announceComplete', {
+        score: finalScore,
+        rank: playerRank,
+        total: totalContestants
+    }));
 }
 
 window.HebrewGame = window.HebrewGame || {};

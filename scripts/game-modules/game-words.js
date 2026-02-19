@@ -19,6 +19,28 @@ function playWordSfx(soundName, options) {
     }
 }
 
+function getI18nApi() {
+    return window.HebrewGame && window.HebrewGame.i18n
+        ? window.HebrewGame.i18n
+        : null;
+}
+
+function t(key, vars) {
+    const i18nApi = getI18nApi();
+    if (i18nApi && typeof i18nApi.t === 'function') {
+        return i18nApi.t(key, vars);
+    }
+    return key;
+}
+
+function getPromptText(wordData) {
+    const i18nApi = getI18nApi();
+    if (i18nApi && typeof i18nApi.getPromptText === 'function') {
+        return i18nApi.getPromptText(wordData);
+    }
+    return wordData && typeof wordData.german === 'string' ? wordData.german : '';
+}
+
 function notifyTtsPromptChanged(wordData, source) {
     if (
         window.HebrewGame &&
@@ -148,9 +170,12 @@ function startNextWord() {
     window.logDebug('Starting new word:', gameState.currentWord);
     
     // Update display
-    document.getElementById('german-word').textContent = gameState.currentWord.german;
+    document.getElementById('german-word').textContent = getPromptText(gameState.currentWord);
     document.getElementById('current-word-counter').textContent = 
-        `Wort ${gameState.currentWordIndex + 1} von ${gameState.roundWords.length}`;
+        t('round.wordCounter', {
+            current: gameState.currentWordIndex + 1,
+            total: gameState.roundWords.length
+        });
     
     // Update round progress display
     const progressPercent = (gameState.currentWordIndex / gameState.roundWords.length) * 100;
@@ -892,8 +917,8 @@ function finalizeWordCheck(correctLetters, totalLetters, letterChecks) {
 
     announceWordUi(
         isPerfect
-            ? `Perfekte Antwort. ${finalPoints} Punkte und ${coinsToAward} Münzen.`
-            : `Antwort geprüft. ${finalPoints} Punkte.`
+            ? t('word.announcePerfect', { points: finalPoints, coins: coinsToAward })
+            : t('word.announceChecked', { points: finalPoints })
     );
     
     // Log the ACTUAL change for debugging
@@ -982,18 +1007,27 @@ function handlePerfectWord(finalPoints, totalPossiblePoints, letterChecks, coins
     
     // Create toast message based on the number of words
     const wordCount = gameState.currentWord.isPhrase ? gameState.currentWord.words.length : 1;
-    let wordDescription = wordCount > 1 ? `${wordCount} Wörter` : "Wort";
-    let coinText = coinsEarned > 1 ? `${coinsEarned} Münzen` : "1 Münze";
+    let wordDescription = wordCount > 1
+        ? `${wordCount} ${t('word.wordPlural')}`
+        : t('word.wordSingle');
+    let coinText = coinsEarned > 1
+        ? t('word.coinPlural', { count: coinsEarned })
+        : t('word.coinSingle');
     
     // Show toast notification with original points info if easier word was used
-    let description = `+${finalPoints} Punkte, ${coinText}`;
+    let description = t('word.perfectDesc', { points: finalPoints, coinText });
     if (gameState.powerUpsActive.originalWord) {
         const originalLetters = gameState.powerUpsActive.originalWord.totalLetters;
-        description = `+${finalPoints} Punkte aus dem ursprünglichen ${originalLetters}-Buchstaben-${wordDescription}, ${coinText}`;
+        description = t('word.perfectDescOriginal', {
+            points: finalPoints,
+            letters: originalLetters,
+            wordDesc: wordDescription,
+            coinText
+        });
     }
     
     toast({
-        title: "Super!",
+        title: t('word.toastSuper'),
         description: description,
         variant: "default"
     });
@@ -1029,10 +1063,10 @@ function handleImperfectWord(finalPoints, correctLetters, totalPossiblePoints, l
         
         // Provide feedback
         toast({
-            title: "Zweite Chance",
+            title: t('word.secondChanceTitle'),
             description: isRoundPowerUp ? 
-                "Rundenbonus aktiv: Versuch es noch einmal." : 
-                "Du kannst es noch einmal versuchen.",
+                t('word.secondChanceRoundDesc') : 
+                t('word.secondChanceSingleDesc'),
             variant: "default"
         });
         
@@ -1088,15 +1122,18 @@ function handleImperfectWord(finalPoints, correctLetters, totalPossiblePoints, l
     playWordSfx('wordImperfect');
     
     // Create description with original word info if easier word was used
-    let description = `+${finalPoints} Punkte`;
+    let description = t('word.imperfectDesc', { points: finalPoints });
     if (gameState.powerUpsActive.originalWord) {
         const originalLetters = gameState.powerUpsActive.originalWord.totalLetters;
-        description = `+${finalPoints} Punkte aus dem ursprünglichen ${originalLetters}-Buchstaben-Wort`;
+        description = t('word.imperfectDescOriginal', {
+            points: finalPoints,
+            letters: originalLetters
+        });
     }
     
     // Show toast notification
     toast({
-        title: finalPoints > 0 ? "Fast!" : "Fehler",
+        title: finalPoints > 0 ? t('word.toastAlmost') : t('word.toastError'),
         description: description,
         variant: finalPoints > 0 ? "default" : "destructive"
     });
@@ -1248,7 +1285,7 @@ function showCelebrationEffect(type) {
     if (type === 'round-advance') {
         const roundAdvanceText = document.createElement('div');
         roundAdvanceText.className = 'round-complete-text';
-        roundAdvanceText.textContent = 'Runde abgeschlossen!';
+        roundAdvanceText.textContent = t('round.completedShort');
         
         wordChallengeArea.appendChild(roundAdvanceText);
         

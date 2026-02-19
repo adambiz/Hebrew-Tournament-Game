@@ -25,6 +25,28 @@
         list: null
     };
 
+    function getI18nApi() {
+        return window.HebrewGame && window.HebrewGame.i18n
+            ? window.HebrewGame.i18n
+            : null;
+    }
+
+    function t(key, vars) {
+        const i18nApi = getI18nApi();
+        if (i18nApi && typeof i18nApi.t === 'function') {
+            return i18nApi.t(key, vars);
+        }
+        return key;
+    }
+
+    function getPromptText(entry) {
+        const i18nApi = getI18nApi();
+        if (i18nApi && typeof i18nApi.getPromptText === 'function') {
+            return normalizeSpaces(i18nApi.getPromptText(entry));
+        }
+        return normalizeSpaces(entry.german || entry.english || '');
+    }
+
     function normalizeSpaces(text) {
         return String(text || '').replace(/\s+/g, ' ').trim();
     }
@@ -182,10 +204,11 @@
                 const hebrewVocalized = normalizeSpaces(entry.hebrewVocalized || entry.hebrew_vocalized || '');
                 const ttsText = normalizeSpaces(entry.ttsText || entry.tts_text || '');
                 const spokenText = buildSpokenText(entry);
+                const sourceText = getPromptText(entry) || german || english || hebrew;
 
                 const id = `${round}|${german}|${hebrew}|${roundIndex}`;
                 const searchBlob = normalizeSpaces(
-                    `${round} ${german} ${hebrew} ${english} ${hebrewVocalized} ${ttsText} ${spokenText}`
+                    `${round} ${german} ${hebrew} ${english} ${sourceText} ${hebrewVocalized} ${ttsText} ${spokenText}`
                 ).toLowerCase();
 
                 rows.push({
@@ -198,6 +221,7 @@
                     english,
                     hebrewVocalized,
                     ttsText,
+                    sourceText,
                     spokenText,
                     spokenTokens: getSpokenTokens(spokenText),
                     searchBlob
@@ -303,12 +327,13 @@
     }
 
     function formatRowMeta(row) {
-        const shownTts = row.ttsText || 'leer';
+        const emptyValue = t('ttsDebug.emptyValue');
+        const shownTts = row.ttsText || emptyValue;
         return [
-            `Hebräisch: ${row.hebrew || 'leer'}`,
-            `Vokalisiert: ${row.hebrewVocalized || 'leer'}`,
-            `TTS: ${shownTts}`,
-            `Gesprochen: ${row.spokenText || 'leer'}`
+            t('ttsDebug.metaHebrew', { value: row.hebrew || emptyValue }),
+            t('ttsDebug.metaVocalized', { value: row.hebrewVocalized || emptyValue }),
+            t('ttsDebug.metaTts', { value: shownTts }),
+            t('ttsDebug.metaSpoken', { value: row.spokenText || emptyValue })
         ].join(' · ');
     }
 
@@ -329,7 +354,7 @@
                             data-word-index="${wordIndex}"
                             data-kind="wrongStress"
                             aria-pressed="${wordIssue.wrongStress ? 'true' : 'false'}"
-                        >Stress</button>
+                        >${t('ttsDebug.issueStress')}</button>
                         <button
                             type="button"
                             class="game-button tts-debug-word-flag"
@@ -338,7 +363,7 @@
                             data-word-index="${wordIndex}"
                             data-kind="weirdPronunciation"
                             aria-pressed="${wordIssue.weirdPronunciation ? 'true' : 'false'}"
-                        >Aussprache</button>
+                        >${t('ttsDebug.issuePronunciation')}</button>
                     </div>
                 </div>
             `;
@@ -348,13 +373,19 @@
     function renderRow(row) {
         const issueEntry = getIssueDetailsForRow(row);
         const rowClass = hasIssueEntry(issueEntry) ? 'tts-debug-row flagged' : 'tts-debug-row';
-        const sentenceLabel = issueEntry.sentenceIssue ? 'Satz: markiert' : 'Satz: unklar/unnat.';
+        const sentenceLabel = issueEntry.sentenceIssue
+            ? t('ttsDebug.sentenceMarked')
+            : t('ttsDebug.sentenceUnclear');
         const wordIssueControls = renderWordIssueControls(row, issueEntry);
 
         return `
             <div class="${rowClass}" data-row-id="${escapeHtml(row.id)}">
                 <div class="tts-debug-row-main">
-                    <div class="tts-debug-row-headline">#${row.rowNumber} · Runde ${row.round} · ${escapeHtml(row.german)}</div>
+                    <div class="tts-debug-row-headline">${escapeHtml(t('ttsDebug.rowHeadline', {
+                        row: row.rowNumber,
+                        round: row.round,
+                        source: row.sourceText
+                    }))}</div>
                     <div class="tts-debug-row-hebrew">${escapeHtml(row.hebrewVocalized || row.hebrew)}</div>
                     <div class="tts-debug-row-meta">${escapeHtml(formatRowMeta(row))}</div>
                     <div class="tts-debug-word-grid">${wordIssueControls}</div>
@@ -366,7 +397,7 @@
                     data-id="${escapeHtml(row.id)}"
                     aria-pressed="${issueEntry.sentenceIssue ? 'true' : 'false'}"
                 >${sentenceLabel}</button>
-                <button type="button" class="game-button tts-debug-play" data-action="play" data-id="${escapeHtml(row.id)}">Anhören</button>
+                <button type="button" class="game-button tts-debug-play" data-action="play" data-id="${escapeHtml(row.id)}">${t('ttsDebug.listen')}</button>
             </div>
         `;
     }
@@ -381,19 +412,30 @@
         const issueRowCount = countIssueRows();
 
         if (total === 0) {
-            dom.list.innerHTML = '<div class="tts-debug-empty">Wortdaten werden noch geladen.</div>';
-            setStatus('Keine Daten verfügbar. Prüfe, ob die CSV geladen wurde.');
+            dom.list.innerHTML = `<div class="tts-debug-empty">${escapeHtml(t('ttsDebug.emptyLoading'))}</div>`;
+            setStatus(t('ttsDebug.noData'));
             return;
         }
 
         if (visibleRows.length === 0) {
-            dom.list.innerHTML = '<div class="tts-debug-empty">Kein Treffer für den aktuellen Filter.</div>';
-            setStatus(`Filter: 0/${total}. Sätze: ${sentenceIssueCount}. Wort-Probleme: ${wordIssueCount}.`);
+            dom.list.innerHTML = `<div class="tts-debug-empty">${escapeHtml(t('ttsDebug.noFilterMatch'))}</div>`;
+            setStatus(t('ttsDebug.statusFilter', {
+                visible: 0,
+                total,
+                sentences: sentenceIssueCount,
+                wordIssues: wordIssueCount
+            }));
             return;
         }
 
         dom.list.innerHTML = visibleRows.map(renderRow).join('');
-        setStatus(`Einträge: ${visibleRows.length}/${total}. Zeilen mit Problemen: ${issueRowCount}. Sätze: ${sentenceIssueCount}. Wort-Probleme: ${wordIssueCount}.`);
+        setStatus(t('ttsDebug.statusEntries', {
+            visible: visibleRows.length,
+            total,
+            issueRows: issueRowCount,
+            sentences: sentenceIssueCount,
+            wordIssues: wordIssueCount
+        }));
     }
 
     function toggleSentenceIssue(rowId) {
@@ -439,8 +481,9 @@
 
     function buildClipboardReport(rows) {
         const lines = [];
-        lines.push('# Hebrew Tournament TTS issues');
-        lines.push(`# created_at: ${new Date().toISOString()}`);
+        const timestamp = new Date().toISOString();
+        lines.push(t('ttsDebug.reportTitle'));
+        lines.push(t('ttsDebug.reportCreated', { timestamp }));
         lines.push('round,german,hebrew,english,hebrew_vocalized,tts_text,spoken_text,issue_level,issue_type,word_index,word_text,notes');
 
         rows.forEach((row) => {
@@ -530,28 +573,28 @@
     async function copyFlaggedRows() {
         const issueRows = getIssueRows();
         if (issueRows.length === 0) {
-            setStatus('Keine markierten Probleme zum Kopieren.');
+            setStatus(t('ttsDebug.copyNone'));
             return;
         }
 
         try {
             await copyTextToClipboard(buildClipboardReport(issueRows));
-            setStatus(`Kopiert: ${issueRows.length} Zeilen mit Problemen.`);
+            setStatus(t('ttsDebug.copySuccess', { count: issueRows.length }));
         } catch (_error) {
-            setStatus('Kopieren fehlgeschlagen. Bitte erneut versuchen.');
+            setStatus(t('ttsDebug.copyFailed'));
         }
     }
 
     function clearFlags() {
         if (Object.keys(state.issueMap).length === 0) {
-            setStatus('Es gibt keine Markierungen zum Löschen.');
+            setStatus(t('ttsDebug.clearNone'));
             return;
         }
 
         state.issueMap = {};
         saveIssueMap();
         renderList();
-        setStatus('Alle Markierungen wurden gelöscht.');
+        setStatus(t('ttsDebug.clearDone'));
     }
 
     function speakRow(rowId) {
@@ -563,7 +606,7 @@
             : null;
 
         if (!ttsApi) {
-            setStatus('TTS ist nicht verfügbar.');
+            setStatus(t('ttsDebug.ttsUnavailable'));
             return;
         }
 
@@ -585,9 +628,12 @@
         }
 
         if (didSpeak) {
-            setStatus(`Spiele #${row.rowNumber} (Runde ${row.round}) ab.`);
+            setStatus(t('ttsDebug.playing', {
+                row: row.rowNumber,
+                round: row.round
+            }));
         } else {
-            setStatus(`Konnte #${row.rowNumber} nicht abspielen.`);
+            setStatus(t('ttsDebug.playFailed', { row: row.rowNumber }));
         }
     }
 
@@ -697,6 +743,12 @@
         window.addEventListener('hebrewGame:dataReady', function onDataReady() {
             if (!state.isOpen) return;
             refreshRows();
+        });
+
+        window.addEventListener('hebrewGame:languageChanged', function onLanguageChanged() {
+            if (state.isOpen) {
+                refreshRows();
+            }
         });
     }
 

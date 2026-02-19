@@ -171,12 +171,28 @@ function escapeHtml(value) {
         .replace(/'/g, '&#39;');
 }
 
+function getI18nApi() {
+    return window.HebrewGame && window.HebrewGame.i18n
+        ? window.HebrewGame.i18n
+        : null;
+}
+
+function t(key, vars) {
+    const i18nApi = getI18nApi();
+    if (i18nApi && typeof i18nApi.t === 'function') {
+        return i18nApi.t(key, vars);
+    }
+    return key;
+}
+
 function createHeroAvatarMarkup(hero, options = {}) {
     const className = options.className ? ` ${escapeHtml(options.className)}` : '';
     const avatarPath = normalizeAvatarPath(options.avatarPath) || getHeroAvatarPath(hero);
     const altText = typeof options.alt === 'string'
         ? options.alt
-        : `Avatar von ${hero && hero.name ? hero.name : 'Heldin oder Held'}`;
+        : t('hero.avatarAlt', {
+            name: hero && hero.name ? hero.name : t('hero.avatarFallbackName')
+        });
     const isDecorative = !!options.decorative;
     const altAttribute = isDecorative ? 'alt="" aria-hidden="true"' : `alt="${escapeHtml(altText)}"`;
     const loadingMode = options.eager ? 'eager' : 'lazy';
@@ -188,7 +204,7 @@ function createHeroNameMarkup(hero, options = {}) {
     const heroName = hero && hero.name ? String(hero.name) : '';
     const playerLabel = typeof options.playerLabel === 'string' && options.playerLabel.trim()
         ? options.playerLabel.trim()
-        : 'Du';
+        : t('label.you');
     const nameSuffix = options.playerSuffix ? ` (${playerLabel})` : '';
     const nameClass = options.nameClass || 'hero-name-text';
     const avatarClass = options.avatarClass || 'hero-avatar-inline';

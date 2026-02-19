@@ -5,6 +5,28 @@
 // Variable to store the panel click handler
 let panelClickHandler = null;
 
+function getI18nApi() {
+    return window.HebrewGame && window.HebrewGame.i18n
+        ? window.HebrewGame.i18n
+        : null;
+}
+
+function t(key, vars) {
+    const i18nApi = getI18nApi();
+    if (i18nApi && typeof i18nApi.t === 'function') {
+        return i18nApi.t(key, vars);
+    }
+    return key;
+}
+
+function getPromptText(wordData) {
+    const i18nApi = getI18nApi();
+    if (i18nApi && typeof i18nApi.getPromptText === 'function') {
+        return i18nApi.getPromptText(wordData);
+    }
+    return wordData && typeof wordData.german === 'string' ? wordData.german : '';
+}
+
 function playPowerUpSfx(soundName, options) {
     if (typeof window.playGameSound === 'function') {
         window.playGameSound(soundName, options);
@@ -45,8 +67,8 @@ function togglePowerUpsPanel() {
         } else {
             // Use toast instead of alert for better UX
             toast({
-                title: "Keine Boni verfügbar",
-                description: "Du hast aktuell keine Boni. Kaufe welche zwischen den Runden.",
+                title: t('powerups.noneTitle'),
+                description: t('powerups.noneDesc'),
                 variant: "destructive"
             });
         }
@@ -78,7 +100,7 @@ function updatePowerUpButtonVisibility() {
         if (hasAnyPowerUps) {
             powerupButton.disabled = false;
             powerupButton.removeAttribute('aria-disabled');
-            powerupButton.setAttribute('aria-label', 'Bonusmenü öffnen');
+            powerupButton.setAttribute('aria-label', t('powerups.openMenuAria'));
             // Add a pulse animation to make it more noticeable
             if (!powerupButton.classList.contains('pulse-animation')) {
                 powerupButton.classList.add('pulse-animation');
@@ -90,7 +112,7 @@ function updatePowerUpButtonVisibility() {
         } else {
             powerupButton.disabled = true;
             powerupButton.setAttribute('aria-disabled', 'true');
-            powerupButton.setAttribute('aria-label', 'Noch keine Boni verfügbar');
+            powerupButton.setAttribute('aria-label', t('powerups.noneAvailableAria'));
             powerupButton.classList.remove('pulse-animation');
         }
     }
@@ -160,8 +182,8 @@ function applyDoublePointsPowerUp() {
     
     // Visual feedback
     toast({
-        title: "Doppelte Punkte aktiviert",
-        description: "Die Punkte für dieses Wort werden verdoppelt.",
+        title: t('powerups.doublePointsTitle'),
+        description: t('powerups.doublePointsDesc'),
         variant: "default"
     });
     
@@ -230,8 +252,8 @@ function applyLetterFilterPowerUp() {
         
         // Visual feedback
         toast({
-            title: "Buchstabenfilter aktiv",
-            description: `${lettersToDisable.size} ähnlich klingende Buchstaben wurden für dieses Wort ausgeblendet.`,
+            title: t('powerups.letterFilterActiveTitle'),
+            description: t('powerups.letterFilterActiveDesc', { count: lettersToDisable.size }),
             variant: "default"
         });
         
@@ -239,8 +261,8 @@ function applyLetterFilterPowerUp() {
     } else {
         // No letters could be disabled
         toast({
-            title: "Buchstabenfilter",
-            description: "Für dieses Wort konnten keine Buchstaben gefiltert werden.",
+            title: t('powerups.letterFilterTitle'),
+            description: t('powerups.letterFilterNoneDesc'),
             variant: "default"
         });
         
@@ -342,8 +364,8 @@ function applySecondChanceRoundPowerUp() {
     
     // Visual feedback
     toast({
-        title: "Zweite Chance aktiviert",
-        description: "Du hast jetzt bei allen Wörtern dieser Runde eine zusätzliche Chance.",
+        title: t('powerups.secondChanceTitle'),
+        description: t('powerups.secondChanceDesc'),
         variant: "default"
     });
     
@@ -360,8 +382,8 @@ function applyEasierWordPowerUp() {
     // Don't allow using this power-up if already at minimum difficulty (round 1)
     if (currentLevel <= 1) {
         toast({
-            title: "Nicht weiter vereinfachbar",
-            description: "Du bist bereits auf der einfachsten Wortstufe.",
+            title: t('powerups.cannotSimplifyTitle'),
+            description: t('powerups.cannotSimplifyDesc'),
             variant: "destructive"
         });
         
@@ -380,6 +402,7 @@ function applyEasierWordPowerUp() {
         // Store the original word for scoring purposes
         gameState.powerUpsActive.originalWord = {
             german: gameState.currentWord.german,
+            english: gameState.currentWord.english,
             hebrew: gameState.currentWord.hebrew,
             isPhrase: gameState.currentWord.isPhrase,
             words: gameState.currentWord.words ? [...gameState.currentWord.words] : null,
@@ -397,8 +420,8 @@ function applyEasierWordPowerUp() {
     
     if (easierWords.length === 0) {
         toast({
-            title: "Fehler",
-            description: "Es konnte kein einfacheres Wort gefunden werden.",
+            title: t('powerups.errorTitle'),
+            description: t('powerups.noEasierWordDesc'),
             variant: "destructive"
         });
         
@@ -444,7 +467,7 @@ function applyEasierWordPowerUp() {
     }
     
     // Update display
-    document.getElementById('german-word').textContent = newWord.german;
+    document.getElementById('german-word').textContent = getPromptText(newWord);
     updateHebrewWordDisplay();
     
     // Initialize the keyboard with appropriate layout
@@ -459,22 +482,25 @@ function applyEasierWordPowerUp() {
     }
     
     // Visual feedback with appropriate message
-    let message = `Neues Wort: ${newWord.german} (Stufe ${targetLevel}, ursprüngliche Punkte bleiben erhalten)`;
+    let message = t('powerups.newWordMsg', {
+        word: getPromptText(newWord),
+        level: targetLevel
+    });
     
     if (newWord.isPhrase) {
         if (targetLevel === 5) {
-            message = `Vereinfacht auf einen Satz mit drei Wörtern (Stufe ${targetLevel}, ursprüngliche Punkte bleiben erhalten)`;
+            message = t('powerups.simplifiedThreeWord', { level: targetLevel });
         } else if (targetLevel === 4) {
-            message = `Vereinfacht auf einen Ausdruck mit zwei Wörtern (Stufe ${targetLevel}, ursprüngliche Punkte bleiben erhalten)`;
+            message = t('powerups.simplifiedTwoWord', { level: targetLevel });
         } else {
-            message = `Vereinfacht auf einen kürzeren Ausdruck (Stufe ${targetLevel}, ursprüngliche Punkte bleiben erhalten)`;
+            message = t('powerups.simplifiedShortPhrase', { level: targetLevel });
         }
     } else {
-        message = `Vereinfacht auf ein Einzelwort (Stufe ${targetLevel}, ursprüngliche Punkte bleiben erhalten)`;
+        message = t('powerups.simplifiedSingleWord', { level: targetLevel });
     }
     
     toast({
-        title: "Wort vereinfacht",
+        title: t('powerups.wordSimplifiedTitle'),
         description: message,
         variant: "default"
     });

@@ -66,6 +66,7 @@ const DEFAULT_HIGH_SCORE_SEED = [
 
 // High scores list persisted in localStorage.
 let highScores = [];
+let latestDataLoadErrorMessage = null;
 
 function normalizeHighScoreName(rawName) {
     if (typeof rawName !== 'string') return '';
@@ -262,6 +263,29 @@ function getStartScreenApi() {
         : null;
 }
 
+function getI18nApi() {
+    return window.HebrewGame && window.HebrewGame.i18n
+        ? window.HebrewGame.i18n
+        : null;
+}
+
+function t(key, vars) {
+    const i18nApi = getI18nApi();
+    if (i18nApi && typeof i18nApi.t === 'function') {
+        return i18nApi.t(key, vars);
+    }
+    return key;
+}
+
+function updateStartButtonState(startButton, dataReady, errorMessage) {
+    if (!startButton) return;
+    startButton.disabled = !dataReady;
+    startButton.textContent = dataReady
+        ? t('start.startButton')
+        : (errorMessage ? t('start.wordsLoadFailButton') : t('start.loadingWords'));
+    startButton.removeAttribute('aria-busy');
+}
+
 // Toast function for notifications
 function toast({title, description, variant = "default"}) {
     // Create a toast element
@@ -300,7 +324,7 @@ function initializeGame() {
     if (startButton) {
         startButton.addEventListener('click', startGame);
         startButton.disabled = true;
-        startButton.textContent = 'Wörter werden geladen...';
+        startButton.textContent = t('start.loadingWords');
         startButton.setAttribute('aria-busy', 'true');
     }
     document.getElementById('use-powerup').addEventListener('click', togglePowerUpsPanel);
@@ -355,24 +379,31 @@ function initializeGame() {
     window.addEventListener('hebrewGame:dataReady', function onDataReady(event) {
         gameState.dataReady = !!(event.detail && event.detail.ready);
         const errorMessage = event.detail && event.detail.error;
+        latestDataLoadErrorMessage = errorMessage || null;
         if (!gameState.dataReady && errorMessage) {
             toast({
-                title: "Wortliste konnte nicht geladen werden",
+                title: t('start.wordsLoadFailTitle'),
                 description: errorMessage,
                 variant: "destructive"
             });
         }
-        if (!startButton) return;
-
-        startButton.disabled = !gameState.dataReady;
-        startButton.textContent = gameState.dataReady
-            ? 'Spiel starten'
-            : (errorMessage ? 'Wörter konnten nicht geladen werden' : 'Wörter werden geladen...');
-        startButton.removeAttribute('aria-busy');
+        updateStartButtonState(startButton, gameState.dataReady, errorMessage);
 
         if (gameState.dataReady) {
-            announceToScreenReader('Wortliste geladen. Du kannst das Spiel starten.');
+            announceToScreenReader(t('start.wordsLoadedAnnounce'));
         }
+    });
+
+    window.addEventListener('hebrewGame:languageChanged', function onLanguageChanged() {
+        updateStartButtonState(startButton, gameState.dataReady, latestDataLoadErrorMessage);
+        if (
+            window.HebrewGame &&
+            window.HebrewGame.ui &&
+            typeof window.HebrewGame.ui.updateMainBattleTitle === 'function'
+        ) {
+            window.HebrewGame.ui.updateMainBattleTitle();
+        }
+        displayHighScores();
     });
 
     if (
@@ -498,7 +529,7 @@ function displayEnhancedHighScores() {
         // No high scores yet
         const noScores = document.createElement('div');
         noScores.className = 'high-score-empty pixel-chip';
-        noScores.textContent = 'Noch keine Highscores. Sei die erste Person!';
+        noScores.textContent = t('highscores.empty');
         highScoresList.appendChild(noScores);
     }
 }
@@ -507,8 +538,8 @@ function displayEnhancedHighScores() {
 function startGame() {
     if (!gameState.dataReady) {
         toast({
-            title: "Noch am Laden",
-            description: "Die Wortlisten werden noch geladen. Bitte kurz warten.",
+            title: t('start.loadingToastTitle'),
+            description: t('start.loadingToastDesc'),
             variant: "destructive"
         });
         return;

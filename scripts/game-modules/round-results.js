@@ -52,6 +52,20 @@ const STATUS_SPARKLE_ICONS = Object.freeze({
 
 let roundResultsAnimationToken = 0;
 
+function getI18nApi() {
+    return window.HebrewGame && window.HebrewGame.i18n
+        ? window.HebrewGame.i18n
+        : null;
+}
+
+function t(key, vars) {
+    const i18nApi = getI18nApi();
+    if (i18nApi && typeof i18nApi.t === 'function') {
+        return i18nApi.t(key, vars);
+    }
+    return key;
+}
+
 function getRankColorClass(playerRank) {
     if (playerRank === 1) return 'gold';
     if (playerRank === 2) return 'silver';
@@ -80,10 +94,10 @@ function getResultState(playerRank, isEliminated) {
 }
 
 function getStatusMessage(resultState) {
-    if (resultState === ROUND_RESULT_STATE.ELIMINATED) return 'In dieser Runde ausgeschieden';
-    if (resultState === ROUND_RESULT_STATE.CHAMPION) return 'Rundensieger! Platz 1';
-    if (resultState === ROUND_RESULT_STATE.TOP3) return 'Stark! Podiumsplatz';
-    return 'Du kommst weiter!';
+    if (resultState === ROUND_RESULT_STATE.ELIMINATED) return t('results.state.eliminated');
+    if (resultState === ROUND_RESULT_STATE.CHAMPION) return t('results.state.champion');
+    if (resultState === ROUND_RESULT_STATE.TOP3) return t('results.state.top3');
+    return t('results.state.survived');
 }
 
 function setCountupValue(element, value, suffix) {
@@ -252,13 +266,13 @@ function renderRankingHeroName(hero, isPlayer) {
         });
     }
     const fallbackName = hero && hero.name ? hero.name : '';
-    return `<span class="ranking-name-text">${escapeUiText(fallbackName)}${isPlayer ? ' (Du)' : ''}</span>`;
+    return `<span class="ranking-name-text">${escapeUiText(fallbackName)}${isPlayer ? ` (${escapeUiText(t('label.you'))})` : ''}</span>`;
 }
 
 function createRankingItem(hero, rankIndex, isPlayer, roundIndex) {
     const roundScore = hero.roundScores[roundIndex] || 0;
     const eliminatedBadge = hero.eliminated
-        ? '<span class="ranking-eliminated-badge" aria-label="Ausgeschieden">RAUS</span>'
+        ? `<span class="ranking-eliminated-badge" aria-label="${escapeUiText(t('results.outBadgeAria'))}">${escapeUiText(t('results.outBadge'))}</span>`
         : '';
     const item = document.createElement('div');
     item.className = `ranking-item ${isPlayer ? 'player' : ''}${hero.eliminated ? ' ranking-eliminated' : ''}`;
@@ -354,27 +368,27 @@ function displayRoundResults(payload) {
                 <div class="rank-display ${rankClass} state-${resultState} pixel-frame-steel">
                     <div class="rank-number" data-countup-key="rank" data-countup-value="${playerRank}">${playerRank}</div>
                     <div class="rank-text">
-                        <div class="rank-text-label">Dein Rang</div>
+                        <div class="rank-text-label">${t('results.rankLabel')}</div>
                         <div class="rank-text-value">${playerRank} / ${totalContestants}</div>
                     </div>
-                    <div class="rank-details pixel-chip">Punkte: ${playerScore}</div>
+                    <div class="rank-details pixel-chip">${t('results.points')}: ${playerScore}</div>
                 </div>
             </div>
             <div class="reward-container">
                 <div class="reward-item reward-item--points pixel-frame-parchment">
                     <div class="reward-icon">${renderResultIcon('badge-bronze')}</div>
-                    <div class="reward-label pixel-title-plate">Rundenpunkte</div>
-                    <div class="reward-value pixel-chip" data-countup-key="points" data-countup-value="${roundScore}" data-countup-suffix=" Punkte">${roundScore} Punkte</div>
+                    <div class="reward-label pixel-title-plate">${t('results.roundPoints')}</div>
+                    <div class="reward-value pixel-chip" data-countup-key="points" data-countup-value="${roundScore}" data-countup-suffix="${t('results.pointsSuffix')}">${roundScore}${t('results.pointsSuffix')}</div>
                 </div>
                 <div class="reward-item reward-item--earned pixel-frame-parchment">
                     <div class="reward-icon">${renderResultIcon('coin')}</div>
-                    <div class="reward-label pixel-title-plate">Verdiente Münzen</div>
-                    <div class="reward-value pixel-chip" data-countup-key="earned" data-countup-value="${roundCoinsEarned}" data-countup-suffix=" Münzen">${roundCoinsEarned} Münzen</div>
+                    <div class="reward-label pixel-title-plate">${t('results.coinsEarnedLabel')}</div>
+                    <div class="reward-value pixel-chip" data-countup-key="earned" data-countup-value="${roundCoinsEarned}" data-countup-suffix="${t('results.coinsSuffix')}">${roundCoinsEarned}${t('results.coinsSuffix')}</div>
                 </div>
                 <div class="reward-item reward-item--total pixel-frame-parchment">
                     <div class="reward-icon">${renderResultIcon('badge-cream')}</div>
-                    <div class="reward-label pixel-title-plate">Gesamtmünzen</div>
-                    <div class="reward-value pixel-chip" data-countup-key="total" data-countup-value="${playerCoins}" data-countup-suffix=" Münzen">${playerCoins} Münzen</div>
+                    <div class="reward-label pixel-title-plate">${t('results.totalCoins')}</div>
+                    <div class="reward-value pixel-chip" data-countup-key="total" data-countup-value="${playerCoins}" data-countup-suffix="${t('results.coinsSuffix')}">${playerCoins}${t('results.coinsSuffix')}</div>
                 </div>
             </div>
         `;
@@ -399,12 +413,12 @@ function displayRoundResults(payload) {
     if (nextRoundBtn) {
         nextRoundBtn.disabled = false;
         if (isEliminated) {
-            nextRoundBtn.textContent = 'Ausgeschieden';
+            nextRoundBtn.textContent = t('results.eliminatedButton');
             nextRoundBtn.disabled = true;
         } else if (currentRound === maxRounds) {
-            nextRoundBtn.textContent = 'Finale Ergebnisse';
+            nextRoundBtn.textContent = t('results.finalResultsButton');
         } else {
-            nextRoundBtn.textContent = 'Nächste Runde';
+            nextRoundBtn.textContent = t('results.nextRound');
         }
     }
 }

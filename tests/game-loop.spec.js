@@ -162,7 +162,7 @@ test.describe('Tournament game loop', () => {
     });
 
     await page.goto('/');
-    await expect(page.getByRole('heading', { name: /1\s*gegen\s*95/i })).toBeVisible();
+    await expect(page.getByRole('heading', { name: /1\s*(vs|gegen)\s*95/i })).toBeVisible();
     await page.waitForFunction(() => {
       const state = window.HebrewGame?.debug?.getGameState?.();
       return !!state && state.dataReady === true;

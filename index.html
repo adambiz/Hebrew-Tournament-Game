@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>1 gegen 95 - Hebräisch-Lernspiel</title>
+    <title>1 vs 95 - Hebrew Learning Game</title>
     <link rel="stylesheet" href="styles/main.css">
     <script>
         window.DEBUG_UI = false;
@@ -21,7 +21,7 @@
         <div id="game-title">
             <h1 class="pixel-title-plate pixel-title-plate-hero">
                 <span class="pixel-flag pixel-flag--lg" aria-hidden="true"></span>
-                <span id="main-battle-title"><span class="title-number title-number-player">1</span> gegen <span class="title-number title-number-current">95</span></span>
+                <span id="main-battle-title"><span class="title-number title-number-player">1</span> vs <span class="title-number title-number-current">95</span></span>
             </h1>
         </div>
                 
@@ -31,29 +31,36 @@
                 <section class="start-panel player-panel pixel-panel pixel-panel-parchment pixel-frame-parchment" data-role="start-player">
                     <h2 class="pixel-title-plate">
                         <span class="pixel-flag pixel-flag--md" aria-hidden="true"></span>
-                        <span>Erstelle deinen Champion</span>
+                        <span data-i18n-key="start.createChampion">Create Your Champion</span>
                     </h2>
-                    <p class="start-panel-copy">Wähle deinen Held*innennamen und betrete die Arena.</p>
+                    <p class="start-panel-copy" data-i18n-key="start.panelCopy">Choose your hero name and enter the arena.</p>
                     <div class="input-container">
-                        <input type="text" id="player-name" class="pixel-chip" maxlength="20" placeholder="Gib deinen Held*innennamen ein" aria-label="Spielername">
-                        <button id="start-button" aria-label="Spiel starten">Spiel starten</button>
+                        <div class="language-picker pixel-chip">
+                            <span class="language-picker-label" data-i18n-key="language.label">Language</span>
+                            <div class="language-toggle-group" role="radiogroup" data-i18n-aria-label="language.label" aria-label="Language">
+                                <button id="language-btn-en" type="button" class="language-toggle-button" data-language="en" role="radio" aria-checked="true" data-i18n-key="language.english">English</button>
+                                <button id="language-btn-de" type="button" class="language-toggle-button" data-language="de" role="radio" aria-checked="false" data-i18n-key="language.german">Deutsch</button>
+                            </div>
+                        </div>
+                        <input type="text" id="player-name" class="pixel-chip" maxlength="20" data-i18n-placeholder="start.playerNamePlaceholder" data-i18n-aria-label="start.playerNameAria" placeholder="Enter your hero name" aria-label="Player name">
+                        <button id="start-button" data-i18n-key="start.startButton" data-i18n-aria-label="start.startButtonAria" aria-label="Start game">Start Game</button>
                         <div id="avatar-selection" class="avatar-selection pixel-frame-steel" data-testid="avatar-selection">
                             <div class="avatar-selection-header">
-                                <span class="avatar-selection-label">Wähle dein Avatar</span>
-                                <button id="shuffle-avatars" type="button" class="avatar-shuffle-button game-button" aria-label="Weitere Avatare zeigen">Mehr Avatare</button>
+                                <span class="avatar-selection-label" data-i18n-key="start.avatarSelectLabel">Choose your avatar</span>
+                                <button id="shuffle-avatars" type="button" class="avatar-shuffle-button game-button" data-i18n-key="start.moreAvatars" data-i18n-aria-label="start.moreAvatarsAria" aria-label="Show more avatars">More Avatars</button>
                             </div>
                             <div class="avatar-selected-preview">
-                                <img id="selected-avatar-preview" class="hero-avatar hero-avatar-selected-preview" src="" alt="Ausgewählter Avatar">
+                                <img id="selected-avatar-preview" class="hero-avatar hero-avatar-selected-preview" src="" alt="Selected avatar">
                                 <span id="selected-avatar-label" class="pixel-chip">Avatar #1</span>
                             </div>
-                            <div id="player-avatar-grid" class="avatar-grid" role="radiogroup" aria-label="Avatar auswählen"></div>
+                            <div id="player-avatar-grid" class="avatar-grid" role="radiogroup" data-i18n-aria-label="start.avatarGridAria" aria-label="Choose avatar"></div>
                         </div>
                     </div>
                 </section>
                 <section class="start-panel scores-panel pixel-panel pixel-panel-steel pixel-frame-steel" data-role="start-high-scores">
                     <h3 class="pixel-title-plate">
                         <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
-                        <span>Top-Champions</span>
+                        <span data-i18n-key="start.topChampions">Top Champions</span>
                     </h3>
                     <div id="high-scores-list" data-testid="high-scores-list">
                         <!-- High scores will be loaded here -->
@@ -61,8 +68,8 @@
                 </section>
             </div>
             <div id="tts-debug-entrypoint">
-                <button id="open-tts-debug" type="button" class="debug-link-button" aria-label="TTS-Debugmodus öffnen">
-                    TTS Debug
+                <button id="open-tts-debug" type="button" class="debug-link-button" data-i18n-key="ttsDebug.title" data-i18n-aria-label="ttsDebug.openAria" aria-label="Open TTS debug mode">
+                    TTS Debug Review
                 </button>
             </div>
             <div id="tts-debug-panel" class="tts-debug-panel hidden" aria-hidden="true">
@@ -70,21 +77,19 @@
                     <div class="tts-debug-header">
                         <h3 id="tts-debug-title" class="pixel-title-plate">
                             <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
-                            <span>TTS Debug Review</span>
+                            <span data-i18n-key="ttsDebug.title">TTS Debug Review</span>
                         </h3>
-                        <button id="close-tts-debug" type="button" class="game-button close-overlay-button" aria-label="TTS-Debugmodus schließen">
-                            Schließen
+                        <button id="close-tts-debug" type="button" class="game-button close-overlay-button" data-i18n-key="ttsDebug.close" data-i18n-aria-label="ttsDebug.closeAria" aria-label="Close TTS debug mode">
+                            Close
                         </button>
                     </div>
-                    <p class="tts-debug-copy">
-                        Spiele alle Einträge ab, markiere problematische Aussprachen und kopiere danach die markierte Liste.
-                    </p>
+                    <p class="tts-debug-copy" data-i18n-key="ttsDebug.copy">Play all entries, mark problematic pronunciations, then copy the flagged list.</p>
                     <div class="tts-debug-controls">
-                        <input id="tts-debug-filter" type="text" class="pixel-chip" placeholder="Filtern (Deutsch / Hebräisch / Runde)" aria-label="TTS-Debugliste filtern">
-                        <button id="tts-debug-copy-flagged" type="button" class="game-button">Markierte kopieren</button>
-                        <button id="tts-debug-clear-flagged" type="button" class="game-button">Markierungen löschen</button>
+                        <input id="tts-debug-filter" type="text" class="pixel-chip" data-i18n-placeholder="ttsDebug.filterPlaceholder" data-i18n-aria-label="ttsDebug.filterAria" placeholder="Filter (German / English / Hebrew / Round)" aria-label="Filter TTS debug list">
+                        <button id="tts-debug-copy-flagged" type="button" class="game-button" data-i18n-key="ttsDebug.copyFlagged">Copy Flagged</button>
+                        <button id="tts-debug-clear-flagged" type="button" class="game-button" data-i18n-key="ttsDebug.clearFlagged">Clear Flags</button>
                     </div>
-                    <div id="tts-debug-status" class="pixel-chip" aria-live="polite">Bereit.</div>
+                    <div id="tts-debug-status" class="pixel-chip" aria-live="polite" data-i18n-key="ttsDebug.ready">Ready.</div>
                     <div id="tts-debug-list" class="tts-debug-list"></div>
                 </div>
             </div>
@@ -95,12 +100,12 @@
             <div id="round-info" data-role="round-header">
                 <h2 class="pixel-title-plate">
                     <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
-                    <span>Runde <span id="current-round">1</span></span>
+                    <span><span data-i18n-key="round.label">Round</span> <span id="current-round">1</span></span>
                 </h2>
                 <div id="player-info">
                     <div id="player-name-display"></div>
-                    <div id="player-score-display" class="pixel-chip">Punkte: <span id="current-score">0</span></div>
-                    <div id="player-coins" class="pixel-chip">Münzen: <span id="coin-count">0</span></div>
+                    <div id="player-score-display" class="pixel-chip"><span data-i18n-key="round.scoreLabel">Score</span>: <span id="current-score">0</span></div>
+                    <div id="player-coins" class="pixel-chip"><span data-i18n-key="round.coinsLabel">Coins</span>: <span id="coin-count">0</span></div>
                 </div>
             </div>
 
@@ -110,22 +115,22 @@
 
             <div id="word-challenge" class="pixel-panel pixel-panel-parchment pixel-frame-parchment" data-role="word-challenge">
                 <div id="word-header-row">
-                    <div id="german-word" class="pixel-title-plate">Wort</div>
-                    <div id="tts-controls" aria-label="Vorlese-Steuerung">
-                        <button id="play-hebrew-audio" class="game-button pixel-button-steel" aria-label="Hebräischen Text vorlesen">
+                    <div id="german-word" class="pixel-title-plate" data-i18n-key="round.promptPlaceholder">Word</div>
+                    <div id="tts-controls" data-i18n-aria-label="round.ttsControlsAria" aria-label="Read-aloud controls">
+                        <button id="play-hebrew-audio" class="game-button pixel-button-steel" data-i18n-aria-label="round.playHebrewAria" aria-label="Read Hebrew text">
                             <span class="play-icon" aria-hidden="true"></span>
-                            <span class="play-label">Vorlesen</span>
+                            <span class="play-label" data-i18n-key="round.playLabel">Read</span>
                         </button>
-                        <button id="toggle-auto-read" class="game-button" aria-label="Automatisches Vorlesen umschalten" aria-pressed="true">
-                            <span class="toggle-label">Auto</span>
+                        <button id="toggle-auto-read" class="game-button" data-i18n-aria-label="round.autoToggleAria" aria-label="Toggle auto-read" aria-pressed="true">
+                            <span class="toggle-label" data-i18n-key="round.autoLabel">Auto</span>
                             <span class="toggle-switch" aria-hidden="true">
                                 <span class="toggle-knob"></span>
                             </span>
                         </button>
                     </div>
                 </div>
-                <div id="hebrew-word-input" dir="rtl" tabindex="0" aria-label="Hebräisches Antwortfeld"></div>
-                <div id="current-word-counter" class="pixel-chip">Wort 1 von 5</div>
+                <div id="hebrew-word-input" dir="rtl" tabindex="0" data-i18n-aria-label="round.answerFieldAria" aria-label="Hebrew answer field"></div>
+                <div id="current-word-counter" class="pixel-chip">Word 1 of 5</div>
             </div>
 
             <div id="hebrew-keyboard" class="pixel-panel pixel-panel-steel pixel-frame-steel" data-role="hebrew-keyboard" data-testid="hebrew-keyboard">
@@ -133,8 +138,8 @@
             </div>
 
             <div id="mobile-action-bar" class="pixel-panel pixel-panel-steel pixel-frame-steel" data-role="action-bar">
-                <button id="use-powerup" class="game-button" aria-label="Bonusmenü öffnen">Boni</button>
-                <button id="submit-word" class="submit-button" disabled aria-label="Antwort prüfen">Antwort prüfen</button>
+                <button id="use-powerup" class="game-button" data-i18n-key="round.powerups" data-i18n-aria-label="round.powerupsOpenAria" aria-label="Open power-up menu">Power-Ups</button>
+                <button id="submit-word" class="submit-button" disabled data-i18n-key="round.submit" data-i18n-aria-label="round.submitAria" aria-label="Check answer">Check Answer</button>
                 <div id="powerups-panel" class="hidden" data-testid="powerups-panel">
                     <!-- Powerups will be shown here -->
                 </div>
@@ -143,19 +148,19 @@
             <div id="tournament-progress" class="pixel-panel pixel-panel-steel pixel-frame-steel" data-role="tournament-progress">
                 <div class="tournament-info-container">
                     <div class="tournament-badge pixel-chip">
-                        <div class="badge-title">Runde</div>
+                        <div class="badge-title" data-i18n-key="round.label">Round</div>
                         <div class="badge-value" id="current-round-badge">1</div>
-                        <div class="badge-subtitle">von 6</div>
+                        <div class="badge-subtitle" data-i18n-key="round.ofSix">of 6</div>
                     </div>
                     
                     <div class="tournament-badge pixel-chip">
-                        <div class="badge-title">Helden</div>
+                        <div class="badge-title" data-i18n-key="round.heroes">Heroes</div>
                         <div class="badge-value" id="heroes-remaining">96</div>
-                        <div class="badge-subtitle">übrig</div>
+                        <div class="badge-subtitle" data-i18n-key="round.remaining">remaining</div>
                     </div>
                     
                     <div class="player-rank-badge pixel-chip">
-                        <div class="badge-title">Dein Rang</div>
+                        <div class="badge-title" data-i18n-key="round.yourRank">Your Rank</div>
                         <div class="badge-value" id="player-current-rank">--</div>
                     </div>
                 </div>
@@ -163,7 +168,7 @@
                 <div class="champions-container pixel-frame-steel">
                     <div class="champions-title pixel-title-plate">
                         <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
-                        <span>Top-Champions</span>
+                        <span data-i18n-key="start.topChampions">Top Champions</span>
                     </div>
                     <div id="top-champions"></div>
                 </div>
@@ -174,7 +179,7 @@
         <div id="round-results" class="game-screen hidden pixel-panel pixel-panel-steel pixel-frame-steel" data-screen="results" data-testid="round-results-screen">
             <h2 class="pixel-title-plate">
                 <span class="pixel-flag pixel-flag--md" aria-hidden="true"></span>
-                <span>Runde <span id="completed-round">1</span> abgeschlossen!</span>
+                <span><span data-i18n-key="round.label">Round</span> <span id="completed-round">1</span> <span data-i18n-key="results.completedSuffix">completed!</span></span>
             </h2>
             
             <!-- Key information container -->
@@ -184,10 +189,10 @@
             
             <!-- Original player results (hidden but needed for data storage) -->
             <div id="player-results" class="hidden">
-                <h3>Gesamtpunkte: <span id="player-score">0</span></h3>
-                <p>Diese Runde: <span id="round-score">0</span></p>
-                <p>Verdiente Münzen: <span id="coins-earned">0</span></p>
-                <p>Deine Münzen: <span id="store-coins">0</span></p>
+                <h3><span data-i18n-key="results.totalScorePrefix">Total score:</span> <span id="player-score">0</span></h3>
+                <p><span data-i18n-key="results.thisRoundPrefix">This round:</span> <span id="round-score">0</span></p>
+                <p><span data-i18n-key="results.coinsEarnedPrefix">Coins earned:</span> <span id="coins-earned">0</span></p>
+                <p><span data-i18n-key="results.yourCoinsPrefix">Your coins:</span> <span id="store-coins">0</span></p>
             </div>
 
             <!-- Rankings section -->
@@ -206,7 +211,7 @@
 
             <!-- Next round info -->
             <div id="next-round-info">
-                <h3 class="next-round-title">Als Nächstes: Runde <span id="next-round-number">2</span></h3>
+                <h3 class="next-round-title"><span data-i18n-key="round.nextUpPrefix">Up Next: Round</span> <span id="next-round-number">2</span></h3>
                 <div id="next-round-description" class="next-round-description">
                     <!-- Will be filled dynamically -->
                 </div>
@@ -214,8 +219,8 @@
 
             <!-- Buttons for next steps -->
                 <div class="round-buttons-container pixel-frame-steel">
-                    <button id="visit-store" class="game-button visit-store-button" aria-label="Shop öffnen">Shop öffnen</button>
-                    <button id="next-round" class="game-button" aria-label="Zur nächsten Runde">Nächste Runde</button>
+                    <button id="visit-store" class="game-button visit-store-button" data-i18n-key="results.openShop" data-i18n-aria-label="results.openShopAria" aria-label="Open shop">Open Shop</button>
+                    <button id="next-round" class="game-button" data-i18n-key="results.nextRound" data-i18n-aria-label="results.nextRoundAria" aria-label="Go to next round">Next Round</button>
                 </div>
         </div>
 
@@ -223,13 +228,13 @@
         <div id="game-over" class="game-screen hidden pixel-panel pixel-panel-steel pixel-frame-steel" data-screen="game-over" data-testid="game-over-screen">
             <h2 id="game-result" class="pixel-title-plate">
                 <span class="pixel-flag pixel-flag--md" aria-hidden="true"></span>
-                <span class="game-result-title">Turnier abgeschlossen!</span>
+                <span class="game-result-title" data-i18n-key="final.tournamentCompleteTitle">Tournament complete!</span>
             </h2>
             <p id="game-result-copy" class="game-result-copy"></p>
-            <section id="final-podium" class="pixel-frame-parchment" aria-label="Top 3 im Finale">
+            <section id="final-podium" class="pixel-frame-parchment" data-i18n-aria-label="final.podiumAria" aria-label="Top 3 in final">
                 <h3 class="pixel-title-plate">
                     <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
-                    <span>Finales Podium</span>
+                    <span data-i18n-key="final.podiumTitle">Final Podium</span>
                 </h3>
                 <div id="final-podium-list"></div>
             </section>
@@ -237,30 +242,30 @@
             <div id="final-results" class="pixel-frame-parchment">
                 <h3 class="pixel-title-plate">
                     <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
-                    <span>Finale Punktejagd</span>
+                    <span data-i18n-key="final.scoreHunt">Final Score Hunt</span>
                 </h3>
                 <div class="final-score-grid">
                     <div class="final-score-row">
-                        <span class="final-score-label">Basispunkte</span>
+                        <span class="final-score-label" data-i18n-key="final.baseScore">Base score</span>
                         <span id="final-base-score" class="final-score-reel">0</span>
                     </div>
                     <div class="final-score-row final-bonus-row">
-                        <span class="final-score-label">Münzbonus (<span id="final-bonus-coins">0</span> x 2)</span>
+                        <span class="final-score-label"><span data-i18n-key="final.coinBonusPrefix">Coin bonus (</span><span id="final-bonus-coins">0</span><span data-i18n-key="final.coinBonusSuffix"> x 2)</span></span>
                         <span id="final-coin-bonus" class="final-score-reel">0</span>
                     </div>
                     <div class="final-score-row final-total-row">
-                        <span class="final-score-label">Endsumme</span>
+                        <span class="final-score-label" data-i18n-key="final.total">Final total</span>
                         <span id="final-total-score" class="final-score-reel">0</span>
                     </div>
                 </div>
-                <p class="final-rank-text">Endrang: <span id="final-rank">0 von 96</span></p>
+                <p class="final-rank-text"><span data-i18n-key="final.rankPrefix">Final rank:</span> <span id="final-rank">0 of 96</span></p>
                 <span id="final-score" class="sr-only">0</span>
             </div>
 
             <div id="high-score-entry" class="hidden pixel-frame-parchment">
                 <h3 class="pixel-title-plate">
                     <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
-                    <span>Neuer Highscore!</span>
+                    <span data-i18n-key="final.newHighscore">New High Score!</span>
                 </h3>
                 <div id="high-score-details"></div>
             </div>
@@ -268,7 +273,7 @@
             <div id="final-comparison-section" class="hidden pixel-frame-parchment">
                 <h3 class="pixel-title-plate">
                     <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
-                    <span>Punkte-Rennen der Finalisten</span>
+                    <span data-i18n-key="final.finalistsRace">Finalists Score Race</span>
                 </h3>
                 <div id="final-comparison-list">
                     <!-- Finalists points comparison -->
@@ -278,18 +283,19 @@
             <div id="final-high-scores" class="pixel-frame-parchment">
                 <h3 class="pixel-title-plate">
                     <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
-                    <span>Meisterschaftsrangliste</span>
+                    <span data-i18n-key="final.championshipLeaderboard">Championship Leaderboard</span>
                 </h3>
                 <div id="final-high-scores-list">
                     <!-- High scores will be shown here -->
                 </div>
             </div>
 
-            <button id="play-again" class="game-button" aria-label="Nochmal spielen">Nochmal spielen</button>
+            <button id="play-again" class="game-button" data-i18n-key="final.playAgain" data-i18n-aria-label="final.playAgainAria" aria-label="Play again">Play Again</button>
         </div>
     </div>
 
 <!-- Scripts -->
+<script src="scripts/i18n.js"></script>
 <script src="scripts/fallback-word-lists.js"></script>
 <script src="scripts/new-word-lists-loader.js"></script>
 <script src="scripts/heroes.js"></script>

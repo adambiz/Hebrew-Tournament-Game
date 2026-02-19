@@ -55,7 +55,7 @@ async function readState(page) {
 
 async function waitForReady(page) {
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: /1\s*gegen\s*95/i })).toBeVisible();
+  await expect(page.getByRole('heading', { name: /1\s*(vs|gegen)\s*95/i })).toBeVisible();
   await page.waitForFunction(() => {
     const state = window.HebrewGame?.debug?.getGameState?.();
     return !!state && state.dataReady === true;
@@ -309,6 +309,25 @@ async function renderSyntheticRoundResults(page, options = {}) {
       window.showScreen('round-results');
     }
   }, payload);
+}
+
+async function assertResultSparkles(page, expectsSparkles) {
+  const sparkleBurst = page.locator('#key-results-container .results-sparkle-burst');
+  const sparkleNodes = page.locator('#key-results-container .results-sparkle');
+
+  if (!expectsSparkles) {
+    await expect(sparkleBurst).toHaveCount(0);
+    await expect(sparkleNodes).toHaveCount(0);
+    return;
+  }
+
+  await expect
+    .poll(async () => {
+      return page.evaluate(() => {
+        return document.querySelectorAll('#key-results-container .results-sparkle').length;
+      });
+    }, { timeout: 1200 })
+    .toBeGreaterThan(0);
 }
 
 async function collectVisibleTextProtrusionIssues(page, selector) {
@@ -607,6 +626,9 @@ test.describe('Regression QA and stability hardening', () => {
   test('applies result-state markers, survivor celebration, and hierarchy cues', async ({ page }) => {
     await waitForReady(page);
     await startGame(page, 'Result State QA');
+    const expectsSparkles = await page.evaluate(() => {
+      return !(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+    });
 
     await renderSyntheticRoundResults(page, {
       playerRank: 1,
@@ -617,13 +639,11 @@ test.describe('Regression QA and stability hardening', () => {
       playerCoins: 14
     });
     await expect(page.locator('#round-results')).not.toHaveClass(/hidden/);
+    await assertResultSparkles(page, expectsSparkles);
 
     await expect(page.locator('#round-results')).toHaveAttribute('data-result-state', 'champion');
     await expect(page.locator('#key-results-container')).toHaveAttribute('data-result-state', 'champion');
-    await expect(page.locator('#key-results-container .status-message')).toContainText('Rundensieger! Platz 1');
-    await expect(page.locator('#key-results-container .results-sparkle-burst')).toHaveCount(1);
-    const championSparkles = await page.locator('#key-results-container .results-sparkle').count();
-    expect(championSparkles).toBeGreaterThan(0);
+    await expect(page.locator('#key-results-container .status-message')).toContainText('Round winner! Rank 1');
 
     const hierarchyStats = await page.evaluate(() => {
       const statusMessage = document.querySelector('#key-results-container .status-message');
@@ -656,12 +676,10 @@ test.describe('Regression QA and stability hardening', () => {
       roundCoinsEarned: 6,
       playerCoins: 20
     });
+    await assertResultSparkles(page, expectsSparkles);
     await expect(page.locator('#round-results')).toHaveAttribute('data-result-state', 'top3');
     await expect(page.locator('#key-results-container')).toHaveAttribute('data-result-state', 'top3');
-    await expect(page.locator('#key-results-container .status-message')).toContainText('Stark! Podiumsplatz');
-    await expect(page.locator('#key-results-container .results-sparkle-burst')).toHaveCount(1);
-    const top3Sparkles = await page.locator('#key-results-container .results-sparkle').count();
-    expect(top3Sparkles).toBeGreaterThan(0);
+    await expect(page.locator('#key-results-container .status-message')).toContainText('Great! Podium finish');
 
     await renderSyntheticRoundResults(page, {
       playerRank: 9,
@@ -671,12 +689,10 @@ test.describe('Regression QA and stability hardening', () => {
       roundCoinsEarned: 3,
       playerCoins: 23
     });
+    await assertResultSparkles(page, expectsSparkles);
     await expect(page.locator('#round-results')).toHaveAttribute('data-result-state', 'survived');
     await expect(page.locator('#key-results-container')).toHaveAttribute('data-result-state', 'survived');
-    await expect(page.locator('#key-results-container .status-message')).toContainText('Du kommst weiter!');
-    await expect(page.locator('#key-results-container .results-sparkle-burst')).toHaveCount(1);
-    const survivedSparkles = await page.locator('#key-results-container .results-sparkle').count();
-    expect(survivedSparkles).toBeGreaterThan(0);
+    await expect(page.locator('#key-results-container .status-message')).toContainText('You advance!');
 
     await renderSyntheticRoundResults(page, {
       playerRank: 12,
@@ -688,7 +704,7 @@ test.describe('Regression QA and stability hardening', () => {
     });
     await expect(page.locator('#round-results')).toHaveAttribute('data-result-state', 'eliminated');
     await expect(page.locator('#key-results-container')).toHaveAttribute('data-result-state', 'eliminated');
-    await expect(page.locator('#key-results-container .status-message')).toContainText('In dieser Runde ausgeschieden');
+    await expect(page.locator('#key-results-container .status-message')).toContainText('Eliminated this round');
     await expect(page.locator('#next-round')).toBeDisabled();
     await expect(page.locator('#key-results-container .results-sparkle-burst')).toHaveCount(0);
   });

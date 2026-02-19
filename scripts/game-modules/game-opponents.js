@@ -2,6 +2,20 @@
  * Opponent simulation functions
  */
 
+function getI18nApi() {
+    return window.HebrewGame && window.HebrewGame.i18n
+        ? window.HebrewGame.i18n
+        : null;
+}
+
+function t(key, vars) {
+    const i18nApi = getI18nApi();
+    if (i18nApi && typeof i18nApi.t === 'function') {
+        return i18nApi.t(key, vars);
+    }
+    return key;
+}
+
 // Simulate opponent progress for the current word
 function simulateOpponentProgress(maxPointsPossible) {
     // Only simulate for active opponents
@@ -374,8 +388,8 @@ function simulateOpponentProgress(maxPointsPossible) {
                 
                 setTimeout(() => {
                     toast({
-                        title: "Brauchst du einen Schub?",
-                        description: "Nutze Boni, um dir einen Vorteil gegenüber der Konkurrenz zu verschaffen.",
+                        title: t('opponents.boostTitle'),
+                        description: t('opponents.boostDesc'),
                         variant: "default"
                     });
                 }, 1000);

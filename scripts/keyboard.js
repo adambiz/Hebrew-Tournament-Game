@@ -15,6 +15,20 @@ let currentKeydownHandler = null;
 // Track if the keyboard has been initialized already
 let isKeyboardInitialized = false;
 
+function getI18nApi() {
+    return window.HebrewGame && window.HebrewGame.i18n
+        ? window.HebrewGame.i18n
+        : null;
+}
+
+function t(key, vars) {
+    const i18nApi = getI18nApi();
+    if (i18nApi && typeof i18nApi.t === 'function') {
+        return i18nApi.t(key, vars);
+    }
+    return key;
+}
+
 // Initialize the Hebrew keyboard
 function initializeKeyboard(containerId, onKeyPress) {
     const keyboardContainer = document.getElementById(containerId);
@@ -41,7 +55,7 @@ function initializeKeyboard(containerId, onKeyPress) {
             button.className = 'keyboard-key';
             button.textContent = key;
             button.type = 'button'; // Explicitly set type to prevent form submission
-            button.setAttribute('aria-label', `Hebrew letter ${key}`);
+            button.setAttribute('aria-label', t('keyboard.hebrewLetter', { letter: key }));
             
             // Check if this key should be disabled
             if (gameState.powerUpsActive && 
@@ -81,7 +95,7 @@ function initializeKeyboard(containerId, onKeyPress) {
     backspaceButton.className = 'keyboard-key keyboard-backspace';
     backspaceButton.textContent = '⌫';
     backspaceButton.type = 'button';
-    backspaceButton.setAttribute('aria-label', 'Backspace');
+    backspaceButton.setAttribute('aria-label', t('keyboard.backspace'));
     backspaceButton.style.width = '120px';
     backspaceButton.addEventListener('click', function(event) {
         event.preventDefault();

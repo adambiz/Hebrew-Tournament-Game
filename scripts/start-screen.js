@@ -25,6 +25,20 @@
         waveTimeoutIds: []
     };
 
+    function getI18nApi() {
+        return window.HebrewGame && window.HebrewGame.i18n
+            ? window.HebrewGame.i18n
+            : null;
+    }
+
+    function t(key, vars) {
+        const i18nApi = getI18nApi();
+        if (i18nApi && typeof i18nApi.t === 'function') {
+            return i18nApi.t(key, vars);
+        }
+        return key;
+    }
+
     function getHeroesApi() {
         if (!window.HebrewGame || !window.HebrewGame.heroes) return null;
         return window.HebrewGame.heroes;
@@ -117,11 +131,15 @@
 
         if (previewImg) {
             previewImg.src = selectedPath;
-            previewImg.alt = avatarId ? `Ausgewählter Avatar #${avatarId}` : 'Ausgewählter Avatar';
+            previewImg.alt = avatarId
+                ? t('start.selectedAvatarAltWithId', { id: avatarId })
+                : t('start.selectedAvatarAlt');
         }
 
         if (previewLabel) {
-            previewLabel.textContent = avatarId ? `Avatar #${avatarId}` : 'Avatar';
+            previewLabel.textContent = avatarId
+                ? t('start.avatarLabelWithId', { id: avatarId })
+                : t('start.avatarLabel');
         }
     }
 
@@ -150,7 +168,7 @@
             button.type = 'button';
             button.className = 'avatar-choice';
             button.setAttribute('role', 'radio');
-            button.setAttribute('aria-label', `Avatar ${avatar.id} auswählen`);
+            button.setAttribute('aria-label', t('start.avatarChoiceAria', { id: avatar.id }));
             button.setAttribute('aria-checked', selectedPath === avatar.path ? 'true' : 'false');
             button.dataset.avatarPath = avatar.path;
 
@@ -208,6 +226,47 @@
         if (shuffleButton) {
             shuffleButton.addEventListener('click', showNextAvatarPage);
         }
+
+        window.addEventListener('hebrewGame:languageChanged', function onLanguageChanged() {
+            updateSelectedAvatarPreview();
+            renderAvatarGrid();
+        });
+    }
+
+    function initializeLanguagePicker() {
+        const i18nApi = getI18nApi();
+        const buttons = Array.from(document.querySelectorAll('.language-toggle-button[data-language]'));
+        if (!buttons.length) return;
+
+        function syncLanguageButtons(language) {
+            buttons.forEach(function updateLanguageButton(button) {
+                const buttonLanguage = button.dataset.language || '';
+                const isActive = buttonLanguage === language;
+                button.classList.toggle('active', isActive);
+                button.setAttribute('aria-checked', isActive ? 'true' : 'false');
+                button.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+            });
+        }
+
+        const currentLanguage = i18nApi && typeof i18nApi.getLanguage === 'function'
+            ? i18nApi.getLanguage()
+            : 'en';
+        syncLanguageButtons(currentLanguage);
+
+        buttons.forEach(function bindLanguageButton(button) {
+            button.addEventListener('click', function onLanguageClick() {
+                const nextLanguage = button.dataset.language || '';
+                if (!i18nApi || typeof i18nApi.setLanguage !== 'function') return;
+                i18nApi.setLanguage(nextLanguage);
+            });
+        });
+
+        window.addEventListener('hebrewGame:languageChanged', function onLanguageChanged(event) {
+            const language = event && event.detail && event.detail.language
+                ? event.detail.language
+                : (i18nApi && typeof i18nApi.getLanguage === 'function' ? i18nApi.getLanguage() : 'en');
+            syncLanguageButtons(language);
+        });
     }
 
     function generateRandomName() {
@@ -352,6 +411,7 @@
             randomNameButton.addEventListener('click', generateRandomName);
         }
 
+        initializeLanguagePicker();
         initializeAvatarPicker();
         renderStartScreenHighScores();
         initializeRetroAmbientAnimations();

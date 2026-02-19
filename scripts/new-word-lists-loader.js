@@ -14,6 +14,20 @@ const ROUND_WORD_COUNT_RULES = {
     6: 4
 };
 
+function getI18nApi() {
+    return window.HebrewGame && window.HebrewGame.i18n
+        ? window.HebrewGame.i18n
+        : null;
+}
+
+function t(key, vars) {
+    const i18nApi = getI18nApi();
+    if (i18nApi && typeof i18nApi.t === 'function') {
+        return i18nApi.t(key, vars);
+    }
+    return key;
+}
+
 function emitDataReady(ready, errorMessage) {
     window.dispatchEvent(new CustomEvent('hebrewGame:dataReady', {
         detail: {
@@ -82,18 +96,24 @@ function validateAndBuildWordData(round, germanRaw, hebrewRaw, rowLabel, optiona
     const ttsText = normalizeSpaces(optionalFields.ttsTextRaw || '');
 
     if (!german || !hebrew) {
-        throw new Error(`${rowLabel}: German and Hebrew values are required`);
+        throw new Error(t('loader.rowValuesRequired', { row: rowLabel }));
     }
 
     const expectedWordCount = ROUND_WORD_COUNT_RULES[round];
     if (!expectedWordCount) {
-        throw new Error(`${rowLabel}: Invalid round '${round}'. Expected 1-6`);
+        throw new Error(t('loader.invalidRoundValue', { row: rowLabel, round }));
     }
 
     const hebrewWords = hebrew.split(' ');
     if (hebrewWords.length !== expectedWordCount) {
         throw new Error(
-            `${rowLabel}: Round ${round} expects ${expectedWordCount} Hebrew word(s), got ${hebrewWords.length} ('${hebrew}')`
+            t('loader.roundWordCount', {
+                row: rowLabel,
+                round,
+                expected: expectedWordCount,
+                actual: hebrewWords.length,
+                hebrew
+            })
         );
     }
 
@@ -114,7 +134,7 @@ function validateWordListsHaveCoverage(lists) {
     for (let round = 1; round <= 6; round++) {
         const key = `round${round}`;
         if (!Array.isArray(lists[key]) || lists[key].length === 0) {
-            throw new Error(`Fehlende Wörter für ${key}`);
+            throw new Error(t('loader.missingRoundWords', { roundKey: key }));
         }
     }
 }
@@ -124,14 +144,17 @@ async function loadWordListsFromCSV(csvFilePath = 'data/hebrew-german-words.csv'
         const response = await fetch(csvFilePath);
 
         if (!response.ok) {
-            throw new Error(`Wortlisten konnten nicht geladen werden: ${response.status} ${response.statusText}`);
+            throw new Error(t('loader.fetchFailed', {
+                status: response.status,
+                statusText: response.statusText
+            }));
         }
 
         const csvText = await response.text();
         const lines = csvText.replace(/\r\n?/g, '\n').split('\n');
 
         if (lines.length < 2) {
-            throw new Error('Die CSV-Datei ist leer');
+            throw new Error(t('loader.csvEmpty'));
         }
 
         const header = parseCsvLine(lines[0]);
@@ -140,7 +163,7 @@ async function loadWordListsFromCSV(csvFilePath = 'data/hebrew-german-words.csv'
             return Number.isInteger(headerIndexMap[columnName]);
         });
         if (!hasRequiredColumns) {
-            throw new Error("CSV benötigt die Spalten: round,german,hebrew (weitere optionale Spalten sind erlaubt)");
+            throw new Error(t('loader.requiredColumns'));
         }
 
         const nextWordLists = {
@@ -159,13 +182,13 @@ async function loadWordListsFromCSV(csvFilePath = 'data/hebrew-german-words.csv'
 
             const parsed = parseCsvLine(line);
             if (parsed.length < 3) {
-                throw new Error(`Zeile ${index + 1}: erwartet wurden 3 Spalten`);
+                throw new Error(t('loader.expectedColumns', { line: index + 1 }));
             }
 
             const roundRaw = getColumnValue(parsed, headerIndexMap, 'round');
             const round = Number(roundRaw);
             if (!Number.isInteger(round) || round < 1 || round > 6) {
-                throw new Error(`Zeile ${index + 1}: ungültiger Rundenwert '${roundRaw}'`);
+                throw new Error(t('loader.invalidRound', { line: index + 1, round: roundRaw }));
             }
 
             const wordData = validateAndBuildWordData(
@@ -182,7 +205,7 @@ async function loadWordListsFromCSV(csvFilePath = 'data/hebrew-german-words.csv'
 
             const duplicateKey = `${round}|${wordData.german}|${wordData.hebrew}`;
             if (seenEntries.has(duplicateKey)) {
-                throw new Error(`Zeile ${index + 1}: doppelte Zeile '${duplicateKey}'`);
+                throw new Error(t('loader.duplicateRow', { line: index + 1, key: duplicateKey }));
             }
             seenEntries.add(duplicateKey);
 
@@ -199,7 +222,7 @@ async function loadWordListsFromCSV(csvFilePath = 'data/hebrew-german-words.csv'
 
         try {
             if (typeof fallbackWordLists === 'undefined') {
-                throw new Error('Fallback-Wortlisten sind nicht verfügbar');
+                throw new Error(t('loader.fallbackUnavailable'));
             }
 
             wordLists = processFallbackWordLists(fallbackWordLists);
@@ -252,7 +275,7 @@ function processFallbackWordLists(sourceWordLists) {
 
             const duplicateKey = `${round}|${wordData.german}|${wordData.hebrew}`;
             if (seenEntries.has(duplicateKey)) {
-                throw new Error(`Duplicate fallback row '${duplicateKey}'`);
+                throw new Error(t('loader.fallbackDuplicate', { key: duplicateKey }));
             }
             seenEntries.add(duplicateKey);
 

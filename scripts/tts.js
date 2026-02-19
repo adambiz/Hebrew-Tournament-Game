@@ -10,33 +10,9 @@
     const DEFAULT_AUTO_READ = true;
     const DEFAULT_LANG = 'he-IL';
     const AUTO_READ_DELAY_MS = 1000;
-    const JOYFUL_RATE = 0.98;
-    const JOYFUL_PITCH = 1.14;
-    const SHORT_WORD_RATE = 0.86;
-    const SHORT_WORD_PITCH = 1.06;
-    const JOYFUL_VOLUME = 1;
-    const STRESS_HINT_OVERRIDES = Object.freeze({
-        'מים': 'מַֽיִם',
-        'מַיִם': 'מַֽיִם',
-        'ספר': 'סֵֽפֶר',
-        'סֵפֶר': 'סֵֽפֶר',
-        'הספר': 'הַסֵּֽפֶר',
-        'הַסֵּפֶר': 'הַסֵּֽפֶר'
-    });
-    const PREFERRED_VOICE_NAME_PATTERNS = Object.freeze([
-        /siri/i,
-        /premium/i,
-        /enhanced/i,
-        /neural/i,
-        /natural/i,
-        /google/i
-    ]);
-    const DISFAVORED_VOICE_NAME_PATTERNS = Object.freeze([
-        /compact/i,
-        /legacy/i,
-        /espeak/i,
-        /eloquence/i
-    ]);
+    const DEFAULT_RATE = 1;
+    const DEFAULT_PITCH = 1;
+    const DEFAULT_VOLUME = 1;
 
     const supportsSpeech = typeof window.speechSynthesis !== 'undefined' &&
         typeof window.SpeechSynthesisUtterance === 'function';
@@ -51,6 +27,16 @@
     let promptVersion = 0;
 
     let autoReadEnabled = loadAutoReadPreference();
+
+    function t(key, vars) {
+        if (ttsApi && typeof ttsApi.t === 'function') {
+            return ttsApi.t(key, vars);
+        }
+        if (HebrewGame.i18n && typeof HebrewGame.i18n.t === 'function') {
+            return HebrewGame.i18n.t(key, vars);
+        }
+        return key;
+    }
 
     function normalizeSpaces(text) {
         return String(text || '').replace(/\s+/g, ' ').trim();
@@ -74,57 +60,23 @@
         }
     }
 
-    function scoreHebrewVoice(voice) {
+    function isHebrewVoice(voice) {
         const lang = normalizeSpaces(voice && voice.lang).toLowerCase();
-        const name = normalizeSpaces(voice && voice.name);
-        const voiceUri = normalizeSpaces(voice && voice.voiceURI);
-        const lowerName = name.toLowerCase();
-        const lowerVoiceUri = voiceUri.toLowerCase();
-
-        if (!lang.startsWith('he')) return Number.NEGATIVE_INFINITY;
-
-        let score = 0;
-        if (lang === 'he-il') score += 40;
-        else score += 20;
-
-        if (voice && voice.default) score += 4;
-        if (voice && voice.localService === false) score += 3;
-
-        PREFERRED_VOICE_NAME_PATTERNS.forEach(function addPreferredPatternBoost(pattern) {
-            if (pattern.test(lowerName) || pattern.test(lowerVoiceUri)) {
-                score += 3;
-            }
-        });
-
-        DISFAVORED_VOICE_NAME_PATTERNS.forEach(function addDisfavoredPatternPenalty(pattern) {
-            if (pattern.test(lowerName) || pattern.test(lowerVoiceUri)) {
-                score -= 6;
-            }
-        });
-
-        return score;
+        return lang.startsWith('he');
     }
 
     function chooseHebrewVoice(voices) {
         if (!Array.isArray(voices) || voices.length === 0) return null;
 
-        const rankedVoices = voices
-            .map(function toScoredVoice(voice, index) {
-                return {
-                    voice,
-                    index,
-                    score: scoreHebrewVoice(voice)
-                };
-            })
-            .filter(function keepHebrew(scored) {
-                return Number.isFinite(scored.score);
-            })
-            .sort(function sortByScoreDescending(left, right) {
-                if (right.score !== left.score) return right.score - left.score;
-                return left.index - right.index;
-            });
+        const hebrewVoices = voices.filter(isHebrewVoice);
+        if (hebrewVoices.length === 0) return null;
 
-        return rankedVoices.length > 0 ? rankedVoices[0].voice : null;
+        const defaultHebrewVoice = hebrewVoices.find(function findDefaultHebrewVoice(voice) {
+            return !!(voice && voice.default);
+        });
+        if (defaultHebrewVoice) return defaultHebrewVoice;
+
+        return hebrewVoices[0];
     }
 
     function getSpeechTextForWordData(wordData) {
@@ -140,57 +92,17 @@
     }
 
     function applyStressHints(text) {
-        const cleaned = normalizeSpaces(text);
-        if (!cleaned) return '';
-
-        return cleaned
-            .split(' ')
-            .filter(Boolean)
-            .map(function mapStressHint(token) {
-                return STRESS_HINT_OVERRIDES[token] || token;
-            })
-            .join(' ');
-    }
-
-    function getHebrewLetterCount(text) {
-        const matches = String(text || '').match(/[\u05D0-\u05EA]/g);
-        return matches ? matches.length : 0;
+        // Kept for API compatibility; default mode intentionally avoids word-level overrides.
+        return normalizeSpaces(text);
     }
 
     function getSpeechPlanForText(text) {
-        const cleaned = normalizeSpaces(text);
-        if (!cleaned) {
-            return {
-                text: '',
-                rate: JOYFUL_RATE,
-                pitch: JOYFUL_PITCH
-            };
-        }
-
-        const preparedText = applyStressHints(cleaned);
-        const tokens = preparedText.split(' ').filter(Boolean);
-        let plannedText = preparedText;
-        let plannedRate = JOYFUL_RATE;
-        let plannedPitch = JOYFUL_PITCH;
-
-        if (tokens.length === 1) {
-            const hebrewLetterCount = getHebrewLetterCount(tokens[0]);
-
-            if (hebrewLetterCount > 0 && hebrewLetterCount <= 3) {
-                // Short Hebrew words are often clipped or flattened by browser TTS at fast/pitched settings.
-                plannedRate = SHORT_WORD_RATE;
-                plannedPitch = SHORT_WORD_PITCH;
-                plannedText = `${tokens[0]}.`;
-            } else if (hebrewLetterCount > 0 && hebrewLetterCount <= 5) {
-                plannedRate = 0.92;
-                plannedPitch = 1.1;
-            }
-        }
+        const cleaned = applyStressHints(text);
 
         return {
-            text: plannedText,
-            rate: plannedRate,
-            pitch: plannedPitch
+            text: cleaned,
+            rate: DEFAULT_RATE,
+            pitch: DEFAULT_PITCH
         };
     }
 
@@ -238,8 +150,8 @@
 
         if (typeof window.toast === 'function') {
             window.toast({
-                title: 'Keine hebräische Stimme gefunden',
-                description: 'Vorlesen ist deaktiviert. Installiere eine hebräische Stimme im Browser oder Betriebssystem.',
+                title: t('tts.noVoiceTitle'),
+                description: t('tts.noVoiceDesc'),
                 variant: 'default'
             });
             return;
@@ -295,11 +207,11 @@
         const canSpeak = supportsSpeech && voiceReady;
 
         if (playButton) {
-            let playButtonText = 'Vorlesen';
+            let playButtonText = t('tts.read');
             if (!supportsSpeech) {
-                playButtonText = 'Audio nicht verfügbar';
+                playButtonText = t('tts.audioUnavailable');
             } else if (!voiceReady) {
-                playButtonText = 'Keine hebr. Stimme';
+                playButtonText = t('tts.noVoiceShort');
             }
             if (playLabel) {
                 playLabel.textContent = playButtonText;
@@ -311,13 +223,13 @@
             playButton.setAttribute(
                 'aria-label',
                 canSpeak && hasPrompt
-                    ? 'Hebräischen Text vorlesen'
-                    : 'Hebräisches Vorlesen nicht verfügbar'
+                    ? t('tts.readAria')
+                    : t('tts.unavailableAria')
             );
         }
 
         if (autoToggleButton) {
-            const autoButtonText = autoReadEnabled ? 'Auto an' : 'Auto aus';
+            const autoButtonText = autoReadEnabled ? t('tts.autoOn') : t('tts.autoOff');
             if (autoToggleLabel) {
                 autoToggleLabel.textContent = autoButtonText;
             } else {
@@ -327,8 +239,8 @@
             autoToggleButton.setAttribute(
                 'aria-label',
                 autoReadEnabled
-                    ? 'Automatisches Vorlesen deaktivieren'
-                    : 'Automatisches Vorlesen aktivieren'
+                    ? t('tts.autoDisableAria')
+                    : t('tts.autoEnableAria')
             );
             setButtonState(autoToggleButton, canSpeak);
         }
@@ -360,7 +272,7 @@
             utterance.lang = DEFAULT_LANG;
             utterance.rate = speechPlan.rate;
             utterance.pitch = speechPlan.pitch;
-            utterance.volume = JOYFUL_VOLUME;
+            utterance.volume = DEFAULT_VOLUME;
             utterance.voice = selectedVoice;
             utterance.onerror = function onUtteranceError(event) {
                 const errorCode = event && event.error ? String(event.error) : 'tts_error';
@@ -437,8 +349,8 @@
             voiceReady: !!selectedVoice,
             voiceName: selectedVoice ? selectedVoice.name : null,
             voiceLang: selectedVoice ? selectedVoice.lang : null,
-            voiceRate: JOYFUL_RATE,
-            voicePitch: JOYFUL_PITCH,
+            voiceRate: DEFAULT_RATE,
+            voicePitch: DEFAULT_PITCH,
             autoReadEnabled: !!autoReadEnabled,
             hasPrompt: !!(currentPrompt && currentPrompt.text),
             lastError
@@ -463,6 +375,10 @@
         if (speechEngine) {
             speechEngine.cancel();
         }
+    });
+
+    window.addEventListener('hebrewGame:languageChanged', function onLanguageChanged() {
+        updateControls();
     });
 
     ttsApi.onPromptChanged = onPromptChanged;
