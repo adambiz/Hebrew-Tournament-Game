@@ -39,15 +39,19 @@ function initializeKeyboard(containerId, onKeyPress) {
     
     // Clear any existing content
     keyboardContainer.innerHTML = '';
+
+    const keyboardLayout = document.createElement('div');
+    keyboardLayout.className = 'keyboard-layout';
+
+    const keyboardRows = document.createElement('div');
+    keyboardRows.className = 'keyboard-rows';
+    keyboardLayout.appendChild(keyboardRows);
     
     // For each row in the layout
     hebrewKeyboardLayout.forEach(row => {
         // Create a row div
         const rowDiv = document.createElement('div');
         rowDiv.className = 'keyboard-row';
-        rowDiv.style.display = 'flex';
-        rowDiv.style.justifyContent = 'center';
-        rowDiv.style.marginBottom = '8px';
         
         // For each key in the row
         row.forEach(key => {
@@ -81,30 +85,23 @@ function initializeKeyboard(containerId, onKeyPress) {
             rowDiv.appendChild(button);
         });
         
-        keyboardContainer.appendChild(rowDiv);
+        keyboardRows.appendChild(rowDiv);
     });
     
-    // Add a backspace row
-    const controlsRow = document.createElement('div');
-    controlsRow.className = 'keyboard-row';
-    controlsRow.style.display = 'flex';
-    controlsRow.style.justifyContent = 'center';
-    
-    // Add backspace key
+    // Add right-side backspace key to preserve vertical space.
     const backspaceButton = document.createElement('button');
-    backspaceButton.className = 'keyboard-key keyboard-backspace';
+    backspaceButton.className = 'keyboard-key keyboard-backspace keyboard-backspace-side';
     backspaceButton.textContent = '⌫';
     backspaceButton.type = 'button';
     backspaceButton.setAttribute('aria-label', t('keyboard.backspace'));
-    backspaceButton.style.width = '120px';
     backspaceButton.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
         onKeyPress('backspace');
     });
     
-    controlsRow.appendChild(backspaceButton);
-    keyboardContainer.appendChild(controlsRow);
+    keyboardLayout.appendChild(backspaceButton);
+    keyboardContainer.appendChild(keyboardLayout);
 }
 
 // CORRECT Hebrew keyboard mapping based on user-provided mapping

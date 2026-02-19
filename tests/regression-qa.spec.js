@@ -514,6 +514,8 @@ test.describe('Regression QA and stability hardening', () => {
     const viewports = [
       { width: 320, height: 640, name: 'mobile-small' },
       { width: 360, height: 800, name: 'mobile' },
+      { width: 768, height: 1024, name: 'tablet-portrait' },
+      { width: 1024, height: 768, name: 'tablet-landscape' },
       { width: 1280, height: 800, name: 'desktop' }
     ];
 
@@ -535,6 +537,47 @@ test.describe('Regression QA and stability hardening', () => {
       });
       expect(keyboardLetterSize, `${viewport.name} keyboard letters should be larger`).toBeGreaterThanOrEqual(22);
       expect(keyboardLetterSize, `${viewport.name} keyboard letters must stay within safe max`).toBeLessThanOrEqual(26);
+
+      if (viewport.name.startsWith('tablet')) {
+        const roundActionVisibilityIssues = await collectElementsOutsideViewport(page, ['submit-word', 'use-powerup']);
+        expect(
+          roundActionVisibilityIssues,
+          `${viewport.name} round-screen actions should be visible without page scrolling`
+        ).toEqual([]);
+
+        const keyboardLayoutCheck = await page.evaluate(() => {
+          const rows = document.querySelector('#hebrew-keyboard .keyboard-rows');
+          const sideBackspace = document.querySelector('#hebrew-keyboard .keyboard-backspace-side');
+          if (!rows || !sideBackspace) {
+            return {
+              hasRows: !!rows,
+              hasSideBackspace: !!sideBackspace,
+              placedOnRight: false,
+              notBelowRows: false
+            };
+          }
+
+          const rowsRect = rows.getBoundingClientRect();
+          const backspaceRect = sideBackspace.getBoundingClientRect();
+          return {
+            hasRows: true,
+            hasSideBackspace: true,
+            placedOnRight: backspaceRect.left >= rowsRect.right - 1,
+            notBelowRows: backspaceRect.top < rowsRect.bottom - 4
+          };
+        });
+
+        expect(keyboardLayoutCheck.hasRows).toBe(true);
+        expect(keyboardLayoutCheck.hasSideBackspace).toBe(true);
+        expect(
+          keyboardLayoutCheck.placedOnRight,
+          `${viewport.name} backspace should sit on keyboard right side`
+        ).toBe(true);
+        expect(
+          keyboardLayoutCheck.notBelowRows,
+          `${viewport.name} backspace should not render as a separate bottom row`
+        ).toBe(true);
+      }
 
       await finishCurrentRound(page);
       await expect(page.locator('#round-results')).not.toHaveClass(/hidden/);

@@ -241,6 +241,133 @@ test.describe('UX and accessibility flows', () => {
     }
   });
 
+  test('tablet flow keeps primary actions reachable with pinned bars', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await waitForReady(page);
+    await startGame(page, 'Tablet Hero');
+
+    await page.evaluate(() => {
+      const gs = window.HebrewGame?.debug?.getGameState?.();
+      if (!gs || !gs.player) return;
+      gs.player.score = Math.max(gs.player.score, 999);
+      gs.opponents.forEach((opponent, index) => {
+        opponent.score = Math.min(opponent.score, index);
+      });
+    });
+
+    const roundUi = await page.evaluate(() => {
+      const actionBar = document.getElementById('mobile-action-bar');
+      const submit = document.getElementById('submit-word');
+      const powerup = document.getElementById('use-powerup');
+      if (!actionBar || !submit || !powerup) {
+        return {
+          actionBarPosition: null,
+          submitInViewport: false,
+          powerupInViewport: false
+        };
+      }
+
+      const submitRect = submit.getBoundingClientRect();
+      const powerupRect = powerup.getBoundingClientRect();
+      return {
+        actionBarPosition: getComputedStyle(actionBar).position,
+        submitInViewport: submitRect.top >= 0 && submitRect.bottom <= window.innerHeight,
+        powerupInViewport: powerupRect.top >= 0 && powerupRect.bottom <= window.innerHeight
+      };
+    });
+
+    expect(roundUi.actionBarPosition).toBe('fixed');
+    expect(roundUi.submitInViewport).toBe(true);
+    expect(roundUi.powerupInViewport).toBe(true);
+
+    await finishRoundWithClicks(page);
+    await expect(page.locator('#round-results')).not.toHaveClass(/hidden/);
+
+    const resultsUi = await page.evaluate(() => {
+      const actionButtons = document.querySelector('.round-buttons-container');
+      const visit = document.getElementById('visit-store');
+      const next = document.getElementById('next-round');
+      if (!actionButtons || !visit || !next) {
+        return {
+          buttonsPosition: null,
+          visitInViewport: false,
+          nextInViewport: false
+        };
+      }
+
+      const visitRect = visit.getBoundingClientRect();
+      const nextRect = next.getBoundingClientRect();
+      return {
+        buttonsPosition: getComputedStyle(actionButtons).position,
+        visitInViewport: visitRect.top >= 0 && visitRect.bottom <= window.innerHeight,
+        nextInViewport: nextRect.top >= 0 && nextRect.bottom <= window.innerHeight
+      };
+    });
+
+    expect(resultsUi.buttonsPosition).toBe('fixed');
+    expect(resultsUi.visitInViewport).toBe(true);
+    expect(resultsUi.nextInViewport).toBe(true);
+
+    await page.click('#visit-store');
+    await expect(page.locator('#store-overlay')).toBeVisible();
+    await page.keyboard.press('Escape');
+    await expect(page.locator('#store-overlay')).toHaveCount(0);
+
+    await page.click('#next-round');
+    await expect(page.locator('#round-screen')).not.toHaveClass(/hidden/);
+    await expect(page.locator('#current-round')).toHaveText('2');
+  });
+
+  test('tablet round-to-results transition resets stale scroll and keeps actions reachable', async ({ page }) => {
+    await page.setViewportSize({ width: 1024, height: 768 });
+    await waitForReady(page);
+    await startGame(page, 'Tablet Transition Hero');
+
+    await page.evaluate(() => {
+      const gs = window.HebrewGame?.debug?.getGameState?.();
+      if (!gs || !gs.player) return;
+      gs.player.score = Math.max(gs.player.score, 999);
+      gs.opponents.forEach((opponent, index) => {
+        opponent.score = Math.min(opponent.score, index);
+      });
+    });
+
+    await page.mouse.wheel(0, 1200);
+    await page.waitForTimeout(100);
+
+    const roundScrollY = await page.evaluate(() => window.scrollY);
+    expect(roundScrollY).toBeGreaterThan(0);
+
+    const didForceWin = await page.evaluate(() => window.HebrewGame?.debug?.forceWinRound?.());
+    expect(didForceWin).toBe(true);
+
+    await expect(page.locator('#round-results')).not.toHaveClass(/hidden/);
+
+    const resultsState = await page.evaluate(() => {
+      const visit = document.getElementById('visit-store');
+      const next = document.getElementById('next-round');
+      if (!visit || !next) {
+        return {
+          scrollY: window.scrollY,
+          visitInViewport: false,
+          nextInViewport: false
+        };
+      }
+
+      const visitRect = visit.getBoundingClientRect();
+      const nextRect = next.getBoundingClientRect();
+      return {
+        scrollY: window.scrollY,
+        visitInViewport: visitRect.top >= 0 && visitRect.bottom <= window.innerHeight,
+        nextInViewport: nextRect.top >= 0 && nextRect.bottom <= window.innerHeight
+      };
+    });
+
+    expect(resultsState.scrollY).toBeLessThanOrEqual(24);
+    expect(resultsState.visitInViewport).toBe(true);
+    expect(resultsState.nextInViewport).toBe(true);
+  });
+
   test('keyboard-only flow can start, play, and submit', async ({ page }) => {
     await waitForReady(page);
 

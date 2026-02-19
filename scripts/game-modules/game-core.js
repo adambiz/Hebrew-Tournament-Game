@@ -638,6 +638,11 @@ function showScreen(screenId) {
     });
 
     gameState.ui.mobileActionBarVisible = screenId === 'round-screen';
+
+    // Normalize viewport position so transitions don't inherit stale deep scroll offsets.
+    if (typeof window.scrollTo === 'function') {
+        window.scrollTo(0, 0);
+    }
 }
 
 // Reset the game to play again

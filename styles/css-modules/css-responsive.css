@@ -12,21 +12,8 @@
         padding-bottom: var(--space-4);
     }
 
-    #mobile-action-bar {
-        /* Keep a positioning context for the absolute bonus panel. */
-        position: relative;
-        max-width: 520px;
-        margin: 0 auto;
-    }
-
     .reward-container {
         grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .round-buttons-container {
-        position: static;
-        max-width: 520px;
-        margin: 0 auto;
     }
 
     #game-over {
@@ -47,13 +34,94 @@
     }
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 760px) and (max-width: 1180px) {
+    #round-screen {
+        padding-bottom: calc(170px + env(safe-area-inset-bottom, 0px));
+    }
+
+    #mobile-action-bar {
+        position: fixed;
+        left: 50%;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        transform: translateX(-50%);
+        width: min(560px, calc(100vw - 24px));
+        margin: 0;
+        z-index: 220;
+    }
+
+    #round-results {
+        max-height: none;
+        overflow: visible;
+        padding-bottom: calc(112px + env(safe-area-inset-bottom, 0px));
+    }
+
+    #round-results #ranking {
+        max-height: min(48vh, 360px);
+    }
+
+    #round-results #ranking-list {
+        max-height: min(48vh, 360px);
+    }
+
+    .round-buttons-container {
+        position: fixed;
+        left: 50%;
+        bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+        transform: translateX(-50%);
+        width: min(560px, calc(100vw - 24px));
+        margin: 0;
+        z-index: 230;
+    }
+
+    #hebrew-keyboard .keyboard-layout {
+        grid-template-columns: minmax(0, 1fr) 76px;
+        gap: 8px;
+    }
+
+    #hebrew-keyboard .keyboard-rows {
+        gap: 5px;
+    }
+
+    #hebrew-keyboard .keyboard-row {
+        gap: 5px;
+    }
+
+    #hebrew-keyboard .keyboard-key {
+        width: 34px;
+        height: 38px;
+    }
+
+    #hebrew-keyboard .keyboard-backspace.keyboard-backspace-side {
+        width: 100%;
+        max-width: none;
+        min-height: 0;
+        height: 100%;
+        align-self: stretch;
+        justify-self: stretch;
+        font-size: clamp(1.2rem, 2.6vw, 1.5rem);
+    }
+}
+
+@media (min-width: 1181px) {
     #game-container {
         padding: var(--space-6);
     }
 
     #round-screen {
         gap: var(--space-5);
+    }
+
+    #mobile-action-bar {
+        /* Keep a positioning context for the absolute bonus panel. */
+        position: relative;
+        max-width: 520px;
+        margin: 0 auto;
+    }
+
+    .round-buttons-container {
+        position: static;
+        max-width: 520px;
+        margin: 0 auto;
     }
 
     .keyboard-key {

@@ -4,15 +4,25 @@
     border-radius: var(--radius-md);
     background: #ffffff;
     box-shadow: var(--shadow-sm);
-    padding: var(--space-3);
+    padding: var(--space-2);
+}
+
+.keyboard-layout {
     display: grid;
-    gap: var(--space-1);
+    grid-template-columns: minmax(0, 1fr);
+    gap: 6px;
+    align-items: stretch;
+}
+
+.keyboard-rows {
+    display: grid;
+    gap: 6px;
 }
 
 .keyboard-row {
     display: flex;
     justify-content: center;
-    gap: var(--space-1);
+    gap: 4px;
 }
 
 .keyboard-key {
@@ -43,8 +53,14 @@
 }
 
 .keyboard-backspace {
-    width: 110px;
+    width: min(160px, 100%);
+    min-height: 40px;
+    justify-self: center;
     font-size: 1rem;
+}
+
+.keyboard-backspace-side {
+    align-self: stretch;
 }
 
 .keyboard-key-disabled {
