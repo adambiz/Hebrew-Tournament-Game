@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1 gegen 95 - Hebräisch-Lernspiel</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <script>
+        window.DEBUG_UI = false;
+        window.logDebug = function () {
+            if (window.DEBUG_UI && window.console) {
+                console.log.apply(console, arguments);
+            }
+        };
+    </script>
+</head>
+<body>
+    <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    <div id="game-container" data-role="app-root">
+        <!-- Game Title (Enhanced) -->
+        <div id="game-title">
+            <h1 class="pixel-title-plate pixel-title-plate-hero">
+                <span class="pixel-flag pixel-flag--lg" aria-hidden="true"></span>
+                <span id="main-battle-title"><span class="title-number title-number-player">1</span> gegen <span class="title-number title-number-current">95</span></span>
+            </h1>
+        </div>
+                
+       <!-- Start Screen -->
+        <div id="start-screen" class="game-screen" data-screen="start" data-testid="start-screen">
+            <div class="start-container">
+                <section class="start-panel player-panel pixel-panel pixel-panel-parchment pixel-frame-parchment" data-role="start-player">
+                    <h2 class="pixel-title-plate">
+                        <span class="pixel-flag pixel-flag--md" aria-hidden="true"></span>
+                        <span>Erstelle deinen Champion</span>
+                    </h2>
+                    <p class="start-panel-copy">Wähle deinen Held*innennamen und betrete die Arena.</p>
+                    <div class="input-container">
+                        <input type="text" id="player-name" class="pixel-chip" maxlength="20" placeholder="Gib deinen Held*innennamen ein" aria-label="Spielername">
+                        <button id="start-button" aria-label="Spiel starten">Spiel starten</button>
+                        <div id="avatar-selection" class="avatar-selection pixel-frame-steel" data-testid="avatar-selection">
+                            <div class="avatar-selection-header">
+                                <span class="avatar-selection-label">Wähle dein Avatar</span>
+                                <button id="shuffle-avatars" type="button" class="avatar-shuffle-button game-button" aria-label="Weitere Avatare zeigen">Mehr Avatare</button>
+                            </div>
+                            <div class="avatar-selected-preview">
+                                <img id="selected-avatar-preview" class="hero-avatar hero-avatar-selected-preview" src="" alt="Ausgewählter Avatar">
+                                <span id="selected-avatar-label" class="pixel-chip">Avatar #1</span>
+                            </div>
+                            <div id="player-avatar-grid" class="avatar-grid" role="radiogroup" aria-label="Avatar auswählen"></div>
+                        </div>
+                    </div>
+                </section>
+                <section class="start-panel scores-panel pixel-panel pixel-panel-steel pixel-frame-steel" data-role="start-high-scores">
+                    <h3 class="pixel-title-plate">
+                        <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
+                        <span>Top-Champions</span>
+                    </h3>
+                    <div id="high-scores-list" data-testid="high-scores-list">
+                        <!-- High scores will be loaded here -->
+                    </div>
+                </section>
+            </div>
+            <div id="tts-debug-entrypoint">
+                <button id="open-tts-debug" type="button" class="debug-link-button" aria-label="TTS-Debugmodus öffnen">
+                    TTS Debug
+                </button>
+            </div>
+            <div id="tts-debug-panel" class="tts-debug-panel hidden" aria-hidden="true">
+                <div class="tts-debug-dialog pixel-panel pixel-panel-steel pixel-frame-steel" role="dialog" aria-modal="true" aria-labelledby="tts-debug-title">
+                    <div class="tts-debug-header">
+                        <h3 id="tts-debug-title" class="pixel-title-plate">
+                            <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
+                            <span>TTS Debug Review</span>
+                        </h3>
+                        <button id="close-tts-debug" type="button" class="game-button close-overlay-button" aria-label="TTS-Debugmodus schließen">
+                            Schließen
+                        </button>
+                    </div>
+                    <p class="tts-debug-copy">
+                        Spiele alle Einträge ab, markiere problematische Aussprachen und kopiere danach die markierte Liste.
+                    </p>
+                    <div class="tts-debug-controls">
+                        <input id="tts-debug-filter" type="text" class="pixel-chip" placeholder="Filtern (Deutsch / Hebräisch / Runde)" aria-label="TTS-Debugliste filtern">
+                        <button id="tts-debug-copy-flagged" type="button" class="game-button">Markierte kopieren</button>
+                        <button id="tts-debug-clear-flagged" type="button" class="game-button">Markierungen löschen</button>
+                    </div>
+                    <div id="tts-debug-status" class="pixel-chip" aria-live="polite">Bereit.</div>
+                    <div id="tts-debug-list" class="tts-debug-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Round Screen -->
+        <div id="round-screen" class="game-screen hidden" data-screen="round" data-testid="round-screen">
+            <div id="round-info" data-role="round-header">
+                <h2 class="pixel-title-plate">
+                    <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
+                    <span>Runde <span id="current-round">1</span></span>
+                </h2>
+                <div id="player-info">
+                    <div id="player-name-display"></div>
+                    <div id="player-score-display" class="pixel-chip">Punkte: <span id="current-score">0</span></div>
+                    <div id="player-coins" class="pixel-chip">Münzen: <span id="coin-count">0</span></div>
+                </div>
+            </div>
+
+            <div id="round-progress-container">
+                <div id="round-progress-bar" style="width: 0%"></div>
+            </div>
+
+            <div id="word-challenge" class="pixel-panel pixel-panel-parchment pixel-frame-parchment" data-role="word-challenge">
+                <div id="word-header-row">
+                    <div id="german-word" class="pixel-title-plate">Wort</div>
+                    <div id="tts-controls" aria-label="Vorlese-Steuerung">
+                        <button id="play-hebrew-audio" class="game-button pixel-button-steel" aria-label="Hebräischen Text vorlesen">
+                            <span class="play-icon" aria-hidden="true"></span>
+                            <span class="play-label">Vorlesen</span>
+                        </button>
+                        <button id="toggle-auto-read" class="game-button" aria-label="Automatisches Vorlesen umschalten" aria-pressed="true">
+                            <span class="toggle-label">Auto</span>
+                            <span class="toggle-switch" aria-hidden="true">
+                                <span class="toggle-knob"></span>
+                            </span>
+                        </button>
+                    </div>
+                </div>
+                <div id="hebrew-word-input" dir="rtl" tabindex="0" aria-label="Hebräisches Antwortfeld"></div>
+                <div id="current-word-counter" class="pixel-chip">Wort 1 von 5</div>
+            </div>
+
+            <div id="hebrew-keyboard" class="pixel-panel pixel-panel-steel pixel-frame-steel" data-role="hebrew-keyboard" data-testid="hebrew-keyboard">
+                <!-- Hebrew keyboard will be generated here -->
+            </div>
+
+            <div id="mobile-action-bar" class="pixel-panel pixel-panel-steel pixel-frame-steel" data-role="action-bar">
+                <button id="use-powerup" class="game-button" aria-label="Bonusmenü öffnen">Boni</button>
+                <button id="submit-word" class="submit-button" disabled aria-label="Antwort prüfen">Antwort prüfen</button>
+                <div id="powerups-panel" class="hidden" data-testid="powerups-panel">
+                    <!-- Powerups will be shown here -->
+                </div>
+            </div>
+
+            <div id="tournament-progress" class="pixel-panel pixel-panel-steel pixel-frame-steel" data-role="tournament-progress">
+                <div class="tournament-info-container">
+                    <div class="tournament-badge pixel-chip">
+                        <div class="badge-title">Runde</div>
+                        <div class="badge-value" id="current-round-badge">1</div>
+                        <div class="badge-subtitle">von 6</div>
+                    </div>
+                    
+                    <div class="tournament-badge pixel-chip">
+                        <div class="badge-title">Helden</div>
+                        <div class="badge-value" id="heroes-remaining">96</div>
+                        <div class="badge-subtitle">übrig</div>
+                    </div>
+                    
+                    <div class="player-rank-badge pixel-chip">
+                        <div class="badge-title">Dein Rang</div>
+                        <div class="badge-value" id="player-current-rank">--</div>
+                    </div>
+                </div>
+                
+                <div class="champions-container pixel-frame-steel">
+                    <div class="champions-title pixel-title-plate">
+                        <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
+                        <span>Top-Champions</span>
+                    </div>
+                    <div id="top-champions"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Round Results Screen - Fixed to ensure visibility -->
+        <div id="round-results" class="game-screen hidden pixel-panel pixel-panel-steel pixel-frame-steel" data-screen="results" data-testid="round-results-screen">
+            <h2 class="pixel-title-plate">
+                <span class="pixel-flag pixel-flag--md" aria-hidden="true"></span>
+                <span>Runde <span id="completed-round">1</span> abgeschlossen!</span>
+            </h2>
+            
+            <!-- Key information container -->
+            <div id="key-results-container">
+                <!-- Will be filled dynamically with status, rank and rewards -->
+            </div>
+            
+            <!-- Original player results (hidden but needed for data storage) -->
+            <div id="player-results" class="hidden">
+                <h3>Gesamtpunkte: <span id="player-score">0</span></h3>
+                <p>Diese Runde: <span id="round-score">0</span></p>
+                <p>Verdiente Münzen: <span id="coins-earned">0</span></p>
+                <p>Deine Münzen: <span id="store-coins">0</span></p>
+            </div>
+
+            <!-- Rankings section -->
+            <div id="ranking" class="pixel-frame-steel">
+                <div id="ranking-list">
+                    <!-- Rankings will be shown here -->
+                </div>
+            </div>
+            
+            <!-- Store section (still hidden, will be shown in overlay) -->
+            <div id="store-section" class="hidden">
+                <div id="store-items">
+                    <!-- Store items will be generated here -->
+                </div>
+            </div>
+
+            <!-- Next round info -->
+            <div id="next-round-info">
+                <h3 class="next-round-title">Als Nächstes: Runde <span id="next-round-number">2</span></h3>
+                <div id="next-round-description" class="next-round-description">
+                    <!-- Will be filled dynamically -->
+                </div>
+            </div>
+
+            <!-- Buttons for next steps -->
+                <div class="round-buttons-container pixel-frame-steel">
+                    <button id="visit-store" class="game-button visit-store-button" aria-label="Shop öffnen">Shop öffnen</button>
+                    <button id="next-round" class="game-button" aria-label="Zur nächsten Runde">Nächste Runde</button>
+                </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over" class="game-screen hidden pixel-panel pixel-panel-steel pixel-frame-steel" data-screen="game-over" data-testid="game-over-screen">
+            <h2 id="game-result" class="pixel-title-plate">
+                <span class="pixel-flag pixel-flag--md" aria-hidden="true"></span>
+                <span class="game-result-title">Turnier abgeschlossen!</span>
+            </h2>
+            <p id="game-result-copy" class="game-result-copy"></p>
+            <section id="final-podium" class="pixel-frame-parchment" aria-label="Top 3 im Finale">
+                <h3 class="pixel-title-plate">
+                    <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
+                    <span>Finales Podium</span>
+                </h3>
+                <div id="final-podium-list"></div>
+            </section>
+            
+            <div id="final-results" class="pixel-frame-parchment">
+                <h3 class="pixel-title-plate">
+                    <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
+                    <span>Finale Punktejagd</span>
+                </h3>
+                <div class="final-score-grid">
+                    <div class="final-score-row">
+                        <span class="final-score-label">Basispunkte</span>
+                        <span id="final-base-score" class="final-score-reel">0</span>
+                    </div>
+                    <div class="final-score-row final-bonus-row">
+                        <span class="final-score-label">Münzbonus (<span id="final-bonus-coins">0</span> x 2)</span>
+                        <span id="final-coin-bonus" class="final-score-reel">0</span>
+                    </div>
+                    <div class="final-score-row final-total-row">
+                        <span class="final-score-label">Endsumme</span>
+                        <span id="final-total-score" class="final-score-reel">0</span>
+                    </div>
+                </div>
+                <p class="final-rank-text">Endrang: <span id="final-rank">0 von 96</span></p>
+                <span id="final-score" class="sr-only">0</span>
+            </div>
+
+            <div id="high-score-entry" class="hidden pixel-frame-parchment">
+                <h3 class="pixel-title-plate">
+                    <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
+                    <span>Neuer Highscore!</span>
+                </h3>
+                <div id="high-score-details"></div>
+            </div>
+
+            <div id="final-comparison-section" class="hidden pixel-frame-parchment">
+                <h3 class="pixel-title-plate">
+                    <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
+                    <span>Punkte-Rennen der Finalisten</span>
+                </h3>
+                <div id="final-comparison-list">
+                    <!-- Finalists points comparison -->
+                </div>
+            </div>
+
+            <div id="final-high-scores" class="pixel-frame-parchment">
+                <h3 class="pixel-title-plate">
+                    <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
+                    <span>Meisterschaftsrangliste</span>
+                </h3>
+                <div id="final-high-scores-list">
+                    <!-- High scores will be shown here -->
+                </div>
+            </div>
+
+            <button id="play-again" class="game-button" aria-label="Nochmal spielen">Nochmal spielen</button>
+        </div>
+    </div>
+
+<!-- Scripts -->
+<script src="scripts/fallback-word-lists.js"></script>
+<script src="scripts/new-word-lists-loader.js"></script>
+<script src="scripts/heroes.js"></script>
+<script src="scripts/keyboard.js"></script>
+<script src="scripts/store.js"></script>
+<script src="scripts/audio.js"></script>
+<script src="scripts/tts.js"></script>
+<script src="scripts/game-modules/game-core.js"></script>
+<script src="scripts/game-modules/game-opponents.js"></script>
+<script src="scripts/game-modules/game-powerups.js"></script>
+<script src="scripts/game-modules/game-words.js"></script>
+<script src="scripts/game-modules/round-results.js"></script>
+<script src="scripts/game-modules/game-rounds.js"></script>
+<script src="scripts/game.js"></script>
+<script src="scripts/start-screen.js"></script>
+<script src="scripts/debug-tts-review.js"></script>
+</body>
+</html>

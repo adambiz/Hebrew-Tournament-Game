@@ -1,0 +1,20 @@
+{
+  "name": "hebrew-tournament",
+  "version": "1.0.0",
+  "description": "``` 1-Against-95/ ├── data/ │   └── hebrew-german-words.csv      # Word and phrase data source ├── scripts/ │   ├── game-modules/                # Modular components │   │   ├── game-core.js             # Core functionality, gameState object, initialization │   │   ├── game-opponents.js        # AI opponent simulation logic │   │   ├── game-powerups.js         # Power-up implementation and management │   │   ├── game-rounds.js           # Round progression, scoring, elimination │   │   ├── game-words.js            # Word handling, verification, scoring │   │   └── round-results.js         # Round results screen generation and display │   ├── fallback-word-lists.js       # Backup word data if CSV fails │   ├── game.js                      # Namespace + compatibility shim │   ├── heroes.js                    # Player/opponent class definitions │   ├── keyboard.js                  # Hebrew keyboard implementation │   ├── new-word-lists-loader.js     # CSV loading functionality │   ├── quality/ │   │   ├── check-duplicate-globals.sh # Duplicate top-level declaration check │   │   └── smoke-test-checklist.md     # Manual smoke tests │   └── store.js                     # Power-up store implementation ├── styles/ │   ├── css-modules/                 # Modular CSS components │   │   ├── css-animations.css       # Animation effects │   │   ├── css-base.css             # Base styling │   │   ├── css-game-over.css        # Game over screen styling │   │   ├── css-keyboard.css         # Keyboard styling │   │   ├── css-responsive.css       # Responsive design │   │   ├── css-round-results.css    # Round results styling │   │   ├── css-round-screen.css     # Round screen styling │   │   ├── css-start-screen.css     # Start screen styling (table-based layout) │   │   ├── css-store.css            # Store styling │   │   └── css-visibility.css       # Visibility overrides │   └── main.css                     # CSS import manager └── index.html                       # Main HTML (contains all screens) ```",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:smoke": "playwright test tests/smoke.spec.js",
+    "test:ui": "playwright test --ui",
+    "check:hebrew-ambiguity": "node scripts/quality/flag-ambiguous-hebrew.js",
+    "check:hebrew-ambiguity:strict": "node scripts/quality/flag-ambiguous-hebrew.js --strict"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.58.2"
+  }
+}

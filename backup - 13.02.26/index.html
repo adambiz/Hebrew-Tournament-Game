@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1 Against 95 - Hebrew Learning Game</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <script>
+        window.DEBUG_UI = false;
+        window.logDebug = function () {
+            if (window.DEBUG_UI && window.console) {
+                console.log.apply(console, arguments);
+            }
+        };
+    </script>
+</head>
+<body>
+    <div id="sr-announcer" class="sr-only" aria-live="polite" aria-atomic="true"></div>
+    <div id="game-container" data-role="app-root">
+        <!-- Game Title (Enhanced) -->
+        <div id="game-title">
+            <h1><span class="title-number">1</span> Against <span class="title-number">95</span></h1>
+        </div>
+                
+       <!-- Start Screen -->
+        <div id="start-screen" class="game-screen" data-screen="start" data-testid="start-screen">
+            <div class="start-container">
+                <section class="start-panel player-panel" data-role="start-player">
+                    <h2>Create Your Champion</h2>
+                    <p class="start-panel-copy">Choose your hero name and enter the arena.</p>
+                    <div class="input-container">
+                        <input type="text" id="player-name" maxlength="20" placeholder="Type your hero name" aria-label="Player name">
+                        <button id="start-button" aria-label="Start game">Start Game</button>
+                    </div>
+                </section>
+                <section class="start-panel scores-panel" data-role="start-high-scores">
+                    <h3>Top Champions</h3>
+                    <div id="high-scores-list" data-testid="high-scores-list">
+                        <!-- High scores will be loaded here -->
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <!-- Round Screen -->
+        <div id="round-screen" class="game-screen hidden" data-screen="round" data-testid="round-screen">
+            <div id="round-info" data-role="round-header">
+                <h2>Round <span id="current-round">1</span></h2>
+                <div id="player-info">
+                    <div id="player-name-display"></div>
+                    <div id="player-score-display">Score: <span id="current-score">0</span></div>
+                    <div id="player-coins">Coins: <span id="coin-count">0</span></div>
+                </div>
+            </div>
+
+            <div id="round-progress-container">
+                <div id="round-progress-bar" style="width: 0%"></div>
+            </div>
+
+            <div id="word-challenge" data-role="word-challenge">
+                <div id="german-word">Wort</div>
+                <div id="hebrew-word-input" dir="rtl" tabindex="0" aria-label="Hebrew answer editor"></div>
+                <div id="current-word-counter">Word 1 of 5</div>
+            </div>
+
+            <div id="hebrew-keyboard" data-role="hebrew-keyboard" data-testid="hebrew-keyboard">
+                <!-- Hebrew keyboard will be generated here -->
+            </div>
+
+            <div id="mobile-action-bar" data-role="action-bar">
+                <button id="use-powerup" class="game-button" aria-label="Open bonus menu">Bonuses</button>
+                <button id="submit-word" class="submit-button" disabled aria-label="Submit typed word">Check Answer</button>
+                <div id="powerups-panel" class="hidden" data-testid="powerups-panel">
+                    <!-- Powerups will be shown here -->
+                </div>
+            </div>
+
+            <div id="tournament-progress" data-role="tournament-progress">
+                <div class="tournament-info-container">
+                    <div class="tournament-badge">
+                        <div class="badge-title">Round</div>
+                        <div class="badge-value" id="current-round-badge">1</div>
+                        <div class="badge-subtitle">of 6</div>
+                    </div>
+                    
+                    <div class="tournament-badge">
+                        <div class="badge-title">Heroes</div>
+                        <div class="badge-value" id="heroes-remaining">96</div>
+                        <div class="badge-subtitle">remaining</div>
+                    </div>
+                    
+                    <div class="player-rank-badge">
+                        <div class="badge-title">Your Rank</div>
+                        <div class="badge-value" id="player-current-rank">--</div>
+                    </div>
+                </div>
+                
+                <div class="champions-container">
+                    <div class="champions-title">Top Champions</div>
+                    <div id="top-champions"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Round Results Screen - Fixed to ensure visibility -->
+        <div id="round-results" class="game-screen hidden" data-screen="results" data-testid="round-results-screen">
+            <h2>Round <span id="completed-round">1</span> Complete!</h2>
+            
+            <!-- Key information container -->
+            <div id="key-results-container">
+                <!-- Will be filled dynamically with status, rank and rewards -->
+            </div>
+            
+            <!-- Original player results (hidden but needed for data storage) -->
+            <div id="player-results" class="hidden">
+                <h3>Total Score: <span id="player-score">0</span></h3>
+                <p>This Round: <span id="round-score">0</span></p>
+                <p>Coins Earned: <span id="coins-earned">0</span></p>
+                <p>Your Coins: <span id="store-coins">0</span></p>
+            </div>
+
+            <!-- Rankings section -->
+            <div id="ranking">
+                <div id="ranking-list">
+                    <!-- Rankings will be shown here -->
+                </div>
+            </div>
+            
+            <!-- Store section (still hidden, will be shown in overlay) -->
+            <div id="store-section" class="hidden">
+                <div id="store-items">
+                    <!-- Store items will be generated here -->
+                </div>
+            </div>
+
+            <!-- Next round info -->
+            <div id="next-round-info">
+                <h3 class="next-round-title">Coming Up: Round <span id="next-round-number">2</span></h3>
+                <div id="next-round-description" class="next-round-description">
+                    <!-- Will be filled dynamically -->
+                </div>
+            </div>
+
+            <!-- Buttons for next steps -->
+                <div class="round-buttons-container">
+                    <button id="visit-store" class="game-button visit-store-button" aria-label="Open shop">Open Shop</button>
+                    <button id="next-round" class="game-button" aria-label="Continue to next round">Next Round</button>
+                </div>
+        </div>
+
+        <!-- Game Over Screen -->
+        <div id="game-over" class="game-screen hidden" data-screen="game-over" data-testid="game-over-screen">
+            <h2 id="game-result">Tournament Complete!</h2>
+            <p id="game-result-copy" class="game-result-copy"></p>
+            
+            <div id="final-results">
+                <h3>Final Points Rush</h3>
+                <div class="final-score-grid">
+                    <div class="final-score-row">
+                        <span class="final-score-label">Base Score</span>
+                        <span id="final-base-score" class="final-score-reel">0</span>
+                    </div>
+                    <div class="final-score-row final-bonus-row">
+                        <span class="final-score-label">Coin Bonus (<span id="final-bonus-coins">0</span> x 2)</span>
+                        <span id="final-coin-bonus" class="final-score-reel">0</span>
+                    </div>
+                    <div class="final-score-row final-total-row">
+                        <span class="final-score-label">Final Total</span>
+                        <span id="final-total-score" class="final-score-reel">0</span>
+                    </div>
+                </div>
+                <p class="final-rank-text">Final Rank: <span id="final-rank">0 of 96</span></p>
+                <span id="final-score" class="sr-only">0</span>
+            </div>
+
+            <div id="high-score-entry" class="hidden">
+                <h3>New High Score!</h3>
+                <div id="high-score-details"></div>
+            </div>
+
+            <div id="final-comparison-section" class="hidden">
+                <h3>Finalists Points Race</h3>
+                <div id="final-comparison-list">
+                    <!-- Finalists points comparison -->
+                </div>
+            </div>
+
+            <div id="final-high-scores">
+                <h3>Championship Leaderboard</h3>
+                <div id="final-high-scores-list">
+                    <!-- High scores will be shown here -->
+                </div>
+            </div>
+
+            <button id="play-again" class="game-button" aria-label="Play again">Play Again</button>
+        </div>
+    </div>
+
+<!-- Scripts -->
+<script src="scripts/fallback-word-lists.js"></script>
+<script src="scripts/new-word-lists-loader.js"></script>
+<script src="scripts/heroes.js"></script>
+<script src="scripts/keyboard.js"></script>
+<script src="scripts/store.js"></script>
+<script src="scripts/game-modules/game-core.js"></script>
+<script src="scripts/game-modules/game-opponents.js"></script>
+<script src="scripts/game-modules/game-powerups.js"></script>
+<script src="scripts/game-modules/game-words.js"></script>
+<script src="scripts/game-modules/round-results.js"></script>
+<script src="scripts/game-modules/game-rounds.js"></script>
+<script src="scripts/game.js"></script>
+<script src="scripts/start-screen.js"></script>
+</body>
+</html>

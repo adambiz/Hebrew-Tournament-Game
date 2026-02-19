@@ -1,0 +1,157 @@
+/* Single source of responsive breakpoints */
+@media (min-width: 760px) {
+    #game-container {
+        padding: var(--space-5);
+    }
+
+    .start-container {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    #round-screen {
+        padding-bottom: var(--space-4);
+    }
+
+    #mobile-action-bar {
+        /* Keep a positioning context for the absolute bonus panel. */
+        position: relative;
+        max-width: 520px;
+        margin: 0 auto;
+    }
+
+    .reward-container {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .round-buttons-container {
+        position: static;
+        max-width: 520px;
+        margin: 0 auto;
+    }
+
+    #game-over {
+        grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+        align-items: start;
+    }
+
+    #game-over > #game-result,
+    #game-over > .game-result-copy,
+    #game-over > #final-results,
+    #game-over > #play-again {
+        grid-column: 1 / -1;
+    }
+
+    .store-items-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (min-width: 1024px) {
+    #game-container {
+        padding: var(--space-6);
+    }
+
+    #round-screen {
+        gap: var(--space-5);
+    }
+
+    .keyboard-key {
+        width: 42px;
+        height: 44px;
+        font-size: 1.45rem;
+    }
+}
+
+@media (max-width: 480px) {
+    body {
+        padding: var(--space-2);
+    }
+
+    #game-container {
+        border-radius: var(--radius-md);
+        padding: var(--space-3);
+    }
+
+    .game-screen {
+        padding: var(--space-3);
+    }
+
+    .start-panel {
+        padding: var(--space-4);
+    }
+
+    #player-info {
+        justify-items: start;
+        text-align: left;
+    }
+
+    #round-info {
+        flex-direction: column;
+    }
+
+    .letter-container {
+        width: 30px;
+        height: 38px;
+    }
+
+    .typed-letter,
+    .revealed-letter,
+    .letter-placeholder {
+        width: 26px;
+        height: 34px;
+        font-size: 1.75rem;
+    }
+
+    .keyboard-key {
+        width: 31px;
+        height: 36px;
+        font-size: 1.15rem;
+    }
+
+    .keyboard-backspace {
+        width: 88px;
+        font-size: 0.9rem;
+    }
+
+    .store-header {
+        grid-template-columns: 1fr auto;
+    }
+
+    .player-coins {
+        grid-column: 1 / -1;
+        justify-self: start;
+    }
+
+    .store-items-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ranking-item {
+        grid-template-columns: 28px minmax(0, 1fr) auto;
+        gap: 8px;
+    }
+
+    .ranking-points {
+        display: none;
+    }
+
+    .final-score-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+
+    .final-score-reel {
+        text-align: left;
+    }
+
+    .final-comparison-item,
+    #final-high-scores-list .high-score-item {
+        grid-template-columns: 40px minmax(0, 1fr);
+    }
+
+    .final-comparison-score,
+    .leaderboard-score {
+        grid-column: 1 / -1;
+        justify-self: end;
+    }
+}

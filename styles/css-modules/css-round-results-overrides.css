@@ -1,0 +1,280 @@
+/* Final cascade authority for round results screen */
+#round-results {
+    background: linear-gradient(180deg, #9ab5c9 0%, #8faac0 100%) !important;
+}
+
+#round-results > h2.pixel-title-plate {
+    width: min(100%, 860px);
+    margin: 0 auto;
+}
+
+#round-results .results-hero > .status-container.survived {
+    background: linear-gradient(180deg, #efe4cf 0%, #e1d1b4 100%);
+    border-color: #a16f3c;
+    box-shadow: 0 4px 0 #805c33;
+}
+
+#round-results[data-result-state="top3"] .results-hero > .status-container.survived {
+    background: linear-gradient(180deg, #f1e6cf 0%, #e5d7b7 100%);
+    border-color: #97683a;
+    box-shadow: 0 4px 0 #79552f;
+}
+
+#round-results[data-result-state="champion"] .results-hero > .status-container.survived {
+    background: linear-gradient(180deg, #f7e9ca 0%, #ebd8ad 100%);
+    border-color: #946634;
+    box-shadow: 0 4px 0 #71502b;
+}
+
+#round-results .results-hero > .status-container.eliminated {
+    background: linear-gradient(180deg, #d9b9b0 0%, #c99f95 100%);
+    border-color: #8d4f45;
+    box-shadow: 0 4px 0 #6f3b35;
+}
+
+#round-results[data-result-state="eliminated"] .results-hero > .status-container.eliminated {
+    background: linear-gradient(180deg, #d2b1a9 0%, #c3978d 100%);
+    border-color: #7f473f;
+    box-shadow: 0 4px 0 #60312d;
+}
+
+#round-results .status-message.pixel-title-plate {
+    justify-self: center;
+    margin: 0;
+    font-size: clamp(0.96rem, 2.8vw, 1.16rem);
+    line-height: 1.14;
+}
+
+#round-results[data-result-state="eliminated"] .status-message.pixel-title-plate {
+    font-size: clamp(0.88rem, 2.45vw, 1.02rem);
+}
+
+#round-results .rank-display {
+    background: linear-gradient(180deg, #7c9db8 0%, #6686a2 100%);
+    border-color: #4f6f89;
+    box-shadow: 0 4px 0 #415f76;
+    color: #f3efe3;
+    text-shadow: 1px 1px 0 #364d61;
+}
+
+#round-results .rank-display.gold {
+    background: linear-gradient(180deg, #c99b5a 0%, #b78644 100%);
+    border-color: #8a6230;
+    box-shadow: 0 4px 0 #6c4c27;
+}
+
+#round-results .rank-display.silver {
+    background: linear-gradient(180deg, #b8c6d3 0%, #9caec0 100%);
+    border-color: #6d8297;
+    box-shadow: 0 4px 0 #56697d;
+    color: #243546;
+    text-shadow: none;
+}
+
+#round-results .rank-display.bronze {
+    background: linear-gradient(180deg, #be8d62 0%, #a7784f 100%);
+    border-color: #7b5638;
+    box-shadow: 0 4px 0 #5f412b;
+}
+
+#round-results[data-result-state="top3"] .rank-display {
+    box-shadow: 0 4px 0 #4a687f, 0 0 0 2px rgba(244, 227, 187, 0.34);
+}
+
+#round-results[data-result-state="champion"] .rank-display {
+    background: linear-gradient(180deg, #d0a463 0%, #be8c48 100%);
+    border-color: #8f6633;
+    box-shadow: 0 4px 0 #6f4f28, 0 0 0 2px rgba(250, 230, 182, 0.4);
+    color: #f8f2e3;
+}
+
+#round-results[data-result-state="champion"] .rank-display .rank-details.pixel-chip {
+    border-color: rgba(92, 67, 34, 0.88);
+    background: rgba(252, 243, 224, 0.24);
+    color: #fdf7ea;
+}
+
+#round-results[data-result-state="eliminated"] .rank-display {
+    background: linear-gradient(180deg, #7f95ab 0%, #6c859e 100%);
+    border-color: #587186;
+    box-shadow: 0 4px 0 #475c70;
+}
+
+#round-results .rank-display.blue {
+    background: linear-gradient(180deg, #7397b9 0%, #5f84a5 100%);
+}
+
+#round-results .rank-display.purple {
+    background: linear-gradient(180deg, #6f8ca7 0%, #5d7690 100%);
+}
+
+#round-results .rank-details.pixel-chip {
+    border-color: rgba(48, 71, 93, 0.9);
+    background: rgba(234, 242, 249, 0.2);
+}
+
+#round-results .rank-display.silver .rank-details.pixel-chip {
+    border-color: rgba(66, 82, 97, 0.85);
+    background: rgba(255, 255, 255, 0.28);
+    color: #243546;
+}
+
+#round-results .reward-item {
+    background: linear-gradient(180deg, #ede4cf 0%, #dfd1b5 100%);
+    border-color: #a16f3c;
+    box-shadow: 0 4px 0 #805c33;
+}
+
+#round-results .reward-item--points {
+    border-color: #926438;
+}
+
+#round-results .reward-item--earned {
+    border-color: #6f8ca6;
+    box-shadow: 0 4px 0 #56708a;
+}
+
+#round-results .reward-item--total {
+    border-color: #7f9a53;
+    box-shadow: 0 4px 0 #60773f;
+}
+
+#round-results .reward-label.pixel-title-plate {
+    background: #ebe0ca;
+    width: min(100%, 180px);
+    font-size: 0.66rem;
+    letter-spacing: 0.025em;
+}
+
+#round-results .reward-item--earned .reward-label.pixel-title-plate {
+    border-image: var(--kenney-frame-steel) 10 stretch;
+    background: #dbe5ee;
+    color: #2e485e;
+}
+
+#round-results .reward-value.pixel-chip {
+    min-width: 106px;
+    justify-content: center;
+    font-size: 0.98rem;
+    letter-spacing: 0.01em;
+}
+
+#round-results .results-sparkle.pixel-icon--dot {
+    filter: saturate(1.05) brightness(1.04);
+}
+
+#round-results .results-sparkle.pixel-icon--starburst,
+#round-results .results-sparkle.pixel-icon--coin,
+#round-results .results-sparkle.pixel-icon--badge-cream,
+#round-results .results-sparkle.pixel-icon--badge-bronze {
+    filter: drop-shadow(0 1px 0 rgba(50, 68, 86, 0.44));
+}
+
+#round-results #ranking.pixel-frame-steel {
+    background: linear-gradient(180deg, #abc4d5 0%, #98b3c7 100%) !important;
+    box-shadow: 0 4px 0 #4b6780 !important;
+}
+
+#round-results #ranking-list {
+    background: linear-gradient(180deg, #dce7f0 0%, #d0dde8 100%) !important;
+}
+
+#round-results .ranking-item {
+    border-bottom: 2px solid #8ea8bc;
+}
+
+#round-results .ranking-item:nth-child(even) {
+    background: rgba(189, 209, 224, 0.35);
+}
+
+#round-results .ranking-item.player {
+    background: linear-gradient(90deg, rgba(235, 224, 198, 0.95) 0%, rgba(224, 209, 177, 0.95) 100%);
+    border-left-color: #a16f3c;
+}
+
+#round-results .ranking-item.ranking-eliminated {
+    border-left-color: #c24646;
+    background: linear-gradient(90deg, rgba(216, 198, 196, 0.92) 0%, rgba(203, 184, 183, 0.92) 100%);
+}
+
+#round-results .ranking-item.ranking-eliminated:nth-child(even) {
+    background: linear-gradient(90deg, rgba(206, 188, 187, 0.94) 0%, rgba(193, 177, 176, 0.94) 100%);
+}
+
+#round-results .ranking-item.ranking-eliminated .ranking-name-text {
+    text-decoration-color: #cb3e3e;
+}
+
+#round-results .ranking-item.ranking-eliminated .ranking-position.pixel-chip,
+#round-results .ranking-item.ranking-eliminated .ranking-score.pixel-chip,
+#round-results .ranking-item.ranking-eliminated .ranking-points.pixel-chip {
+    filter: grayscale(1);
+}
+
+#round-results .ranking-position.pixel-chip,
+#round-results .ranking-score.pixel-chip,
+#round-results .ranking-points.pixel-chip {
+    background: #d9e5ee;
+    border-color: #5a7d9a;
+    color: #2d4458;
+}
+
+#round-results .ranking-item.player .ranking-position.pixel-chip,
+#round-results .ranking-item.player .ranking-score.pixel-chip,
+#round-results .ranking-item.player .ranking-points.pixel-chip {
+    background: #efe4cf;
+    border-color: #9b6e3f;
+    color: #4f351d;
+}
+
+#round-results .round-buttons-container.pixel-frame-steel {
+    background: linear-gradient(180deg, #abc4d5 0%, #99b4c8 100%) !important;
+    box-shadow: 0 4px 0 #4b6780 !important;
+}
+
+#round-results .round-buttons-container > button,
+#round-results #visit-store,
+#round-results #next-round {
+    min-width: 0 !important;
+    width: 100%;
+}
+
+#round-results #visit-store {
+    background-color: #7b8da0 !important;
+    border-color: #50667d !important;
+    color: #f1f6fb !important;
+}
+
+#round-results #next-round {
+    background-color: #5f87ad !important;
+    border-color: #3f617d !important;
+    color: #f2f7fb !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+    #round-results #visit-store:hover:not(:disabled) {
+        background-color: #8798aa !important;
+    }
+
+    #round-results #next-round:hover:not(:disabled) {
+        background-color: #6d95bc !important;
+    }
+}
+
+@media (max-width: 480px) {
+    #round-results .status-message.pixel-title-plate {
+        width: 100%;
+    }
+
+    #round-results .reward-label.pixel-title-plate {
+        width: 100%;
+    }
+
+    #round-results .reward-value.pixel-chip {
+        min-width: 0;
+    }
+
+    #round-results .round-buttons-container {
+        padding: 6px;
+    }
+}

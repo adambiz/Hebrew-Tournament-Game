@@ -1,0 +1,281 @@
+/* Game over screen */
+#game-over {
+    display: grid;
+    gap: var(--space-4);
+    background:
+        radial-gradient(circle at 10% 18%, rgba(255, 189, 72, 0.26), transparent 42%),
+        radial-gradient(circle at 88% 5%, rgba(77, 167, 255, 0.24), transparent 36%),
+        linear-gradient(180deg, #ffffff 0%, #f6fbff 100%);
+}
+
+#game-result {
+    text-align: center;
+    font-size: clamp(1.8rem, 5vw, 2.4rem);
+    line-height: 1.1;
+}
+
+.game-result-copy {
+    text-align: center;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-top: calc(var(--space-2) * -1);
+}
+
+#final-results {
+    border: var(--border-soft);
+    border-radius: var(--radius-lg);
+    background: #ffffff;
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-4);
+    display: grid;
+    gap: var(--space-3);
+}
+
+#final-results h3 {
+    font-size: 1.3rem;
+    text-align: center;
+}
+
+.final-score-grid {
+    display: grid;
+    gap: var(--space-2);
+}
+
+.final-score-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--space-2);
+    align-items: center;
+    background: #f7fbff;
+    border: var(--border-soft);
+    border-radius: var(--radius-sm);
+    padding: 10px 12px;
+}
+
+.final-score-label {
+    font-size: 0.9rem;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+.final-score-reel {
+    min-width: 96px;
+    text-align: right;
+    border-radius: 10px;
+    border: 2px solid #2d4a6f;
+    background: linear-gradient(180deg, #101d31, #1f3556);
+    color: #f5ff86;
+    font-family: "Trebuchet MS", "Courier New", monospace;
+    font-size: clamp(1.15rem, 4vw, 1.7rem);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    padding: 6px 10px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14);
+}
+
+.final-bonus-row .final-score-reel {
+    color: #a8ffe2;
+}
+
+.final-total-row {
+    border-color: #ffcf59;
+    background: linear-gradient(140deg, #fff5d6, #ffe8b4);
+}
+
+.final-total-row .final-score-label {
+    font-size: 1rem;
+}
+
+.final-total-row .final-score-reel {
+    min-width: 116px;
+    color: #fff9a0;
+    border-color: #8a6404;
+    background: linear-gradient(180deg, #342705, #5f4300);
+    font-size: clamp(1.3rem, 5vw, 2rem);
+}
+
+.final-rank-text {
+    text-align: center;
+    font-weight: 800;
+    color: var(--text-main);
+}
+
+#game-over.result-win #game-result {
+    color: #b56f00;
+}
+
+#game-over.result-strong #game-result {
+    color: #1f6ec7;
+}
+
+#game-over.result-loss #game-result {
+    color: #315377;
+}
+
+.score-counting {
+    animation: reel-flicker 0.28s linear infinite;
+}
+
+.bonus-pulse {
+    animation: bonus-pulse 0.42s ease-in-out infinite alternate;
+}
+
+#game-over.final-jackpot-active .final-total-row .final-score-reel {
+    animation: jackpot-flash 0.24s ease-in-out 5;
+}
+
+#high-score-entry {
+    border: var(--border-soft);
+    border-radius: var(--radius-md);
+    background: linear-gradient(155deg, #e9faef, #d4f5e2);
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-4);
+}
+
+#high-score-entry h3 {
+    margin-bottom: 8px;
+}
+
+#final-comparison-section {
+    border: var(--border-soft);
+    border-radius: var(--radius-md);
+    background: #ffffff;
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-4);
+    display: grid;
+    gap: var(--space-2);
+}
+
+#final-comparison-section h3 {
+    margin-bottom: 2px;
+}
+
+#final-comparison-list {
+    display: grid;
+    gap: var(--space-2);
+    max-height: 240px;
+    overflow-y: auto;
+}
+
+.final-comparison-item {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-2);
+    border: var(--border-soft);
+    border-radius: var(--radius-sm);
+    background: #f7fbff;
+    padding: 9px 10px;
+}
+
+.player-finalist {
+    border-color: #9ec4f5;
+    background: #eaf3ff;
+}
+
+.final-comparison-rank {
+    font-weight: 900;
+    color: #365a89;
+}
+
+.final-comparison-name {
+    font-weight: 800;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.final-comparison-score {
+    font-weight: 900;
+    color: #113b6d;
+}
+
+#final-high-scores {
+    border: var(--border-soft);
+    border-radius: var(--radius-md);
+    background: #ffffff;
+    box-shadow: var(--shadow-sm);
+    padding: var(--space-4);
+}
+
+#final-high-scores h3 {
+    margin-bottom: var(--space-2);
+}
+
+#final-high-scores-list {
+    display: grid;
+    gap: var(--space-2);
+    max-height: 260px;
+    overflow-y: auto;
+}
+
+#final-high-scores-list .high-score-item {
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-2);
+    border: var(--border-soft);
+    border-radius: var(--radius-sm);
+    background: #f7fbff;
+    padding: 9px 10px;
+    font-weight: 700;
+}
+
+#final-high-scores-list .player-high-score {
+    border-color: #9ec4f5;
+    background: #eaf3ff;
+}
+
+.leaderboard-rank {
+    color: #365a89;
+    font-weight: 900;
+}
+
+.leaderboard-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.leaderboard-score {
+    font-weight: 900;
+    color: #113b6d;
+}
+
+#play-again {
+    min-height: 52px;
+    background: var(--brand-green);
+    color: #ffffff;
+    box-shadow: 0 4px 0 var(--brand-green-dark);
+    justify-self: center;
+    min-width: min(260px, 100%);
+}
+
+#play-again:hover {
+    background: var(--brand-green-dark);
+}
+
+@keyframes reel-flicker {
+    0% { transform: translateY(0); filter: brightness(1); }
+    50% { transform: translateY(-1px); filter: brightness(1.12); }
+    100% { transform: translateY(0); filter: brightness(1); }
+}
+
+@keyframes bonus-pulse {
+    0% { transform: scale(1); }
+    100% { transform: scale(1.04); }
+}
+
+@keyframes jackpot-flash {
+    0% { box-shadow: 0 0 0 rgba(255, 212, 64, 0); }
+    50% { box-shadow: 0 0 18px rgba(255, 212, 64, 0.75); }
+    100% { box-shadow: 0 0 0 rgba(255, 212, 64, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .score-counting,
+    .bonus-pulse,
+    #game-over.final-jackpot-active .final-total-row .final-score-reel {
+        animation: none !important;
+    }
+}

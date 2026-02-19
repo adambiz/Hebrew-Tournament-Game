@@ -1,0 +1,174 @@
+round,german,hebrew,english,hebrew_vocalized,tts_text
+1,Berg,הר,mountain,הַר,הַר
+1,Meer,ים,sea,יָם,יָם
+1,Baum,עץ,tree,עֵץ,עֵץ
+1,Fisch,דג,fish,דָּג,דָּג
+1,Hand,יד,hand,יָד,יָד
+1,Nase,אף,nose,אַף,אַף
+1,Mund,פה,mouth,פֶּה,פֶּה
+1,Vater,אב,father,אָב,אָב
+1,Sohn,בן,son,בֵּן,בֵּן
+1,Dach,גג,roof,גַּג,גַּג
+1,Garten,גן,garden,גַּן,גַּן
+1,Was,מה,what,מָה,מָה
+1,Wer,מי,who,מִי,מִי
+1,Dort,שם,there,שָׁם,שָׁם
+1,Hier,כאן,here,כָּאן,כָּאן
+1,Auch,גם,also,גַּם,גַּם
+1,Mit,עם,with,עִם,עִם
+1,Auf,על,on,עַל,עַל
+1,Schlecht,רע,bad,רַע,רַע
+1,Insel,אי,island,אִי,אִי
+1,Karte,מפה,map,מַפָּה,מַפָּה
+1,Mond,ירח,moon,יָרֵחַ,יָרֵחַ
+1,Wolf,זאב,wolf,זְאֵב,זְאֵב
+1,Bär,דוב,bear,דּוֹב,דּוֹב
+1,Affe,קוף,monkey,קוֹף,קוֹף
+1,Hase,שפן,hare,שָׁפָן,שָׁפָן
+1,Zauber,קסם,magic,קֶסֶם,קֶסֶם
+1,Wind,רוח,wind,רוּחַ,רוּחַ
+1,Spaß,כיף,fun,כֵּיף,כֵּיף
+2,Lehrer,מורה,teacher,מוֹרֶה,מוֹרֶה
+2,Fenster,חלון,window,חַלּוֹן,חַלּוֹן
+2,Computer,מחשב,computer,מַחְשֵׁב,מַחְשֵׁב
+2,Straße,רחוב,street,רְחוֹב,רְחוֹב
+2,Rot,אדום,red,אָדוֹם,אָדוֹם
+2,Frieden,שלום,peace,שָׁלוֹם,שָׁלוֹם
+2,Ort,מקום,place,מָקוֹם,מָקוֹם
+2,Post,דואר,mail,דּוֹאַר,דּוֹאַֽר
+2,Bäcker,אופה,baker,אוֹפֶה,אוֹפֶה
+2,Boot,סירה,boat,סִירָה,סִירָה
+2,Kuchen,עוגה,cake,עוּגָה,עוּגָה
+2,Stern,כוכב,star,כּוֹכָב,כּוֹכָב
+2,Katze,חתול,cat,חָתוּל,חָתוּל
+2,Seife,סבון,soap,סַבּוֹן,סַבּוֹן
+2,Kleid,שמלה,dress,שִׂמְלָה,שִׂמְלָה
+2,Kompass,מצפן,compass,מַצְפֵּן,מַצְפֵּן
+2,Rucksack,תרמיל,backpack,תַּרְמִיל,תַּרְמִיל
+2,Fernrohr,משקפת,telescope,מִשְׁקֶפֶת,מִשְׁקֶפֶת
+2,Fackel,לפיד,torch,לַפִּיד,לַפִּיד
+2,Helm,קסדה,helmet,קַסְדָּה,קַסְדָּה
+2,Drache,דרקון,dragon,דְּרָקוֹן,דְּרָקוֹן
+2,Zauberstab,שרביט,magic wand,שַׁרְבִיט,שַׁרְבִיט
+2,Schatzkiste,תיבה,treasure chest,תֵּיבָה,תֵּיבָה
+2,Leiter,סולם,ladder,סֻלָּם,סֻלָּם
+2,Wolke,עננה,cloud,עֲנָנָה,עֲנָנָה
+3,Schokolade,שוקולד,chocolate,שׁוֹקוֹלָד,שׁוֹקוֹלָד
+3,Regenschirm,מטרייה,umbrella,מִטְרִיָּה,מִטְרִיָּה
+3,Fernsehprogramm,תוכנית,tv program,תּוֹכְנִית,תּוֹכְנִית
+3,Badewanne,אמבטיה,bathtub,אַמְבַּטְיָה,אַמְבַּטְיָה
+3,Hahn,תרנגול,rooster,תַּרְנְגוֹל,תַּרְנְגוֹל
+3,Rechner,מחשבון,calculator,מַחְשְׁבוֹן,מַחְשְׁבוֹן
+3,Orangen,תפוזים,oranges,תַּפּוּזִים,תַּפּוּזִים
+3,Atmosphäre,אווירה,atmosphere,אֲוִירָה,אֲוִירָה
+3,Tomate,עגבניה,tomato,עַגְבָנִיָּה,עַגְבָנִיָּה
+3,Kekse,עוגיות,cookies,עוּגִיּוֹת,עוּגִיּוֹת
+3,Schmetterlinge,פרפרים,butterflies,פַּרְפָּרִים,פַּרְפָּרִים
+3,Jalousien,תריסים,blinds,תְּרִיסִים,תְּרִיסִֽים
+3,Münzen,מטבעות,coins,מַטְבְּעוֹת,מַטְבְּעוֹת
+3,Abenteurer,הרפתקן,adventurer,הַרְפַּתְקָן,הַרְפַּתְקָן
+3,Monster,מפלצות,monsters,מִפְלָצוֹת,מִפְלָצוֹת
+3,Piraten,פיראטים,pirates,פִּירָאטִים,פִּירָאטִֽים
+3,Drachen,דרקונים,dragons,דְּרָקוֹנִים,דְּרָקוֹנִים
+3,Galaxie,גלקסיה,galaxy,גָּלַקְסְיָה,גָּלַקְסְיָה
+3,Comics,קומיקס,comics,קוֹמִיקְס,קוֹֽמִיקְס
+3,Fahrrad,אופניים,bicycle,אוֹפַנַּיִם,אוֹפַנַּֽיִם
+3,Raumschiffe,חלליות,spaceships,חֲלָלִיּוֹת,חֲלָלִיּוֹת
+3,Bonbons,סוכריות,candies,סֻכָּרִיּוֹת,סֻכָּרִיּוֹת
+3,Sterne,כוכבים,stars,כּוֹכָבִים,כּוֹכָבִים
+3,Spiele,משחקים,games,מִשְׂחָקִים,מִשְׂחָקִים
+4,Großer Berg,ההר גדול,big mountain,הָהָר גָּדוֹל,הָהָר גָּדוֹל
+4,Kleines Kind,ילד קטן,small child,יֶלֶד קָטָן,יֶלֶד קָטָן
+4,Blaues Wasser,מים כחולים,blue water,מַיִם כְּחוּלִּים,מַֽיִם כְּחוּלִּים
+4,Kalter Tag,יום קר,cold day,יוֹם קַר,יוֹם קַר
+4,Leckeres Brot,לחם טעים,tasty bread,לֶחֶם טָעִים,לֶחֶם טָעִים
+4,Süßer Apfel,תפוח מתוק,sweet apple,תַּפּוּחַ מָתוֹק,תַּפּוּחַ מָתוֹק
+4,Altes Haus,בית ישן,old house,בַּיִת יָשָׁן,בַּיִת יָשָׁן
+4,Neues Buch,ספר חדש,new book,סֵפֶר חָדָשׁ,סֵֽפֶר חָדָשׁ
+4,Schneller Zug,רכבת מהירה,fast train,רַכֶּבֶת מְהִירָה,רַכֶּבֶת מְהִירָה
+4,Schöne Blume,פרח יפה,beautiful flower,פֶּרַח יָפֶה,פֶּֽרַח יָפֶה
+4,Grüner Apfel,תפוח ירוק,green apple,תַּפּוּחַ יָרוֹק,תַּפּוּחַ יָרוֹק
+4,Kaltes Wasser,מים קרים,cold water,מַיִם קָרִים,מַֽיִם קָרִים
+4,Großes Haus,בית גדול,big house,בַּיִת גָּדוֹל,בַּיִת גָּדוֹל
+4,Alter Mann,איש זקן,old man,אִישׁ זָקֵן,אִישׁ זָקֵן
+4,Junge Frau,אישה צעירה,young woman,אִשָּׁה צְעִירָה,אִשָּׁה צְעִירָה
+4,Weißes Brot,לחם לבן,white bread,לֶחֶם לָבָן,לֶחֶם לָבָן
+4,Schwarzer Kaffee,קפה שחור,black coffee,קָפֶה שָׁחוֹר,קָפֶה שָׁחוֹר
+4,Rote Rose,שושנה אדומה,red rose,שׁוֹשַׁנָּה אֲדוּמָּה,שׁוֹשַׁנָּה אֲדוּמָּה
+4,Hoher Baum,עץ גבוה,tall tree,עֵץ גָּבוֹהַּ,עֵץ גָּבֽוֹהַּ
+4,Schnelles Auto,מכונית מהירה,fast car,מְכוֹנִית מְהִירָה,מְכוֹנִית מְהִירָה
+4,Magische Karte,מפה קסומה,magic map,מַפָּה קְסוּמָה,מַפָּה קְסוּמָה
+4,Lustiger Roboter,רובוט מצחיק,funny robot,רוֹבּוֹט מַצְחִיק,רוֹבּֽוֹט מַצְחִיק
+4,Freundlicher Drache,דרקון ידידותי,friendly dragon,דְּרָקוֹן יְדִידוּתִי,דְּרָקוֹן יְדִידוּתִי
+4,Geheime Insel,אי סודי,secret island,אִי סוֹדִי,אִי סוֹדִי
+4,Fliegendes Boot,סירה מעופפת,flying boat,סִירָה מְעוֹפֶפֶת,סִירָה מְעוֹפֶפֶת
+4,Mutige Katze,חתול אמיץ,brave cat,חָתוּל אַמִּיץ,חָתוּל אַמִּיץ
+4,Springender Affe,קוף קופץ,jumping monkey,קוֹף קוֹפֵץ,קוֹף קוֹפֵץ
+4,Leuchtender Mond,ירח זוהר,glowing moon,יָרֵחַ זוֹהֵר,יָרֵחַ זוֹהֵר
+4,Glänzender Schatz,אוצר נוצץ,shiny treasure,אוֹצָר נוֹצֵץ,אוֹצָר נוֹצֵץ
+4,Kleiner Kompass,מצפן קטן,small compass,מַצְפֵּן קָטָן,מַצְפֵּן קָטָן
+5,Ich liebe Schokolade,אני אוהב שוקולד,i love chocolate,אֲנִי אוֹהֵב שׁוֹקוֹלָד,אֲנִי אוֹהֵב שׁוֹקוֹלָד
+5,Er baut einen Papierdrachen,הוא בונה עפיפון,he builds a kite,הוּא בּוֹנֶה עֲפִיפוֹן,הוּא בּוֹנֶה עֲפִיפוֹן
+5,Sie trinkt Zaubertrank,היא שותה שיקוי,she drinks a magic potion,הִיא שׁוֹתָה שִׁיקוּי,הִיא שׁוֹתָה שִׁיקוּי
+5,Wir jagen Schätze,אנחנו מחפשים אוצרות,we hunt treasures,אֲנַחְנוּ מְחַפְּשִׂים אוֹצָרוֹת,אֲנַחְנוּ מְחַפְּשִׂים אוֹצָרוֹת
+5,Der Hund läuft schnell,הכלב רץ מהר,the dog runs fast,הַכֶּלֶב רָץ מַהֵר,הַכֶּלֶב רָץ מַהֵר
+5,Ich fliege zum Mond,אני טס לירח,i fly to the moon,אֲנִי טָס לַיָּרֵחַ,אֲנִי טָס לַיָּרֵחַ
+5,Er spielt Klavier,הוא מנגן בפסנתר,he plays the piano,הוּא מְנַגֵּן בְּפְסַנְתֵּר,הוּא מְנַגֵּן בְּפְסַנְתֵּר
+5,Der Hund springt hoch,הכלב קופץ גבוה,the dog jumps high,הַכֶּלֶב קוֹפֵץ גָּבוֹהַּ,הַכֶּלֶב קוֹפֵץ גָּבֽוֹהַּ
+5,Die Katze jagt Seifenblasen,החתול רודף אחרי בועות סבון,the cat chases soap bubbles,הַחָתוּל רוֹדֵף אַחֲרֵי בּוּעוֹת סַבּוֹן,הַחָתוּל רוֹדֵף אַחֲרֵי בּוּעוֹת סַבּוֹן
+5,Das Kind surft auf Wolken,הילד גולש בעננים,the child surfs on clouds,הַיֶּלֶד גּוֹלֵשׁ בַּעֲנָנִים,הַיֶּלֶד גּוֹלֵשׁ בַּעֲנָנִים
+5,Ich esse Eiscreme,אני אוכל גלידה,i eat ice cream,אֲנִי אוֹכֵל גְּלִידָה,אֲנִי אוֹכֵל גְּלִידָה
+5,Wir gehen zum Strand,אנחנו הולכים לחוף,we go to the beach,אֲנַחְנוּ הוֹלְכִים לַחוֹף,אֲנַחְנוּ הוֹלְכִים לַחוֹף
+5,Er fliegt mit Rakete,הוא טס ברקטה,he flies with a rocket,הוּא טָס בְּרָקֵטָה,הוּא טָס בְּרָקֵֽטָה
+5,Der Himmel ist voller Sterne,השמיים מלאים כוכבים,the sky is full of stars,הַשָּׁמַיִם מְלֵאִים כּוֹכָבִים,הַשָּׁמַיִם מְלֵאִים כּוֹכָבִים
+5,Die Blume tanzt im Wind,הפרח רוקד ברוח,the flower dances in the wind,הַפֶּרַח רוֹקֵד בָּרוּחַ,הַפֶּֽרַח רוֹקֵד בָּרוּחַ
+5,Das Buch ist voller Monster,הספר מלא מפלצות,the book is full of monsters,הַסֵּפֶר מָלֵא מִפְלָצוֹת,הַסֵּפֶר מָלֵא מִפְלָצוֹת
+5,Der Pirat sucht einen Schatz,הפיראט מחפש אוצר,the pirate looks for a treasure,הַפִּירָאט מְחַפֵּשׂ אוֹצָר,הַפִּירָאט מְחַפֵּשׂ אוֹצָר
+5,Der Affe isst eine Banane,הקוף אוכל בננה,the monkey eats a banana,הַקּוֹף אוֹכֵל בָּנָנָה,הַקּוֹף אוֹכֵל בָּנָֽנָה
+5,Der Roboter tanzt nachts,הרובוט רוקד בלילה,the robot dances at night,הָרוֹבּוֹט רוֹקֵד בַּלַּיְלָה,הָרוֹבּֽוֹט רוֹקֵד בַּלַּֽיְלָה
+5,Der Drache liebt Eiscreme,הדרקון אוהב גלידה,the dragon loves ice cream,הַדְּרָקוֹן אוֹהֵב גְּלִידָה,הַדְּרָקוֹן אוֹהֵב גְּלִידָה
+5,Wir bauen heute Raketen,אנחנו בונים רקטות,we build rockets today,אֲנַחְנוּ בּוֹנִים רָקֵטוֹת,אֲנַחְנוּ בּוֹנִים רָקֵטֽוֹת
+5,Das Mädchen malt eine Karte,הילדה מציירת מפה,the girl draws a map,הַיַלְדָּה מְצַיֶּרֶת מַפָּה,הַיַלְדָּה מְצַיֶּרֶת מַפָּה
+5,Die Katze fliegt nach Hause,החתול טס הביתה,the cat flies home,הַחָתוּל טָס הַבַּיְתָה,הַחָתוּל טָס הַבַּיְתָה
+5,Der Junge findet eine Münze,הילד מוצא מטבע,the boy finds a coin,הַיֶּלֶד מוֹצֵא מַטְבֵּעַ,הַיֶּלֶד מוֹצֵא מַטְבֵּעַ
+5,Der Hund bewacht den Schatz,הכלב שומר על האוצר,the dog guards the treasure,הַכֶּלֶב שׁוֹמֵר עַל הָאוֹצָר,הַכֶּלֶב שׁוֹמֵר עַל הָאוֹצָר
+5,Die Schildkröte gewinnt das Rennen,הצב מנצח במרוץ,the turtle wins the race,הַצָּב מְנַצֵּחַ בַּמֵּרוֹץ,הַצָּב מְנַצֵּחַ בַּמֵּרוֹץ
+5,Ein Panda fährt Skateboard,פנדה נוסעת בסקייטבורד,a panda rides a skateboard,פַּנְדָּה נוֹסַעַת בִּסְקֵיְיטְבּוֹרְד,פַּנְדָּֽה נוֹסַעַת בִּסְקֵֽיְיטְבּוֹרְד
+5,Das Lama trägt Socken,הלאמה לובשת גרביים,the llama wears socks,הַלָּאמָה לוֹבֶשֶׁת גַּרְבַּיִם,הַלָּאמָה לוֹבֶשֶׁת גַּרְבַּֽיִם
+5,Ein Alien winkt fröhlich,חייזר מנופף בשמחה,an alien waves happily,חַיְזָר מְנוֹפֵף בְּשִׂמְחָה,חַיְזָר מְנוֹפֵף בְּשִׂמְחָה
+5,Der Hund trägt einen Umhang,הכלב לובש גלימה,the dog wears a cape,הַכֶּלֶב לוֹבֵשׁ גְּלִימָה,הַכֶּלֶב לוֹבֵשׁ גְּלִימָה
+5,Wir tanzen auf Wolken,אנחנו רוקדים בעננים,we dance on clouds,אֲנַחְנוּ רוֹקְדִים בַּעֲנָנִים,אֲנַחְנוּ רוֹקְדִים בַּעֲנָנִים
+5,Der Drache macht Popcorn,הדרקון מכין פופקורן,the dragon makes popcorn,הַדְּרָקוֹן מֵכִין פּוֹפְּקוֹרְן,הַדְּרָקוֹן מֵכִין פּוֹפְּקֽוֹרְן
+5,Das Mädchen steuert eine Rakete,הילדה מטיסה רקטה,the girl pilots a rocket,הַיַלְדָּה מַטִּיסָה רָקֵטָה,הַיַלְדָּה מַטִּיסָה רָקֵֽטָה
+5,Der Junge reitet einen Dinosaurier,הילד רוכב על דינוזאור,the boy rides a dinosaur,הַיֶּלֶד רוֹכֵב עַל דִּינוֹזָאוּר,הַיֶּלֶד רוֹכֵב עַל דִּינוֹזָאוּר
+5,Der Affe trommelt wild,הקוף מתופף בטירוף,the monkey drums wildly,הַקּוֹף מְתוֹפֵף בְּטֵירוּף,הַקּוֹף מְתוֹפֵף בְּטֵירוּף
+5,Die Maus backt Pizza,העכבר אופה פיצה,the mouse bakes pizza,הָעַכְבָּר אוֹפֶה פִּיצָה,הָעַכְבָּר אוֹפֶה פִּיצָֽה
+6,Ich lande auf dem Mond,אני נוחת על הירח,i land on the moon,אֲנִי נוֹחֵת עַל הַיָּרֵחַ,אֲנִי נוֹחֵת עַל הַיָּרֵחַ
+6,Wir segeln zur Geheiminsel,אנחנו מפליגים לאי סודי,we sail to the secret island,אֲנַחְנוּ מַפְלִיגִים לְאִי סוֹדִי,אֲנַחְנוּ מַפְלִיגִים לְאִי סוֹדִי
+6,Der Junge reitet auf Drachen,הילד רוכב על דרקון,the boy rides a dragon,הַיֶּלֶד רוֹכֵב עַל דְּרָקוֹן,הַיֶּלֶד רוֹכֵב עַל דְּרָקוֹן
+6,Er baut ein Lego-Schloss,הוא בונה ארמון מלגו,he builds a lego castle,הוּא בּוֹנֶה אַרְמוֹן מִלֶּגוֹ,הוּא בּוֹנֶה אַרְמוֹן מִלֶּֽגוֹ
+6,Das Kind jagt bunte Drachen,הילד רודף אחרי עפיפונים צבעוניים,the child chases colorful kites,הַיֶּלֶד רוֹדֵף אַחֲרֵי עֲפִיפוֹנִים צִבְעוֹנִיִּים,הַיֶּלֶד רוֹדֵף אַחֲרֵי עֲפִיפוֹנִים צִבְעוֹנִיִּים
+6,Das Kind isst riesige Pizza,הילד אוכל פיצה ענקית,the child eats giant pizza,הַיֶּלֶד אוֹכֵל פִּיצָה עֲנָקִית,הַיֶּלֶד אוֹכֵל פִּיצָֽה עֲנָקִית
+6,Wir fliegen heute zum Mars,אנחנו טסים היום למאדים,we fly to mars today,אֲנַחְנוּ טָסִים הַיּוֹם לְמַאְדִּים,אֲנַחְנוּ טָסִים הַיּוֹם לְמַאְדִּים
+6,Die Lehrerin verteilt Zauberbonbons,המורה מחלקת סוכריות קסם,the teacher hands out magic candies,הַמּוֹרָה מְחַלֶּקֶת סֻכָּרִיּוֹת קֶסֶם,הַמּוֹרָה מְחַלֶּקֶת סֻכָּרִיּוֹת קֶסֶם
+6,Das Auto springt über Pfützen,המכונית קופצת מעל שלוליות,the car jumps over puddles,הַמְּכוֹנִית קוֹפֶצֶת מֵעַל שְׁלוּלִיּוֹת,הַמְּכוֹנִית קוֹפֶצֶת מֵעַל שְׁלוּלִיּוֹת
+6,Sie malt ein freches Monster,היא מציירת מפלצת מצחיקה,she draws a cheeky monster,הִיא מְצַיֶּרֶת מִפְלֶצֶת מַצְחִיקָה,הִיא מְצַיֶּרֶת מִפְלֶצֶת מַצְחִיקָה
+6,Der Pirat findet eine geheime Karte,הפיראט מוצא מפה סודית,the pirate finds a secret map,הַפִּירָאט מוֹצֵא מַפָּה סוֹדִית,הַפִּירָאט מוֹצֵא מַפָּה סוֹדִית
+6,Der Roboter kocht Gemüsesuppe,הרובוט מבשל מרק ירקות,the robot cooks vegetable soup,הָרוֹבּוֹט מְבַשֵּׁל מָרָק יְרָקוֹת,הָרוֹבּֽוֹט מְבַשֵּׁל מָרָק יְרָקוֹת
+6,Der Affe springt auf das Sofa,הקוף קופץ על הספה,the monkey jumps on the sofa,הַקּוֹף קוֹפֵץ עַל הַסַּפָּה,הַקּוֹף קוֹפֵץ עַל הַסַּפָּה
+6,Der Drache bewacht den Schatz,הדרקון שומר על האוצר,the dragon guards the treasure,הַדְּרָקוֹן שׁוֹמֵר עַל הָאוֹצָר,הַדְּרָקוֹן שׁוֹמֵר עַל הָאוֹצָר
+6,Wir fliegen heute zum Mond,אנחנו טסים לירח הלילה,we fly to the moon today,אֲנַחְנוּ טָסִים לַיָּרֵחַ הַלַּיְלָה,אֲנַחְנוּ טָסִים לַיָּרֵחַ הַלַּֽיְלָה
+6,Das Mädchen baut eine Sandburg,הילדה בונה טירה בחול,the girl builds a sandcastle,הַיַלְדָּה בּוֹנָה טִירָה בַּחוֹל,הַיַלְדָּה בּוֹנָה טִירָה בַּחוֹל
+6,Die Katze trägt einen großen Hut,החתול לובש כובע גדול,the cat wears a big hat,הַחָתוּל לוֹבֵשׁ כּוֹבַע גָּדוֹל,הַחָתוּל לוֹבֵשׁ כּוֹבַע גָּדוֹל
+6,Die Schildkröte rennt wie ein Blitz,הצב רץ מהר כמו ברק,the turtle runs like lightning,הַצָּב רָץ מַהֵר כְּמוֹ בָּרָק,הַצָּב רָץ מַהֵר כְּמוֹ בָּרָק
+6,Der Junge fotografiert ein blaues Raumschiff,הילד מצלם חללית כחולה,the boy photographs a blue spaceship,הַיֶּלֶד מְצַלֵּם חֲלָלִית כְּחוּלָּה,הַיֶּלֶד מְצַלֵּם חֲלָלִית כְּחוּלָּה
+6,Der Hund findet einen goldenen Schlüssel,הכלב מוצא מפתח זהב,the dog finds a golden key,הַכֶּלֶב מוֹצֵא מַפְתֵּחַ זָהָב,הַכֶּלֶב מוֹצֵא מַפְתֵּחַ זָהָב
+6,Das Einhorn fährt durch Wolken,חד הקרן נוסע בעננים,the unicorn drives through clouds,חַד הַקֶּרֶן נוֹסֵעַ בַּעֲנָנִים,חַד הַקֶּרֶן נוֹסֵעַ בַּעֲנָנִים
+6,Der Pirat tanzt mit Pinguinen,הפיראט רוקד עם פינגווינים,the pirate dances with penguins,הַפִּירָאט רוֹקֵד עִם פִּינְגְּוִינִים,הַפִּירָאט רוֹקֵד עִם פִּינְגְּוִינִֽים
+6,Wir bauen eine Keksburg,אנחנו בונים ארמון עוגיות,we build a cookie castle,אֲנַחְנוּ בּוֹנִים אַרְמוֹן עוּגִיּוֹת,אֲנַחְנוּ בּוֹנִים אַרְמוֹן עוּגִיּוֹת
+6,Die Maus fährt einen Spielzeugpanzer,העכבר נוסע בטנק צעצוע,the mouse drives a toy tank,הָעַכְבָּר נוֹסֵעַ בְּטַנְק צַעֲצוּעַ,הָעַכְבָּר נוֹסֵעַ בְּטַנְק צַעֲצוּעַ
+6,Der Panda spielt in der Rakete,הפנדה משחק בתוך רקטה,the panda plays in the rocket,הַפַּנְדָּה מְשַׂחֵק בְּתוֹךְ רָקֵטָה,הַפַּנְדָּֽה מְשַׂחֵק בְּתוֹךְ רָקֵֽטָה
+6,Das Boot springt über Wellen,הסירה קופצת מעל גלים,the boat jumps over waves,הַסִּירָה קוֹפֶצֶת מֵעַל גַּלִּים,הַסִּירָה קוֹפֶצֶת מֵעַל גַּלִּים
+6,Der Kapitän verliert seinen Schuh,הקפטן מאבד את הנעל שלו,the captain loses his shoe,הַקַּפְטֶן מְאַבֵּד אֶת הַנַּעַל שֶׁלּוֹ,הַקַּפְטֶן מְאַבֵּד אֶת הַנַּֽעַל שֶׁלּוֹ
+6,Der Drache backt süße Pfannkuchen,הדרקון מכין פנקייק מתוק,the dragon bakes sweet pancakes,הַדְּרָקוֹן מֵכִין פַּנְקֵייק מָתוֹק,הַדְּרָקוֹן מֵכִין פַּנְקֵֽייק מָתוֹק
+6,Wir landen auf geheimer Insel,אנחנו נוחתים באי סודי,we land on a secret island,אֲנַחְנוּ נוֹחֲתִים בְּאִי סוֹדִי,אֲנַחְנוּ נוֹחֲתִים בְּאִי סוֹדִי
