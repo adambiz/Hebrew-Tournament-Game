@@ -50,39 +50,36 @@
 }
 
 .language-picker {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    min-height: 44px;
-    padding: 8px 10px;
-}
-
-.language-picker-label {
-    font-weight: 800;
-    color: var(--text-main);
-    font-size: 0.9rem;
-    white-space: nowrap;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+    gap: 8px;
+    padding: 8px;
+    border: var(--border-soft);
+    border-radius: 12px;
+    background: linear-gradient(180deg, #f7fbff 0%, #edf5fc 100%);
 }
 
 .language-toggle-group {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    flex-wrap: wrap;
-    justify-content: flex-end;
+    display: contents;
 }
 
 .language-toggle-button {
-    min-height: 40px;
-    min-width: 92px;
+    width: 100%;
+    min-height: 42px;
+    min-width: 0;
     border: 2px solid #8ea8bf;
-    border-radius: 999px;
-    padding: 0 14px;
+    border-radius: 10px;
+    padding: 0 8px;
     background: linear-gradient(180deg, #ffffff 0%, #eef5fb 100%);
     color: #2b4963;
     font-weight: 800;
     font-size: 0.85rem;
+    text-transform: none;
+    letter-spacing: 0;
+    line-height: 1.05;
+    white-space: normal;
+    overflow-wrap: anywhere;
     cursor: pointer;
     transition: transform 0.14s ease, box-shadow 0.14s ease, border-color 0.14s ease, background 0.14s ease;
 }
@@ -103,13 +100,20 @@
     outline-offset: 2px;
 }
 
+.player-identity-row {
+    display: grid;
+    grid-template-columns: 84px minmax(0, 1fr);
+    align-items: stretch;
+    gap: var(--space-2);
+}
+
 .avatar-selection {
     border: var(--border-soft);
     border-radius: var(--radius-sm);
     background: #f9fcff;
     padding: var(--space-2);
     display: grid;
-    gap: var(--space-2);
+    gap: 8px;
 }
 
 .avatar-selection-header {
@@ -125,32 +129,65 @@
     color: var(--text-main);
 }
 
-.avatar-shuffle-button {
-    min-height: 40px;
-    min-width: 120px;
-    font-size: 0.82rem;
-    padding: 6px 10px;
+.avatar-pager-controls {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .avatar-selected-preview {
+    border: var(--border-soft);
+    border-radius: 12px;
+    background: #ffffff;
+    overflow: hidden;
+    position: relative;
+}
+
+.avatar-selected-preview-main {
+    width: 84px;
+    height: 84px;
     display: grid;
-    grid-template-columns: 56px minmax(0, 1fr);
+    place-items: center;
+}
+
+.selected-avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: inline-flex;
     align-items: center;
-    gap: var(--space-2);
+    justify-content: center;
+    font-size: 2.1rem;
+    font-weight: 900;
+    color: #3f607f;
+    background: linear-gradient(180deg, #f7fbff 0%, #e7f1fb 100%);
+}
+
+.selected-avatar-placeholder[hidden] {
+    display: none;
+}
+
+.avatar-page-button {
+    width: 36px;
+    min-width: 36px;
+    min-height: 36px;
+    padding: 0;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    line-height: 1;
 }
 
 .hero-avatar-selected-preview {
-    width: 56px;
-    height: 56px;
-    border: 2px solid rgba(63, 98, 126, 0.6);
-    border-radius: 8px;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    border-radius: 0;
     background: #ffffff;
 }
 
 .avatar-grid {
     display: grid;
     grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 8px;
+    gap: 6px;
 }
 
 .avatar-choice {
@@ -189,10 +226,10 @@
 
 #player-name {
     width: 100%;
-    min-height: 50px;
+    min-height: 56px;
     padding: 0 var(--space-3);
     border: var(--border-soft);
-    border-radius: 999px;
+    border-radius: 12px;
     background: #ffffff;
     font-size: 1rem;
     color: var(--text-main);
@@ -203,6 +240,40 @@
     min-height: 52px;
     padding: 0 var(--space-4);
     font-size: 1rem;
+}
+
+@media (max-width: 700px) {
+    .avatar-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 520px) {
+    .language-picker {
+        gap: 6px;
+        padding: 6px;
+    }
+
+    .language-toggle-button {
+        min-height: 40px;
+        font-size: 0.7rem;
+        padding: 0 2px;
+    }
+
+    .player-identity-row {
+        grid-template-columns: 72px minmax(0, 1fr);
+    }
+
+    .avatar-selected-preview-main {
+        width: 72px;
+        height: 72px;
+    }
+}
+
+@media (max-width: 360px) {
+    .language-toggle-button {
+        font-size: 0.66rem;
+    }
 }
 
 #high-scores-list {

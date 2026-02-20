@@ -1,10 +1,115 @@
 /**
- * Lightweight EN/DE runtime localization helpers.
+ * Lightweight EN/DE/HE runtime localization helpers.
  */
 (function bootstrapI18n() {
     const STORAGE_KEY = 'hebrewGame_uiLanguage_v1';
     const DEFAULT_LANGUAGE = 'en';
-    const SUPPORTED_LANGUAGES = new Set(['en', 'de']);
+    const SUPPORTED_LANGUAGES = new Set(['en', 'de', 'he']);
+    const HEBREW_CUE_FALLBACK = '👂🔊';
+    const HEBREW_CUE_GENERIC_PALETTE = [
+        '🌟', '🧩', '🚀', '🗺️', '🎯', '⚓', '🎈', '🔥', '🌈', '🎵'
+    ];
+    const HEBREW_CUE_TOKEN_GROUPS = [
+        { emoji: '🐱', tokens: ['cat', 'katze', 'חתול'] },
+        { emoji: '🐶', tokens: ['dog', 'hund', 'כלב'] },
+        { emoji: '🐟', tokens: ['fish', 'fisch', 'דג'] },
+        { emoji: '🐢', tokens: ['turtle', 'schildkrote', 'schildkroete', 'צב'] },
+        { emoji: '🦄', tokens: ['unicorn', 'einhorn', 'חד הקרן', 'חדקרן'] },
+        { emoji: '🐉', tokens: ['dragon', 'drache', 'drachen', 'דרקון'] },
+        { emoji: '🐵', tokens: ['monkey', 'affe', 'קוף'] },
+        { emoji: '🐭', tokens: ['mouse', 'maus', 'עכבר'] },
+        { emoji: '🐼', tokens: ['panda', 'פנדה'] },
+        { emoji: '🐺', tokens: ['wolf', 'זאב'] },
+        { emoji: '🐻', tokens: ['bear', 'bar', 'bär', 'דוב'] },
+        { emoji: '🦙', tokens: ['llama', 'lama', 'לאמה', 'הלאמה'] },
+        { emoji: '🏴‍☠️', tokens: ['pirate', 'pirat', 'פיראט'] },
+        { emoji: '👽', tokens: ['alien', 'חייזר'] },
+        { emoji: '🤖', tokens: ['robot', 'roboter', 'רובוט'] },
+        { emoji: '🧑‍🏫', tokens: ['teacher', 'lehrer', 'lehrerin', 'מורה'] },
+        { emoji: '🧒', tokens: ['child', 'kind', 'junge', 'madchen', 'mädchen', 'ילד', 'ילדה'] },
+        { emoji: '👩', tokens: ['woman', 'frau', 'אישה'] },
+        { emoji: '👨', tokens: ['man', 'mann', 'איש'] },
+        { emoji: '👨', tokens: ['father', 'vater', 'אב'] },
+        { emoji: '👦', tokens: ['son', 'sohn', 'בן'] },
+        { emoji: '✋', tokens: ['hand', 'יד'] },
+        { emoji: '🦶', tokens: ['foot', 'fuss', 'fuß', 'רגל'] },
+        { emoji: '👃', tokens: ['nose', 'nase', 'אף'] },
+        { emoji: '👄', tokens: ['mouth', 'mund', 'פה'] },
+        { emoji: '🌙', tokens: ['moon', 'mond', 'ירח'] },
+        { emoji: '⭐', tokens: ['star', 'sterne', 'stern', 'כוכב', 'כוכבים'] },
+        { emoji: '☁️', tokens: ['cloud', 'wolke', 'wolken', 'עננ'] },
+        { emoji: '⚡', tokens: ['lightning', 'blitz', 'ברק'] },
+        { emoji: '💨', tokens: ['wind', 'רוח'] },
+        { emoji: '🌊', tokens: ['sea', 'meer', 'ים'] },
+        { emoji: '🏝️', tokens: ['island', 'insel', 'אי'] },
+        { emoji: '⛰️', tokens: ['mountain', 'berg', 'הר'] },
+        { emoji: '🌳', tokens: ['tree', 'baum', 'עץ'] },
+        { emoji: '🌸', tokens: ['flower', 'blume', 'rose', 'פרח', 'שושנה'] },
+        { emoji: '☀️', tokens: ['sun', 'sonne', 'שמש'] },
+        { emoji: '🏃', tokens: ['run', 'rennt', 'lauft', 'läuft', 'רץ', 'רצה', 'רצים'] },
+        { emoji: '🦘', tokens: ['jump', 'spring', 'קופץ', 'קופצת'] },
+        { emoji: '✈️', tokens: ['fly', 'flieg', 'fliegen', 'טס', 'טסה', 'מטיס'] },
+        { emoji: '⛵', tokens: ['sail', 'segeln', 'מפליג'] },
+        { emoji: '🚗', tokens: ['ride', 'fahrt', 'fährt', 'נוסע', 'נוסעת', 'רוכב', 'car', 'auto', 'מכונית'] },
+        { emoji: '💃', tokens: ['dance', 'tanzt', 'tanzen', 'רוקד', 'רוקדים'] },
+        { emoji: '🎮', tokens: ['play', 'spielt', 'spielen', 'מנגן', 'משחק'] },
+        { emoji: '🎨', tokens: ['draw', 'malt', 'מצייר', 'מציירת'] },
+        { emoji: '🛠️', tokens: ['build', 'baut', 'bauen', 'בונה', 'בונים', 'מכין'] },
+        { emoji: '🔍', tokens: ['find', 'findet', 'מוצא'] },
+        { emoji: '🛡️', tokens: ['guard', 'bewacht', 'שומר'] },
+        { emoji: '🚀', tokens: ['rocket', 'rakete', 'raketen', 'רקטה'] },
+        { emoji: '🛸', tokens: ['spaceship', 'raumschiff', 'חללית'] },
+        { emoji: '🚤', tokens: ['boat', 'boot', 'סירה'] },
+        { emoji: '🚆', tokens: ['train', 'zug', 'רכבת'] },
+        { emoji: '🗺️', tokens: ['map', 'karte', 'מפה'] },
+        { emoji: '🧭', tokens: ['compass', 'kompass', 'מצפן'] },
+        { emoji: '🔑', tokens: ['key', 'schlussel', 'schlüssel', 'מפתח'] },
+        { emoji: '💎', tokens: ['treasure', 'schatz', 'אוצר'] },
+        { emoji: '🏰', tokens: ['castle', 'schloss', 'burg', 'ארמון', 'טירה'] },
+        { emoji: '🪁', tokens: ['kite', 'עפיפון'] },
+        { emoji: '🎩', tokens: ['hat', 'hut', 'כובע'] },
+        { emoji: '🦸', tokens: ['cape', 'umhang', 'גלימה'] },
+        { emoji: '⛑️', tokens: ['helmet', 'helm', 'קסדה'] },
+        { emoji: '🎒', tokens: ['backpack', 'rucksack', 'תרמיל'] },
+        { emoji: '🪙', tokens: ['coin', 'coins', 'münze', 'muenze', 'מטבע'] },
+        { emoji: '✨', tokens: ['magic', 'zauber', 'קסם', 'שיקוי'] },
+        { emoji: '🍫', tokens: ['chocolate', 'schokolade', 'שוקולד'] },
+        { emoji: '🍰', tokens: ['cake', 'kuchen', 'עוגה'] },
+        { emoji: '🍪', tokens: ['cookies', 'kekse', 'cookie', 'עוגיות'] },
+        { emoji: '🍕', tokens: ['pizza', 'פיצה'] },
+        { emoji: '🍿', tokens: ['popcorn', 'פופקורן'] },
+        { emoji: '🍦', tokens: ['ice cream', 'eiscreme', 'גלידה'] },
+        { emoji: '🍌', tokens: ['banana', 'banane', 'בננה'] },
+        { emoji: '🍎', tokens: ['apple', 'apfel', 'תפוח'] },
+        { emoji: '🍊', tokens: ['orange', 'oranges', 'תפוז'] },
+        { emoji: '🍞', tokens: ['bread', 'brot', 'לחם'] },
+        { emoji: '🍵', tokens: ['tea', 'tee', 'תה'] },
+        { emoji: '☕', tokens: ['coffee', 'kaffee', 'קפה'] },
+        { emoji: '💧', tokens: ['water', 'wasser', 'מים'] },
+        { emoji: '🍇', tokens: ['grapes', 'trauben', 'ענבים'] },
+        { emoji: '🍬', tokens: ['candies', 'bonbons', 'סוכריות'] },
+        { emoji: '🏫', tokens: ['school', 'schule', 'בית הספר'] },
+        { emoji: '📚', tokens: ['book', 'buch', 'buecher', 'bücher', 'ספר'] },
+        { emoji: '🪟', tokens: ['window', 'fenster', 'חלון'] },
+        { emoji: '💻', tokens: ['computer', 'מחשב'] },
+        { emoji: '📞', tokens: ['phone', 'telefon', 'טלפון'] },
+        { emoji: '🏠', tokens: ['home', 'hause', 'haus', 'בית', 'הביתה'] },
+        { emoji: '🏠', tokens: ['roof', 'dach', 'גג'] },
+        { emoji: '🪴', tokens: ['garden', 'garten', 'גן'] },
+        { emoji: '🛣️', tokens: ['street', 'strasse', 'straße', 'רחוב'] },
+        { emoji: '🏙️', tokens: ['city', 'stadt', 'עיר'] },
+        { emoji: '📅', tokens: ['day', 'tag', 'heute', 'today', 'יום'] },
+        { emoji: '🌃', tokens: ['night', 'nacht', 'לילה'] },
+        { emoji: '🫂', tokens: ['friend', 'freund', 'freunden', 'חבר'] },
+        { emoji: '❓', tokens: ['what', 'was', 'מה'] },
+        { emoji: '👤', tokens: ['who', 'wer', 'מי'] },
+        { emoji: '👉', tokens: ['there', 'dort', 'שם'] },
+        { emoji: '👈', tokens: ['here', 'hier', 'כאן'] },
+        { emoji: '➕', tokens: ['also', 'auch', 'גם'] },
+        { emoji: '🤝', tokens: ['with', 'mit', 'עם'] },
+        { emoji: '🔝', tokens: ['on', 'auf', 'על'] },
+        { emoji: '👎', tokens: ['bad', 'schlecht', 'רע'] }
+    ];
 
     const translations = {
         en: {
@@ -12,6 +117,7 @@
             'language.label': 'Language',
             'language.english': 'English',
             'language.german': 'Deutsch',
+            'language.hebrew': 'עברית',
             'label.you': 'You',
             'title.against': 'vs',
 
@@ -30,6 +136,9 @@
             'start.avatarLabelWithId': 'Avatar #{id}',
             'start.avatarGridAria': 'Choose avatar',
             'start.avatarChoiceAria': 'Select avatar {id}',
+            'start.avatarPagerPrevAria': 'Show previous avatars',
+            'start.avatarPagerNextAria': 'Show next avatars',
+            'start.avatarEmptyAria': 'No avatar selected',
             'start.topChampions': 'Top Champions',
             'start.loadingWords': 'Loading words...',
             'start.wordsLoadedAnnounce': 'Word list loaded. You can start the game.',
@@ -95,7 +204,7 @@
             'results.nextRound': 'Next Round',
             'results.nextRoundAria': 'Go to next round',
             'results.state.eliminated': 'Eliminated this round',
-            'results.state.champion': 'Round winner! Rank 1',
+            'results.state.champion': 'Round winner!',
             'results.state.top3': 'Great! Podium finish',
             'results.state.survived': 'You advance!',
             'results.rankLabel': 'Your Rank',
@@ -125,6 +234,7 @@
             'store.purchasedDesc': '{name} was purchased.',
             'store.notEnoughTitle': 'Not enough coins',
             'store.notEnoughDesc': '{name} costs {price} coins.',
+            'store.needMoreCoinsBadge': 'Need coins',
 
             'powerup.double_points.name': 'Double Points',
             'powerup.double_points.description': 'Doubles points for the current word',
@@ -280,6 +390,7 @@
             'language.label': 'Sprache',
             'language.english': 'English',
             'language.german': 'Deutsch',
+            'language.hebrew': 'עברית',
             'label.you': 'Du',
             'title.against': 'gegen',
 
@@ -298,6 +409,9 @@
             'start.avatarLabelWithId': 'Avatar #{id}',
             'start.avatarGridAria': 'Avatar auswählen',
             'start.avatarChoiceAria': 'Avatar {id} auswählen',
+            'start.avatarPagerPrevAria': 'Vorherige Avatare anzeigen',
+            'start.avatarPagerNextAria': 'Nächste Avatare anzeigen',
+            'start.avatarEmptyAria': 'Kein Avatar ausgewählt',
             'start.topChampions': 'Top-Champions',
             'start.loadingWords': 'Wörter werden geladen...',
             'start.wordsLoadedAnnounce': 'Wortliste geladen. Du kannst das Spiel starten.',
@@ -363,7 +477,7 @@
             'results.nextRound': 'Nächste Runde',
             'results.nextRoundAria': 'Zur nächsten Runde',
             'results.state.eliminated': 'In dieser Runde ausgeschieden',
-            'results.state.champion': 'Rundensieger! Platz 1',
+            'results.state.champion': 'Rundensieger!',
             'results.state.top3': 'Stark! Podiumsplatz',
             'results.state.survived': 'Du kommst weiter!',
             'results.rankLabel': 'Dein Rang',
@@ -393,6 +507,7 @@
             'store.purchasedDesc': '{name} wurde gekauft.',
             'store.notEnoughTitle': 'Nicht genug Münzen',
             'store.notEnoughDesc': '{name} kostet {price} Münzen.',
+            'store.needMoreCoinsBadge': 'Mehr Münzen nötig',
 
             'powerup.double_points.name': 'Doppelte Punkte',
             'powerup.double_points.description': 'Verdoppelt die Punkte für das aktuelle Wort',
@@ -545,12 +660,289 @@
         }
     };
 
+    const heTranslations = {
+        'document.title': '1 נגד 95 - משחק לימוד עברית',
+        'language.label': 'שפה',
+        'language.english': 'English',
+        'language.german': 'Deutsch',
+        'language.hebrew': 'עברית',
+        'label.you': 'אתה',
+        'title.against': 'נגד',
+
+        'start.createChampion': 'צור את הגיבור שלך',
+        'start.panelCopy': 'צור גיבור והיכנס לזירה.',
+        'start.playerNamePlaceholder': 'הזן שם גיבור',
+        'start.playerNameAria': 'שם שחקן',
+        'start.startButton': 'התחל משחק',
+        'start.startButtonAria': 'התחל משחק',
+        'start.avatarSelectLabel': 'בחר דמות',
+        'start.moreAvatars': 'עוד דמויות',
+        'start.moreAvatarsAria': 'הצג עוד דמויות',
+        'start.selectedAvatarAlt': 'דמות נבחרת',
+        'start.selectedAvatarAltWithId': 'דמות נבחרת #{id}',
+        'start.avatarLabel': 'דמות',
+        'start.avatarLabelWithId': 'דמות #{id}',
+        'start.avatarGridAria': 'בחר דמות',
+        'start.avatarChoiceAria': 'בחר דמות {id}',
+        'start.avatarPagerPrevAria': 'הצג דמויות קודמות',
+        'start.avatarPagerNextAria': 'הצג דמויות הבאות',
+        'start.avatarEmptyAria': 'לא נבחרה דמות',
+        'start.topChampions': 'אלופי הצמרת',
+        'start.loadingWords': 'טוען מילים...',
+        'start.wordsLoadedAnnounce': 'רשימת המילים נטענה. אפשר להתחיל לשחק.',
+        'start.wordsLoadFailButton': 'לא ניתן לטעון מילים',
+        'start.wordsLoadFailTitle': 'לא ניתן היה לטעון את רשימת המילים',
+        'start.loadingToastTitle': 'עדיין טוען',
+        'start.loadingToastDesc': 'רשימות המילים עדיין נטענות. המתן רגע.',
+
+        'round.label': 'סיבוב',
+        'round.scoreLabel': 'ניקוד',
+        'round.coinsLabel': 'מטבעות',
+        'round.score': 'ניקוד: {score}',
+        'round.coins': 'מטבעות: {coins}',
+        'round.promptPlaceholder': 'מילה',
+        'round.ttsControlsAria': 'פקדי הקראה',
+        'round.playHebrewAria': 'הקרא טקסט עברי',
+        'round.playLabel': 'נגן',
+        'round.autoToggleAria': 'הפעל או כבה הקראה אוטומטית',
+        'round.autoLabel': 'אוטומטי',
+        'round.answerFieldAria': 'שדה תשובה בעברית',
+        'round.wordCounter': 'מילה {current} מתוך {total}',
+        'round.powerups': 'בונוסים',
+        'round.powerupsOpenAria': 'פתח תפריט בונוסים',
+        'round.submit': 'בדוק תשובה',
+        'round.submitAria': 'בדוק תשובה',
+        'round.ofSix': 'מתוך 6',
+        'round.heroes': 'גיבורים',
+        'round.remaining': 'נותרו',
+        'round.yourRank': 'הדירוג שלך',
+        'round.nextUp': 'בהמשך: סיבוב {round}',
+        'round.nextUpPrefix': 'בהמשך: סיבוב',
+        'round.description.finalResults': 'תוצאות סופיות',
+        'round.description.1': 'מילים בודדות עם 2 אותיות בעברית',
+        'round.description.2': 'מילים בודדות עם 4 אותיות בעברית',
+        'round.description.3': 'מילים בודדות עם 6 אותיות בעברית',
+        'round.description.4': 'ביטויים בעברית בני שתי מילים',
+        'round.description.5': 'משפטים בעברית בני שלוש מילים',
+        'round.description.6': 'משפטים בעברית בני ארבע מילים',
+        'round.noWordsTitle': 'אין מילים זמינות',
+        'round.noWordsDesc': 'לא ניתן היה לטעון את המילים לסיבוב הזה.',
+        'round.startedAnnounce': 'סיבוב {round} התחיל. {words} מילים בסיבוב הזה.',
+        'round.type.twoWords': 'הסיבוב הזה כולל ביטויים בני שתי מילים.',
+        'round.type.threeWords': 'הסיבוב הזה כולל משפטים בני שלוש מילים.',
+        'round.type.fourWords': 'הסיבוב הזה כולל משפטים בני ארבע מילים.',
+        'round.clickHint': 'לחץ על אות כדי לערוך את המיקום הזה.',
+        'round.sentencesToastTitle': 'סיבוב {round}: משפטים',
+        'round.debugCheatAnnounce': 'מצב דיבאג פעיל. סיבוב {round} הסתיים במקום הראשון.',
+        'round.completedAnnounce': 'סיבוב {round} הושלם. הרווחת {coins} מטבעות.',
+        'round.completedShort': 'הסיבוב הושלם!',
+
+        'results.roundComplete': 'סיבוב {round} הושלם!',
+        'results.completedSuffix': 'הושלם!',
+        'results.totalScorePrefix': 'ניקוד כולל:',
+        'results.thisRoundPrefix': 'הסיבוב הזה:',
+        'results.coinsEarnedPrefix': 'מטבעות שהורווחו:',
+        'results.yourCoinsPrefix': 'המטבעות שלך:',
+        'results.totalScore': 'ניקוד כולל: {score}',
+        'results.thisRound': 'הסיבוב הזה: {score}',
+        'results.coinsEarned': 'מטבעות שהורווחו: {coins}',
+        'results.yourCoins': 'המטבעות שלך: {coins}',
+        'results.openShop': 'פתח חנות',
+        'results.openShopAria': 'פתח חנות',
+        'results.nextRound': 'לסיבוב הבא',
+        'results.nextRoundAria': 'עבור לסיבוב הבא',
+        'results.state.eliminated': 'הודחת בסיבוב הזה',
+        'results.state.champion': 'מנצח הסיבוב!',
+        'results.state.top3': 'מעולה! מקום על הפודיום',
+        'results.state.survived': 'עלית לשלב הבא!',
+        'results.rankLabel': 'הדירוג שלך',
+        'results.points': 'נקודות',
+        'results.roundPoints': 'נקודות סיבוב',
+        'results.coinsEarnedLabel': 'מטבעות שהורווחו',
+        'results.totalCoins': 'סך המטבעות',
+        'results.pointsSuffix': ' נקודות',
+        'results.coinsSuffix': ' מטבעות',
+        'results.eliminatedButton': 'הודחת',
+        'results.finalResultsButton': 'תוצאות סופיות',
+        'results.outBadge': 'בחוץ',
+        'results.outBadgeAria': 'הודח',
+
+        'store.overlayAria': 'חנות בונוסים',
+        'store.title': 'חנות בונוסים',
+        'store.closeAria': 'סגור חנות',
+        'store.backToResults': 'חזרה לתוצאות',
+        'store.coinsSuffix': ' מטבעות',
+        'store.openedAnnounce': 'החנות נפתחה.',
+        'store.closedAnnounce': 'החנות נסגרה.',
+        'store.buy': 'קנה בונוס',
+        'store.buyAria': 'קנה {name}',
+        'store.ownedLabel': 'בבעלותך',
+        'store.owned': 'בבעלותך: {count}',
+        'store.purchasedTitle': 'הבונוס נרכש',
+        'store.purchasedDesc': '{name} נרכש.',
+        'store.notEnoughTitle': 'אין מספיק מטבעות',
+        'store.notEnoughDesc': '{name} עולה {price} מטבעות.',
+        'store.needMoreCoinsBadge': 'חסרים מטבעות',
+
+        'powerup.double_points.name': 'כפל נקודות',
+        'powerup.double_points.description': 'מכפיל נקודות למילה הנוכחית',
+        'powerup.letter_filter.name': 'מסנן אותיות',
+        'powerup.letter_filter.description': 'מכבה אותיות דומות בצליל שאינן במילה',
+        'powerup.second_chance_round.name': 'הזדמנות שנייה',
+        'powerup.second_chance_round.description': 'ניסיון חוזר במקרה של טעות (לכל הסיבוב)',
+        'powerup.easier_word.name': 'מילה קלה יותר',
+        'powerup.easier_word.description': 'נותן מילה קלה יותר עם פחות אותיות (ניתן לערימה)',
+        'powerups.noneTitle': 'אין בונוסים זמינים',
+        'powerups.noneDesc': 'כרגע אין לך בונוסים. קנה בין הסיבובים.',
+        'powerups.openMenuAria': 'פתח תפריט בונוסים',
+        'powerups.noneAvailableAria': 'עדיין אין בונוסים זמינים',
+        'powerups.doublePointsTitle': 'כפל נקודות הופעל',
+        'powerups.doublePointsDesc': 'הנקודות למילה הזו מוכפלות.',
+        'powerups.letterFilterActiveTitle': 'מסנן אותיות פעיל',
+        'powerups.letterFilterActiveDesc': '{count} אותיות דומות הוסתרו עבור המילה הזו.',
+        'powerups.letterFilterTitle': 'מסנן אותיות',
+        'powerups.letterFilterNoneDesc': 'לא ניתן היה לסנן אותיות למילה הזו.',
+        'powerups.secondChanceTitle': 'הזדמנות שנייה הופעלה',
+        'powerups.secondChanceDesc': 'כעת יש לך ניסיון נוסף לכל המילים בסיבוב הזה.',
+        'powerups.cannotSimplifyTitle': 'אי אפשר לפשט יותר',
+        'powerups.cannotSimplifyDesc': 'אתה כבר ברמת המילה הקלה ביותר.',
+        'powerups.errorTitle': 'שגיאה',
+        'powerups.noEasierWordDesc': 'לא נמצאה מילה קלה יותר.',
+        'powerups.newWordMsg': 'מילה חדשה: {word} (רמה {level}, הנקודות המקוריות נשמרות)',
+        'powerups.simplifiedThreeWord': 'פושט למשפט בן שלוש מילים (רמה {level}, הניקוד המקורי נשמר)',
+        'powerups.simplifiedTwoWord': 'פושט לביטוי בן שתי מילים (רמה {level}, הניקוד המקורי נשמר)',
+        'powerups.simplifiedShortPhrase': 'פושט לביטוי קצר יותר (רמה {level}, הניקוד המקורי נשמר)',
+        'powerups.simplifiedSingleWord': 'פושט למילה בודדת (רמה {level}, הניקוד המקורי נשמר)',
+        'powerups.wordSimplifiedTitle': 'המילה פושטה',
+
+        'word.announcePerfect': 'תשובה מושלמת. {points} נקודות ו-{coins} מטבעות.',
+        'word.announceChecked': 'התשובה נבדקה. {points} נקודות.',
+        'word.toastSuper': 'מצוין!',
+        'word.toastAlmost': 'כמעט!',
+        'word.toastError': 'שגיאה',
+        'word.perfectDesc': '+{points} נקודות, {coinText}',
+        'word.perfectDescOriginal': '+{points} נקודות מהמילה המקורית ({letters} אותיות), {coinText}',
+        'word.imperfectDesc': '+{points} נקודות',
+        'word.imperfectDescOriginal': '+{points} נקודות מהמילה המקורית ({letters} אותיות)',
+        'word.secondChanceTitle': 'הזדמנות שנייה',
+        'word.secondChanceRoundDesc': 'בונוס סיבוב פעיל: נסה שוב.',
+        'word.secondChanceSingleDesc': 'אפשר לנסות שוב.',
+        'word.wordSingle': 'מילה',
+        'word.wordPlural': 'מילים',
+        'word.coinSingle': 'מטבע 1',
+        'word.coinPlural': '{count} מטבעות',
+
+        'opponents.boostTitle': 'צריך דחיפה?',
+        'opponents.boostDesc': 'השתמש בבונוסים כדי להשיג יתרון על המתחרים.',
+
+        'final.tournamentCompleteTitle': 'הטורניר הושלם!',
+        'final.podiumTitle': 'פודיום סופי',
+        'final.podiumAria': 'שלושת הראשונים בגמר',
+        'final.scoreHunt': 'ציד הנקודות הסופי',
+        'final.baseScore': 'ניקוד בסיס',
+        'final.coinBonusPrefix': 'בונוס מטבעות (',
+        'final.coinBonusSuffix': ' x 2)',
+        'final.total': 'סה״כ סופי',
+        'final.rank': 'דירוג סופי: {rank} מתוך {total}',
+        'final.rankPrefix': 'דירוג סופי:',
+        'final.rankValue': '{rank} מתוך {total}',
+        'final.newHighscore': 'שיא חדש!',
+        'final.finalistsRace': 'מירוץ נקודות של העולים לגמר',
+        'final.championshipLeaderboard': 'טבלת אליפות',
+        'final.playAgain': 'שחק שוב',
+        'final.playAgainAria': 'שחק שוב',
+        'final.highscoreEmpty': 'עדיין אין שיאים. תהיה הראשון!',
+        'final.titleChampion': 'אלוף הג׳קפוט!',
+        'final.copyChampion': 'הגעת למקום 1 וזכית בכל ציד הנקודות.',
+        'final.titleStrongRun': 'ריצה חזקה!',
+        'final.copyStrongRun': 'נתת הכול וסיימת עם תוצאה חזקה.',
+        'final.titleStrongFinale': 'סיום חזק!',
+        'final.copyStrongFinale': 'סיום נקי. הבאת הרבה נקודות לגמר.',
+        'final.highScoreDetails': 'עלית למקום #{position} עם {score} נקודות.',
+        'final.announceComplete': 'הטורניר הושלם. ניקוד סופי {score} נקודות. דירוג {rank} מתוך {total}.',
+
+        'highscores.empty': 'עדיין אין שיאים. תהיה הראשון!',
+
+        'tts.noVoiceTitle': 'לא נמצאה קול עברי',
+        'tts.noVoiceDesc': 'הקראה מושבתת. התקן קול עברי בדפדפן או במערכת ההפעלה.',
+        'tts.read': 'נגן',
+        'tts.audioUnavailable': 'אודיו לא זמין',
+        'tts.noVoiceShort': 'אין קול עברי',
+        'tts.readAria': 'הקרא טקסט עברי',
+        'tts.unavailableAria': 'הקראה עברית לא זמינה',
+        'tts.autoOn': 'אוטומטי פועל',
+        'tts.autoOff': 'אוטומטי כבוי',
+        'tts.autoDisableAria': 'כבה הקראה אוטומטית',
+        'tts.autoEnableAria': 'הפעל הקראה אוטומטית',
+
+        'keyboard.hebrewLetter': 'אות עברית {letter}',
+        'keyboard.backspace': 'מחיקה',
+
+        'hero.avatarAlt': 'דמות של {name}',
+        'hero.avatarFallbackName': 'גיבור',
+
+        'loader.fetchFailed': 'לא ניתן היה לטעון את רשימות המילים: {status} {statusText}',
+        'loader.csvEmpty': 'קובץ ה-CSV ריק',
+        'loader.requiredColumns': 'CSV דורש עמודות: round,german,hebrew (עמודות נוספות הן אופציונליות)',
+        'loader.expectedColumns': 'שורה {line}: צפויות לפחות 3 עמודות',
+        'loader.invalidRound': "שורה {line}: ערך סיבוב לא תקין '{round}'",
+        'loader.duplicateRow': "שורה {line}: שורה כפולה '{key}'",
+        'loader.fallbackUnavailable': 'רשימות מילים חלופיות אינן זמינות',
+        'loader.missingRoundWords': 'חסרות מילים עבור {roundKey}',
+        'loader.rowValuesRequired': '{row}: ערכי גרמנית ועברית הם חובה',
+        'loader.invalidRoundValue': "{row}: סיבוב לא תקין '{round}'. צפוי 1-6",
+        'loader.roundWordCount': "{row}: סיבוב {round} מצפה ל-{expected} מילה/מילים בעברית, התקבל {actual} ('{hebrew}')",
+        'loader.fallbackDuplicate': "שורת גיבוי כפולה '{key}'",
+
+        'ttsDebug.openAria': 'פתח מצב דיבאג TTS',
+        'ttsDebug.closeAria': 'סגור מצב דיבאג TTS',
+        'ttsDebug.close': 'סגור',
+        'ttsDebug.title': 'סקירת דיבאג TTS',
+        'ttsDebug.copy': 'נגן את כל הרשומות, סמן הגיות בעייתיות ואז העתק את הרשימה המסומנת.',
+        'ttsDebug.filterPlaceholder': 'סינון (גרמנית / אנגלית / עברית / סיבוב)',
+        'ttsDebug.filterAria': 'סנן רשימת דיבאג TTS',
+        'ttsDebug.copyFlagged': 'העתק מסומנים',
+        'ttsDebug.clearFlagged': 'נקה סימונים',
+        'ttsDebug.ready': 'מוכן.',
+        'ttsDebug.emptyLoading': 'נתוני המילים עדיין נטענים.',
+        'ttsDebug.noData': 'אין נתונים זמינים. בדוק אם ה-CSV נטען.',
+        'ttsDebug.noFilterMatch': 'אין תוצאות למסנן הנוכחי.',
+        'ttsDebug.statusFilter': 'מסנן: {visible}/{total}. משפטים: {sentences}. בעיות מילים: {wordIssues}.',
+        'ttsDebug.statusEntries': 'רשומות: {visible}/{total}. שורות עם בעיות: {issueRows}. משפטים: {sentences}. בעיות מילים: {wordIssues}.',
+        'ttsDebug.metaHebrew': 'עברית: {value}',
+        'ttsDebug.metaVocalized': 'מנוקד: {value}',
+        'ttsDebug.metaTts': 'TTS: {value}',
+        'ttsDebug.metaSpoken': 'מושמע: {value}',
+        'ttsDebug.emptyValue': 'ריק',
+        'ttsDebug.rowHeadline': '#{row} · סיבוב {round} · {source}',
+        'ttsDebug.listen': 'האזן',
+        'ttsDebug.sentenceMarked': 'משפט: סומן',
+        'ttsDebug.sentenceUnclear': 'משפט: לא ברור/לא טבעי',
+        'ttsDebug.issueStress': 'הטעמה',
+        'ttsDebug.issuePronunciation': 'הגייה',
+        'ttsDebug.copyNone': 'אין בעיות מסומנות להעתקה.',
+        'ttsDebug.copySuccess': 'הועתק: {count} שורות עם בעיות.',
+        'ttsDebug.copyFailed': 'ההעתקה נכשלה. נסה שוב.',
+        'ttsDebug.clearNone': 'אין סימונים לניקוי.',
+        'ttsDebug.clearDone': 'כל הסימונים נוקו.',
+        'ttsDebug.ttsUnavailable': 'TTS לא זמין.',
+        'ttsDebug.playing': 'מנגן #{row} (סיבוב {round}).',
+        'ttsDebug.playFailed': 'לא ניתן לנגן את #{row}.',
+        'ttsDebug.reportTitle': '# Hebrew Tournament TTS issues',
+        'ttsDebug.reportCreated': '# created_at: {timestamp}',
+
+        'misc.avatar': 'דמות'
+    };
+
+    translations.he = Object.assign({}, translations.en, heTranslations);
+
     let currentLanguage = loadStoredLanguage();
 
     function normalizeLanguage(value) {
         const candidate = String(value || '').trim().toLowerCase();
         if (!candidate) return DEFAULT_LANGUAGE;
         if (candidate.startsWith('de')) return 'de';
+        if (candidate === 'iw' || candidate.startsWith('he')) return 'he';
         if (candidate.startsWith('en')) return 'en';
         return DEFAULT_LANGUAGE;
     }
@@ -602,7 +994,10 @@
     function applyDocumentLanguage() {
         const html = document.documentElement;
         if (html) {
-            html.setAttribute('lang', currentLanguage === 'de' ? 'de' : 'en');
+            html.setAttribute('lang', currentLanguage === 'he' ? 'he' : (currentLanguage === 'de' ? 'de' : 'en'));
+        }
+        if (document.body) {
+            document.body.dataset.uiLanguage = currentLanguage;
         }
         document.title = t('document.title');
     }
@@ -639,15 +1034,97 @@
         return String(value || '').replace(/\s+/g, ' ').trim();
     }
 
+    function escapeRegex(value) {
+        return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    function normalizeCueSource(value) {
+        return String(value || '')
+            .toLowerCase()
+            .replace(/ä/g, 'a')
+            .replace(/ö/g, 'o')
+            .replace(/ü/g, 'u')
+            .replace(/ß/g, 'ss')
+            .replace(/[^\w\u0590-\u05ff\s]/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    }
+
+    function sourceHasToken(source, token) {
+        const normalizedToken = normalizeCueSource(token);
+        if (!normalizedToken) return false;
+
+        if (/^[a-z0-9_]+$/.test(normalizedToken)) {
+            const tokenPattern = new RegExp(`(^|\\s)${escapeRegex(normalizedToken)}(\\s|$)`);
+            return tokenPattern.test(source);
+        }
+
+        return source.indexOf(normalizedToken) !== -1;
+    }
+
+    function buildDeterministicCue(source) {
+        if (!source) return '';
+
+        let hash = 0;
+        for (let i = 0; i < source.length; i++) {
+            hash = (hash * 31 + source.charCodeAt(i)) >>> 0;
+        }
+
+        const paletteSize = HEBREW_CUE_GENERIC_PALETTE.length;
+        const primaryIndex = hash % paletteSize;
+        const secondaryIndex = (Math.floor(hash / paletteSize) + 3) % paletteSize;
+        const primary = HEBREW_CUE_GENERIC_PALETTE[primaryIndex];
+        const secondary = HEBREW_CUE_GENERIC_PALETTE[secondaryIndex];
+
+        if (primary === secondary) return primary;
+        return `${primary} ${secondary}`;
+    }
+
+    function inferEmojiCue(wordData) {
+        if (!wordData || typeof wordData !== 'object') return '';
+
+        const cueSource = normalizeCueSource([
+            wordData.german || '',
+            wordData.english || '',
+            wordData.hebrew || '',
+            wordData.hebrewVocalized || wordData.hebrew_vocalized || ''
+        ].join(' '));
+        if (!cueSource) return '';
+
+        const matched = [];
+        for (const group of HEBREW_CUE_TOKEN_GROUPS) {
+            if (!group || !group.emoji || !Array.isArray(group.tokens)) continue;
+            const hasToken = group.tokens.some(function tokenMatcher(token) {
+                return sourceHasToken(cueSource, token);
+            });
+            if (!hasToken) continue;
+            if (!matched.includes(group.emoji)) {
+                matched.push(group.emoji);
+            }
+            if (matched.length >= 3) break;
+        }
+
+        if (matched.length > 0) {
+            return matched.join(' ');
+        }
+
+        return buildDeterministicCue(cueSource);
+    }
+
     function getPromptText(wordData) {
         if (!wordData || typeof wordData !== 'object') return '';
 
         const german = normalizePromptText(wordData.german || '');
         const english = normalizePromptText(wordData.english || '');
         const hebrew = normalizePromptText(wordData.hebrew || '');
+        const emoji = normalizePromptText(wordData.emoji || '');
+        const inferredEmoji = normalizePromptText(inferEmojiCue(wordData));
 
         if (currentLanguage === 'de') {
             return german || english || hebrew;
+        }
+        if (currentLanguage === 'he') {
+            return emoji || inferredEmoji || HEBREW_CUE_FALLBACK;
         }
         return english || german || hebrew;
     }
@@ -683,9 +1160,11 @@
 
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', function onDomReady() {
+            applyDocumentLanguage();
             applyStaticDomTranslations();
         });
     } else {
+        applyDocumentLanguage();
         applyStaticDomTranslations();
     }
 
@@ -695,5 +1174,6 @@
     window.HebrewGame.i18n.getLanguage = getLanguage;
     window.HebrewGame.i18n.setLanguage = setLanguage;
     window.HebrewGame.i18n.getPromptText = getPromptText;
+    window.HebrewGame.i18n.inferEmojiCue = inferEmojiCue;
     window.HebrewGame.i18n.applyStaticDomTranslations = applyStaticDomTranslations;
 })();

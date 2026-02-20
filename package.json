@@ -7,6 +7,7 @@
     "test": "playwright test",
     "test:smoke": "playwright test tests/smoke.spec.js",
     "test:ui": "playwright test --ui",
+    "generate:emoji-cues": "node scripts/quality/generate-emoji-cues.js",
     "check:hebrew-ambiguity": "node scripts/quality/flag-ambiguous-hebrew.js",
     "check:hebrew-ambiguity:strict": "node scripts/quality/flag-ambiguous-hebrew.js --strict"
   },

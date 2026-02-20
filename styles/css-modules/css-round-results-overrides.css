@@ -45,6 +45,28 @@
     line-height: 1.14;
 }
 
+#round-results .winner-spotlight.pixel-chip {
+    background: #f3e6c9;
+    border-color: #9b6d3f;
+    color: #4f351d;
+}
+
+#round-results[data-result-state="champion"] .winner-spotlight.pixel-chip {
+    background: #f7e7c0;
+    border-color: #8f6633;
+}
+
+#round-results .hero-avatar-round-winner {
+    border-color: #946634;
+    box-shadow: 0 0 0 2px rgba(246, 223, 173, 0.5);
+}
+
+#round-results .winner-round-label.pixel-chip {
+    background: #dce7f0;
+    border-color: #5e7f9b;
+    color: #2d4458;
+}
+
 #round-results[data-result-state="eliminated"] .status-message.pixel-title-plate {
     font-size: clamp(0.88rem, 2.45vw, 1.02rem);
 }

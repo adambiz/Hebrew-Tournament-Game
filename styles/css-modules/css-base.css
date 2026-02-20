@@ -89,6 +89,9 @@ body {
 
 .title-number {
     color: var(--brand-green);
+    display: inline-block;
+    direction: ltr;
+    unicode-bidi: isolate;
 }
 
 .game-screen {
@@ -103,6 +106,10 @@ body {
     display: none !important;
 }
 
+[hidden] {
+    display: none !important;
+}
+
 h2,
 h3 {
     font-family: var(--font-display);
@@ -111,6 +118,93 @@ h3 {
 
 p {
     color: var(--text-muted);
+}
+
+body[data-ui-language="he"] .pixel-title-plate,
+body[data-ui-language="he"] .start-panel-copy,
+body[data-ui-language="he"] .avatar-selection-label,
+body[data-ui-language="he"] .pixel-chip,
+body[data-ui-language="he"] .game-button,
+body[data-ui-language="he"] .submit-button,
+body[data-ui-language="he"] #start-button,
+body[data-ui-language="he"] #player-name,
+body[data-ui-language="he"] #player-name-display,
+body[data-ui-language="he"] #round-info h2,
+body[data-ui-language="he"] #next-round-info,
+body[data-ui-language="he"] #game-over,
+body[data-ui-language="he"] #tts-debug-panel {
+    direction: rtl;
+    text-align: right;
+}
+
+body[data-ui-language="he"] #main-battle-title {
+    direction: rtl;
+    unicode-bidi: isolate;
+}
+
+body[data-ui-language="he"] #start-button,
+body[data-ui-language="he"] #avatar-page-prev,
+body[data-ui-language="he"] #avatar-page-next,
+body[data-ui-language="he"] #play-hebrew-audio,
+body[data-ui-language="he"] #use-powerup,
+body[data-ui-language="he"] #submit-word,
+body[data-ui-language="he"] #visit-store,
+body[data-ui-language="he"] #next-round,
+body[data-ui-language="he"] #close-store,
+body[data-ui-language="he"] #play-again,
+body[data-ui-language="he"] .store-item-button {
+    gap: 10px;
+}
+
+body[data-ui-language="he"] #start-button::before,
+body[data-ui-language="he"] #play-hebrew-audio::before,
+body[data-ui-language="he"] #use-powerup::before,
+body[data-ui-language="he"] #submit-word::before,
+body[data-ui-language="he"] #visit-store::before,
+body[data-ui-language="he"] #next-round::before,
+body[data-ui-language="he"] #close-store::before,
+body[data-ui-language="he"] #play-again::before,
+body[data-ui-language="he"] .store-item-button::before {
+    display: inline-block;
+    font-size: 1.2em;
+    line-height: 1;
+    filter: drop-shadow(0 1px 0 rgba(0, 0, 0, 0.2));
+}
+
+body[data-ui-language="he"] #start-button::before {
+    content: "🚀";
+}
+
+body[data-ui-language="he"] #play-hebrew-audio::before {
+    content: "▶️";
+}
+
+body[data-ui-language="he"] #use-powerup::before {
+    content: "🎁";
+}
+
+body[data-ui-language="he"] #submit-word::before {
+    content: "✅";
+}
+
+body[data-ui-language="he"] #visit-store::before {
+    content: "🛍️";
+}
+
+body[data-ui-language="he"] #next-round::before {
+    content: "➡️";
+}
+
+body[data-ui-language="he"] #close-store::before {
+    content: "↩️";
+}
+
+body[data-ui-language="he"] #play-again::before {
+    content: "🔁";
+}
+
+body[data-ui-language="he"] .store-item-button::before {
+    content: "🛒";
 }
 
 button,

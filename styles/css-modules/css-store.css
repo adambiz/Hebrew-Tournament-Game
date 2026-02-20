@@ -153,7 +153,7 @@
 }
 
 .store-item-unaffordable::after {
-    content: "Need more coins";
+    content: attr(data-unaffordable-label);
     position: absolute;
     top: 12px;
     right: 12px;
@@ -163,6 +163,11 @@
     font-size: 0.76rem;
     font-weight: 800;
     padding: 4px 8px;
+}
+
+body[data-ui-language="he"] .store-item-unaffordable::after {
+    left: 12px;
+    right: auto;
 }
 
 .close-overlay-button {

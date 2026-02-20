@@ -100,6 +100,25 @@ function getStatusMessage(resultState) {
     return t('results.state.survived');
 }
 
+function getStatusIconId(resultState) {
+    if (resultState === ROUND_RESULT_STATE.ELIMINATED) return 'alert';
+    if (resultState === ROUND_RESULT_STATE.CHAMPION) return 'badge-cream';
+    if (resultState === ROUND_RESULT_STATE.TOP3) return 'badge-bronze';
+    return 'starburst';
+}
+
+function sortRoundResultContestants(contestants) {
+    const list = Array.isArray(contestants) ? contestants.slice() : [];
+    list.sort((a, b) => {
+        const scoreDiff = (Number(b && b.score) || 0) - (Number(a && a.score) || 0);
+        if (scoreDiff !== 0) return scoreDiff;
+        if (a === gameState.player) return -1;
+        if (b === gameState.player) return 1;
+        return String(a && a.name || '').localeCompare(String(b && b.name || ''));
+    });
+    return list;
+}
+
 function setCountupValue(element, value, suffix) {
     if (!element) return;
     const safeValue = Math.max(0, Math.floor(Number(value) || 0));
@@ -269,6 +288,35 @@ function renderRankingHeroName(hero, isPlayer) {
     return `<span class="ranking-name-text">${escapeUiText(fallbackName)}${isPlayer ? ` (${escapeUiText(t('label.you'))})` : ''}</span>`;
 }
 
+function renderResultWinnerHeroName(hero, isPlayer) {
+    const heroesApi = getHeroesApi();
+    if (heroesApi && typeof heroesApi.createHeroNameMarkup === 'function') {
+        return heroesApi.createHeroNameMarkup(hero, {
+            playerSuffix: isPlayer,
+            nameClass: 'winner-name-text',
+            avatarClass: 'hero-avatar-round-winner'
+        });
+    }
+
+    const fallbackName = hero && hero.name ? hero.name : '';
+    return `<span class="winner-name-text">${escapeUiText(fallbackName)}${isPlayer ? ` (${escapeUiText(t('label.you'))})` : ''}</span>`;
+}
+
+function renderRoundWinnerSpotlight(resultState, winnerHero, currentRound) {
+    if (resultState !== ROUND_RESULT_STATE.CHAMPION || !winnerHero) return '';
+
+    const safeRound = Math.max(1, Math.floor(Number(currentRound) || 1));
+    const winnerIsPlayer = winnerHero === gameState.player;
+
+    return `
+        <div class="winner-spotlight pixel-chip" data-testid="round-winner-spotlight">
+            <span class="winner-medal">${renderResultIcon('badge-cream')}</span>
+            <span class="winner-name">${renderResultWinnerHeroName(winnerHero, winnerIsPlayer)}</span>
+            <span class="winner-round-label pixel-chip">${escapeUiText(t('round.label'))} ${safeRound}</span>
+        </div>
+    `;
+}
+
 function createRankingItem(hero, rankIndex, isPlayer, roundIndex) {
     const roundScore = hero.roundScores[roundIndex] || 0;
     const eliminatedBadge = hero.eliminated
@@ -343,6 +391,8 @@ function displayRoundResults(payload) {
 
     const resultState = getResultState(playerRank, isEliminated);
     const renderToken = ++roundResultsAnimationToken;
+    const sortedContestants = sortRoundResultContestants(allContestants);
+    const roundWinner = sortedContestants.length > 0 ? sortedContestants[0] : null;
     const roundResultsScreen = document.getElementById('round-results');
     if (roundResultsScreen) {
         roundResultsScreen.dataset.resultState = resultState;
@@ -352,9 +402,10 @@ function displayRoundResults(payload) {
     if (keyResultsContainer) {
         keyResultsContainer.dataset.resultState = resultState;
         const statusClass = isEliminated ? 'eliminated' : 'survived';
-        const statusIcon = isEliminated ? renderResultIcon('alert') : renderResultIcon('starburst');
+        const statusIcon = renderResultIcon(getStatusIconId(resultState));
         const statusMessage = getStatusMessage(resultState);
         const rankClass = getRankColorClass(playerRank);
+        const winnerSpotlight = renderRoundWinnerSpotlight(resultState, roundWinner, currentRound);
 
         keyResultsContainer.innerHTML = `
             <div class="results-hero">
@@ -364,6 +415,7 @@ function displayRoundResults(payload) {
                         <span class="pixel-flag pixel-flag--sm" aria-hidden="true"></span>
                         <span>${statusMessage}</span>
                     </h3>
+                    ${winnerSpotlight}
                 </div>
                 <div class="rank-display ${rankClass} state-${resultState} pixel-frame-steel">
                     <div class="rank-number" data-countup-key="rank" data-countup-value="${playerRank}">${playerRank}</div>
@@ -376,7 +428,7 @@ function displayRoundResults(payload) {
             </div>
             <div class="reward-container">
                 <div class="reward-item reward-item--points pixel-frame-parchment">
-                    <div class="reward-icon">${renderResultIcon('badge-bronze')}</div>
+                    <div class="reward-icon">${renderResultIcon('starburst')}</div>
                     <div class="reward-label pixel-title-plate">${t('results.roundPoints')}</div>
                     <div class="reward-value pixel-chip" data-countup-key="points" data-countup-value="${roundScore}" data-countup-suffix="${t('results.pointsSuffix')}">${roundScore}${t('results.pointsSuffix')}</div>
                 </div>
@@ -386,7 +438,7 @@ function displayRoundResults(payload) {
                     <div class="reward-value pixel-chip" data-countup-key="earned" data-countup-value="${roundCoinsEarned}" data-countup-suffix="${t('results.coinsSuffix')}">${roundCoinsEarned}${t('results.coinsSuffix')}</div>
                 </div>
                 <div class="reward-item reward-item--total pixel-frame-parchment">
-                    <div class="reward-icon">${renderResultIcon('badge-cream')}</div>
+                    <div class="reward-icon">${renderResultIcon('coin')}</div>
                     <div class="reward-label pixel-title-plate">${t('results.totalCoins')}</div>
                     <div class="reward-value pixel-chip" data-countup-key="total" data-countup-value="${playerCoins}" data-countup-suffix="${t('results.coinsSuffix')}">${playerCoins}${t('results.coinsSuffix')}</div>
                 </div>
@@ -399,10 +451,9 @@ function displayRoundResults(payload) {
     const rankingList = document.getElementById('ranking-list');
     if (rankingList) {
         rankingList.innerHTML = '';
-        const sorted = allContestants.slice().sort((a, b) => b.score - a.score);
         const roundIndex = currentRound - 1;
 
-        sorted.forEach((hero, index) => {
+        sortedContestants.forEach((hero, index) => {
             rankingList.appendChild(createRankingItem(hero, index, hero === gameState.player, roundIndex));
         });
 

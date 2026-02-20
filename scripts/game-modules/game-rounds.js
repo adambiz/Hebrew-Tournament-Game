@@ -121,21 +121,35 @@ function updateMainBattleTitle() {
 
     const currentRound = Math.max(1, Math.floor(Number(gameState.currentRound) || 1));
     const baseOpponents = getBaseOpponentCountForTitle();
-    const currentOpponents = getOpponentCountForRound(currentRound);
-    const showCrossedBase = currentRound > 1;
+    const hasLiveTournamentState = !!(
+        gameState &&
+        gameState.player &&
+        Array.isArray(gameState.opponents) &&
+        gameState.opponents.length > 0 &&
+        gameState.currentRound >= 1
+    );
+    const currentOpponents = hasLiveTournamentState
+        ? Math.max(0, gameState.opponents.filter(opponent => !opponent.eliminated).length)
+        : getOpponentCountForRound(currentRound);
+    const showCrossedBase = hasLiveTournamentState
+        ? currentOpponents < baseOpponents
+        : currentRound > 1;
+    const renderTitleNumber = function renderTitleNumber(value, className) {
+        return `<span class="title-number ${className}" dir="ltr">${escapeRoundUiText(value)}</span>`;
+    };
 
     const titleParts = [
-        '<span class="title-number title-number-player">1</span>',
+        renderTitleNumber(1, 'title-number-player'),
         `<span class="title-word">${escapeRoundUiText(t('title.against'))}</span>`
     ];
 
     if (showCrossedBase) {
-        titleParts.push(`<span class="title-number title-number-crossed">${baseOpponents}</span>`);
+        titleParts.push(renderTitleNumber(baseOpponents, 'title-number-crossed'));
         if (currentOpponents !== baseOpponents) {
-            titleParts.push(`<span class="title-number title-number-current">${currentOpponents}</span>`);
+            titleParts.push(renderTitleNumber(currentOpponents, 'title-number-current'));
         }
     } else {
-        titleParts.push(`<span class="title-number title-number-current">${currentOpponents}</span>`);
+        titleParts.push(renderTitleNumber(currentOpponents, 'title-number-current'));
     }
     battleTitle.innerHTML = titleParts.join(' ');
 
@@ -251,10 +265,6 @@ function startNextRound() {
     // Show the round screen
     window.showScreen('round-screen');
     
-    // Update remaining heroes count
-    const remainingHeroes = [gameState.player, ...gameState.opponents].filter(h => !h.eliminated).length;
-    document.getElementById('heroes-remaining').textContent = remainingHeroes;
-    
     // Update tournament display
     updateTournamentDisplay();
     
@@ -299,57 +309,48 @@ function startNextRound() {
 
 // New function to update the tournament display
 function updateTournamentDisplay() {
-    // Update the badge values
-    document.getElementById('current-round-badge').textContent = gameState.currentRound;
-    
-    // Count remaining heroes
-    const remainingHeroes = [gameState.player, ...gameState.opponents].filter(h => !h.eliminated).length;
-    document.getElementById('heroes-remaining').textContent = remainingHeroes;
-    
-    // Sort heroes by score consistently
-    const allHeroes = [gameState.player, ...gameState.opponents].filter(h => !h.eliminated);
-    allHeroes.sort((a, b) => b.score - a.score);
-    
-    // Find player's rank
-    const playerRank = allHeroes.findIndex(h => h === gameState.player) + 1;
-    
-    // Update player's rank with trophy icon if in top 3
-    const playerRankElement = document.getElementById('player-current-rank');
-    if (playerRank <= 3) {
-        const trophyIcon = playerRank === 1
-            ? renderUiIcon('badge-cream')
-            : playerRank === 2
-                ? renderUiIcon('badge-blue')
-                : renderUiIcon('badge-bronze');
-        playerRankElement.innerHTML = `${trophyIcon} ${playerRank}`;
-        playerRankElement.classList.add('top-rank');
-    } else {
-        playerRankElement.textContent = playerRank;
-        playerRankElement.classList.remove('top-rank');
-    }
-    
-    // Update top champions (only show top 3 for simplicity)
     const topChampionsContainer = document.getElementById('top-champions');
+    if (!topChampionsContainer) return;
+
+    // Sort heroes by score and keep deterministic ordering for ties.
+    const allHeroes = [gameState.player, ...gameState.opponents].filter(h => !h.eliminated);
+    allHeroes.sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        if (a === gameState.player) return -1;
+        if (b === gameState.player) return 1;
+        return String(a.name || '').localeCompare(String(b.name || ''));
+    });
+
     topChampionsContainer.innerHTML = '';
-    
-    // Use the already sorted heroes list for top champions
+    if (allHeroes.length === 0) return;
+
+    // Keep top 3, and append player if they are outside podium.
+    const playerRank = allHeroes.findIndex(h => h === gameState.player) + 1;
     const topHeroes = allHeroes.slice(0, 3);
-    
-    topHeroes.forEach((hero, index) => {
+    const displayHeroes = playerRank > 3
+        ? topHeroes.concat(gameState.player)
+        : topHeroes;
+
+    displayHeroes.forEach((hero) => {
+        const heroRank = allHeroes.findIndex(entry => entry === hero) + 1;
         const championElement = document.createElement('div');
         championElement.className = 'champion-item';
-        championElement.classList.add(`champion-rank-${index + 1}`);
-        championElement.dataset.rank = String(index + 1);
-        if (index < 3) {
+        championElement.dataset.rank = String(heroRank);
+
+        if (heroRank <= 3) {
+            championElement.classList.add(`champion-rank-${heroRank}`);
             championElement.classList.add('champion-top-three');
         }
-        
-        // Add special class if it's the player
+
         if (hero === gameState.player) {
             championElement.classList.add('player-champion');
+            if (heroRank > 3) {
+                championElement.classList.add('champion-extra-player');
+            }
         }
-        
+
         championElement.innerHTML = `
+            <div class="champion-rank-index pixel-chip">${heroRank}</div>
             <div class="champion-name">${renderRoundHeroNameMarkup(hero, {
                 playerSuffix: hero === gameState.player,
                 nameClass: 'champion-name-text',
@@ -440,6 +441,8 @@ window.completeRound = function completeRound() {
                 }
             }
         }
+
+        updateMainBattleTitle();
 
         const playerIndex = allContestants.findIndex(hero => hero === gameState.player);
         const playerRank = playerIndex + 1;

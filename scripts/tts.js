@@ -14,7 +14,27 @@
     const DEFAULT_PITCH = 1;
     const DEFAULT_VOLUME = 1;
 
-    const supportsSpeech = typeof window.speechSynthesis !== 'undefined' &&
+    function shouldDisableSpeechForAutomation() {
+        if (window.__HEBREW_GAME_TTS_FORCE_ENABLE__ === true) return false;
+        if (window.__HEBREW_GAME_DISABLE_TTS__ === true) return true;
+
+        try {
+            if (window.location && typeof window.location.search === 'string') {
+                const searchParams = new URLSearchParams(window.location.search);
+                if (searchParams.get('disableTts') === '1') {
+                    return true;
+                }
+            }
+        } catch (error) {
+            // Ignore URL parsing errors and keep fallback checks.
+        }
+
+        return typeof navigator !== 'undefined' && navigator.webdriver === true;
+    }
+
+    const speechDisabledForAutomation = shouldDisableSpeechForAutomation();
+    const supportsSpeech = !speechDisabledForAutomation &&
+        typeof window.speechSynthesis !== 'undefined' &&
         typeof window.SpeechSynthesisUtterance === 'function';
     const speechEngine = supportsSpeech ? window.speechSynthesis : null;
 
@@ -345,6 +365,7 @@
     function getVoiceStatus() {
         return {
             supported: supportsSpeech,
+            disabledForAutomation: speechDisabledForAutomation,
             voicesResolved: !!voicesResolved,
             voiceReady: !!selectedVoice,
             voiceName: selectedVoice ? selectedVoice.name : null,

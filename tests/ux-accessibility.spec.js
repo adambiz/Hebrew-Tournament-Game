@@ -276,7 +276,7 @@ test.describe('UX and accessibility flows', () => {
       };
     });
 
-    expect(roundUi.actionBarPosition).toBe('fixed');
+    expect(roundUi.actionBarPosition).toBe('sticky');
     expect(roundUi.submitInViewport).toBe(true);
     expect(roundUi.powerupInViewport).toBe(true);
 

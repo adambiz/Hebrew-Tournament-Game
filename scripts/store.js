@@ -115,9 +115,11 @@ function generateStoreUI(storeContainerId, playerCoins, roundNumber, onPurchase)
         const canAfford = playerCoins >= price;
         const powerUpName = t(powerUp.nameKey);
         const powerUpDescription = t(powerUp.descriptionKey);
+        const unaffordableLabel = t('store.needMoreCoinsBadge');
         
         const storeItem = document.createElement('div');
         storeItem.className = 'store-item pixel-frame-parchment';
+        storeItem.setAttribute('data-unaffordable-label', unaffordableLabel);
         
         // Optionally add a class if the player can't afford it
         if (!canAfford) {

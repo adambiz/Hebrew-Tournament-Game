@@ -50,9 +50,9 @@
     --kenney-ribbon-left: url('../../assets/ui/kenney/ribbon-red-left.png');
     --kenney-ribbon-mid: url('../../assets/ui/kenney/ribbon-red-mid.png');
     --kenney-ribbon-right: url('../../assets/ui/kenney/ribbon-red-right.png');
-    --kenney-badge-blue: url('../../assets/ui/kenney/badge-blue.png');
-    --kenney-badge-bronze: url('../../assets/ui/kenney/badge-bronze.png');
-    --kenney-badge-cream: url('../../assets/ui/kenney/badge-cream.png');
+    --kenney-badge-blue: url('../../assets/medal_silver_2_32.png');
+    --kenney-badge-bronze: url('../../assets/medal_bronze_3_32.png');
+    --kenney-badge-cream: url('../../assets/medal_gold_1_32.png');
     --kenney-meter-blue: url('../../assets/ui/kenney/meter-blue.png');
     --kenney-meter-red: url('../../assets/ui/kenney/meter-red.png');
 
@@ -329,15 +329,15 @@ input:focus-visible,
 }
 
 .pixel-icon--badge-blue {
-    background-image: url('../../assets/ui/kenney/badge-blue.png');
+    background-image: var(--kenney-badge-blue);
 }
 
 .pixel-icon--badge-bronze {
-    background-image: url('../../assets/ui/kenney/badge-bronze.png');
+    background-image: var(--kenney-badge-bronze);
 }
 
 .pixel-icon--badge-cream {
-    background-image: url('../../assets/ui/kenney/badge-cream.png');
+    background-image: var(--kenney-badge-cream);
 }
 
 .pixel-icon--meter-blue {
@@ -383,10 +383,6 @@ input:focus-visible,
 .power-up-button .pixel-icon,
 .coin-icon .pixel-icon {
     margin-inline-end: 6px;
-}
-
-#player-current-rank .pixel-icon {
-    margin-inline-end: 4px;
 }
 
 .pixel-button-steel,
@@ -542,10 +538,10 @@ input:focus-visible,
 }
 
 #current-word-counter {
-    border-radius: 0;
-    border: 3px solid #5d7f9b;
-    background: #dbe4ec;
+    border: 0;
+    background: transparent;
     color: #36536b;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.28);
 }
 
 #mobile-action-bar,
@@ -605,8 +601,7 @@ input:focus-visible,
 
 #current-round,
 #completed-round,
-#next-round-number,
-#current-round-badge {
+#next-round-number {
     display: inline-block;
     min-width: 1.6ch;
     padding: 0 5px;
@@ -1636,6 +1631,44 @@ h3,
 #top-champions .champion-rank-3::before,
 #final-high-scores-list .leaderboard-rank-3::before {
     background-image: var(--kenney-badge-bronze);
+}
+
+/* Round-screen leaderboard uses numeric rank chips instead of medal pseudo-elements. */
+#top-champions .champion-top-three {
+    padding-left: 8px !important;
+    animation: none;
+}
+
+#top-champions .champion-top-three::before {
+    content: none !important;
+    animation: none !important;
+}
+
+#top-champions .champion-rank-index.pixel-chip {
+    min-width: 30px;
+    padding: 2px 0;
+    border-width: 2px;
+    font-weight: 900;
+    color: #243f56;
+    background: #e6eef5;
+}
+
+#top-champions .champion-rank-1 .champion-rank-index.pixel-chip {
+    border-color: #956835;
+    background: #f5e5bf;
+    color: #5a3f21;
+}
+
+#top-champions .champion-rank-2 .champion-rank-index.pixel-chip {
+    border-color: #7f8c99;
+    background: #edf1f4;
+    color: #304253;
+}
+
+#top-champions .champion-rank-3 .champion-rank-index.pixel-chip {
+    border-color: #845f45;
+    background: #efd9cb;
+    color: #563521;
 }
 
 @keyframes leaderboard-sweep {

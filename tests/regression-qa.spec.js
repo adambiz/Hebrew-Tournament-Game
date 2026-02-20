@@ -538,7 +538,74 @@ test.describe('Regression QA and stability hardening', () => {
       expect(keyboardLetterSize, `${viewport.name} keyboard letters should be larger`).toBeGreaterThanOrEqual(22);
       expect(keyboardLetterSize, `${viewport.name} keyboard letters must stay within safe max`).toBeLessThanOrEqual(26);
 
-      if (viewport.name.startsWith('tablet')) {
+      const topThreeOnlyCheck = await page.evaluate(() => {
+        if (typeof window.updateTournamentDisplay === 'function') {
+          window.updateTournamentDisplay();
+        }
+
+        const rows = Array.from(document.querySelectorAll('#top-champions .champion-item'));
+        const rankValues = rows.map((row) => {
+          const rankNode = row.querySelector('.champion-rank-index');
+          return rankNode ? Number.parseInt(String(rankNode.textContent || '').trim(), 10) : NaN;
+        });
+        return {
+          rowCount: rows.length,
+          hasExtraPlayerRow: rows.some((row) => row.classList.contains('champion-extra-player')),
+          hasOutOfOrderRank: rankValues.some((rank, index) => rank !== index + 1)
+        };
+      });
+      expect(topThreeOnlyCheck.rowCount, `${viewport.name} should show only top 3 when player is already in podium`).toBe(3);
+      expect(topThreeOnlyCheck.hasExtraPlayerRow, `${viewport.name} should not append an extra player row when already top 3`).toBe(false);
+      expect(topThreeOnlyCheck.hasOutOfOrderRank, `${viewport.name} top 3 ranks should be 1,2,3`).toBe(false);
+
+      const topThreePlusPlayerCheck = await page.evaluate(() => {
+        const gs = window.HebrewGame?.debug?.getGameState?.();
+        if (!gs || !gs.player || !Array.isArray(gs.opponents)) {
+          return {
+            rowCount: 0,
+            extraPlayerRowCount: 0,
+            playerRowCount: 0,
+            lastRowRank: null
+          };
+        }
+
+        gs.player.score = 0;
+        gs.opponents.forEach((opponent, index) => {
+          opponent.eliminated = false;
+          opponent.score = Math.max(opponent.score, 1000 - index);
+        });
+
+        if (typeof window.updateTournamentDisplay === 'function') {
+          window.updateTournamentDisplay();
+        }
+
+        const rows = Array.from(document.querySelectorAll('#top-champions .champion-item'));
+        const playerRows = rows.filter((row) => row.classList.contains('player-champion'));
+        const extraPlayerRows = rows.filter((row) => row.classList.contains('champion-extra-player'));
+        const lastRow = rows[rows.length - 1] || null;
+        const lastRankNode = lastRow ? lastRow.querySelector('.champion-rank-index') : null;
+        const lastRowRank = lastRankNode ? Number.parseInt(String(lastRankNode.textContent || '').trim(), 10) : null;
+
+        return {
+          rowCount: rows.length,
+          extraPlayerRowCount: extraPlayerRows.length,
+          playerRowCount: playerRows.length,
+          lastRowIsPlayer: !!lastRow && lastRow.classList.contains('player-champion'),
+          lastRowRank
+        };
+      });
+      expect(
+        topThreePlusPlayerCheck.rowCount,
+        `${viewport.name} should append player row when player rank is outside top 3`
+      ).toBe(4);
+      expect(topThreePlusPlayerCheck.extraPlayerRowCount).toBe(1);
+      expect(topThreePlusPlayerCheck.playerRowCount).toBe(1);
+      expect(topThreePlusPlayerCheck.lastRowIsPlayer).toBe(true);
+      expect(topThreePlusPlayerCheck.lastRowRank, `${viewport.name} appended player row rank should be outside top 3`).toBeGreaterThan(3);
+
+      await biasPlayerToSurviveRound(page);
+
+      if (viewport.width >= 768) {
         const roundActionVisibilityIssues = await collectElementsOutsideViewport(page, ['submit-word', 'use-powerup']);
         expect(
           roundActionVisibilityIssues,
@@ -666,6 +733,28 @@ test.describe('Regression QA and stability hardening', () => {
     await closeStore(page);
   });
 
+  test('updates battle title immediately after eliminations before next round starts', async ({ page }) => {
+    await waitForReady(page);
+    await startGame(page, 'Title Update QA');
+    await biasPlayerToSurviveRound(page);
+
+    await finishCurrentRound(page);
+    await expect(page.locator('#round-results')).not.toHaveClass(/hidden/);
+
+    const titleSnapshot = await page.evaluate(() => {
+      const title = document.getElementById('main-battle-title');
+      return {
+        fullText: (title?.textContent || '').replace(/\s+/g, ' ').trim(),
+        crossed: title?.querySelector('.title-number-crossed')?.textContent?.trim() || '',
+        current: title?.querySelector('.title-number-current')?.textContent?.trim() || ''
+      };
+    });
+
+    expect(titleSnapshot.fullText).toContain('1');
+    expect(titleSnapshot.crossed).toBe('95');
+    expect(titleSnapshot.current).toBe('47');
+  });
+
   test('applies result-state markers, survivor celebration, and hierarchy cues', async ({ page }) => {
     await waitForReady(page);
     await startGame(page, 'Result State QA');
@@ -686,7 +775,14 @@ test.describe('Regression QA and stability hardening', () => {
 
     await expect(page.locator('#round-results')).toHaveAttribute('data-result-state', 'champion');
     await expect(page.locator('#key-results-container')).toHaveAttribute('data-result-state', 'champion');
-    await expect(page.locator('#key-results-container .status-message')).toContainText('Round winner! Rank 1');
+    await expect(page.locator('#key-results-container .status-message')).toContainText('Round winner!');
+    await expect(page.locator('#key-results-container [data-testid=\"round-winner-spotlight\"]')).toHaveCount(1);
+    await expect(page.locator('#key-results-container .winner-spotlight .hero-avatar-round-winner')).toHaveCount(1);
+    await expect(page.locator('#key-results-container .winner-spotlight .pixel-icon--badge-cream')).toHaveCount(1);
+    await expect(page.locator('#key-results-container .reward-item--points .pixel-icon--starburst')).toHaveCount(1);
+    await expect(page.locator('#key-results-container .reward-item--total .pixel-icon--coin')).toHaveCount(1);
+    await expect(page.locator('#key-results-container .reward-item--points .pixel-icon--badge-bronze')).toHaveCount(0);
+    await expect(page.locator('#key-results-container .reward-item--total .pixel-icon--badge-cream')).toHaveCount(0);
 
     const hierarchyStats = await page.evaluate(() => {
       const statusMessage = document.querySelector('#key-results-container .status-message');

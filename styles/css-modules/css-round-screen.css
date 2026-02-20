@@ -141,12 +141,11 @@
 }
 
 #word-header-row {
-    display: flex;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
     align-items: center;
-    justify-content: space-between;
     gap: var(--space-2);
-    flex-wrap: wrap;
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-2);
 }
 
 #german-word {
@@ -159,13 +158,32 @@
     font-weight: 900;
     color: var(--text-main);
     margin-bottom: 0;
+    min-width: 0;
+    justify-self: start;
+}
+
+body[data-ui-language="he"] #german-word {
+    font-size: clamp(1.8rem, 6vw, 2.5rem);
+    letter-spacing: 0.08em;
+    line-height: 1.15;
+    text-align: center;
+    direction: ltr;
+}
+
+body[data-ui-language="he"] #play-hebrew-audio .play-icon {
+    display: none;
+}
+
+body[data-ui-language="he"] #play-hebrew-audio {
+    min-width: 138px;
 }
 
 #tts-controls {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-inline-start: auto;
+    margin-inline-start: 0;
+    justify-self: end;
 }
 
 #play-hebrew-audio,
@@ -256,17 +274,17 @@
 }
 
 #current-word-counter {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 30px;
-    border-radius: 999px;
-    background: #f0f4fb;
-    border: 1px solid #d5e3f7;
+    display: inline-block;
+    justify-self: center;
+    min-height: 0;
+    border: 0;
+    background: transparent;
     color: var(--text-muted);
-    padding: 0 12px;
+    padding: 0;
     font-size: 0.9rem;
-    font-weight: 700;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+    white-space: nowrap;
 }
 
 .hebrew-word-container {
@@ -447,45 +465,7 @@
     border-radius: var(--radius-md);
     background: #ffffff;
     box-shadow: var(--shadow-sm);
-    padding: var(--space-3);
-    display: grid;
-    gap: var(--space-3);
-}
-
-.tournament-info-container {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--space-2);
-}
-
-.tournament-badge,
-.player-rank-badge {
-    border: var(--border-soft);
-    border-radius: var(--radius-sm);
-    background: #f9fcff;
-    text-align: center;
     padding: var(--space-2);
-}
-
-.player-rank-badge {
-    background: var(--bg-accent);
-}
-
-.badge-title {
-    font-size: 0.76rem;
-    font-weight: 700;
-    color: var(--text-muted);
-}
-
-.badge-value {
-    font-size: 1.35rem;
-    font-weight: 900;
-    color: var(--text-main);
-}
-
-.badge-subtitle {
-    font-size: 0.72rem;
-    color: var(--text-muted);
 }
 
 .champions-container {
@@ -495,13 +475,6 @@
     padding: var(--space-2);
 }
 
-.champions-title {
-    font-size: 0.92rem;
-    font-weight: 800;
-    margin-bottom: 8px;
-    color: var(--text-main);
-}
-
 #top-champions {
     display: grid;
     gap: 6px;
@@ -509,7 +482,7 @@
 
 .champion-item {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: 34px minmax(0, 1fr) auto;
     align-items: center;
     gap: 8px;
     position: relative;
@@ -519,6 +492,15 @@
     background: #ffffff;
     padding: 6px 8px;
     font-size: 0.9rem;
+}
+
+.champion-rank-index {
+    min-height: 28px;
+    min-width: 28px;
+    justify-content: center;
+    text-align: center;
+    font-size: 0.82rem;
+    font-weight: 900;
 }
 
 .champion-name {
@@ -531,6 +513,8 @@
 .champion-name .hero-name-with-avatar {
     display: inline-flex;
     max-width: 100%;
+    align-items: center;
+    gap: 8px;
 }
 
 .hero-avatar-champion {
@@ -549,19 +533,10 @@
     text-align: center;
 }
 
-.champion-item.champion-top-three::after {
-    content: "TOP " attr(data-rank);
-    position: absolute;
-    top: 0;
-    right: 8px;
-    font-size: 0.62rem;
-    font-weight: 900;
-    letter-spacing: 0.06em;
-    color: #2d4458;
-    background: rgba(242, 239, 226, 0.95);
-    border: 2px solid rgba(84, 116, 143, 0.7);
-    border-top: 0;
-    padding: 1px 6px;
+.champion-item.champion-extra-player {
+    border-color: #a16f3c;
+    background: linear-gradient(180deg, #f2e8d4 0%, #e7d9bd 100%);
+    box-shadow: inset 0 0 0 2px rgba(161, 111, 60, 0.2);
 }
 
 .champion-item.champion-rank-1 {

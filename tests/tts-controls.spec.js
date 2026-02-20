@@ -18,6 +18,8 @@ async function startRound(page, playerName = 'TTS Tester') {
 test.describe('Hebrew TTS controls', () => {
     test.beforeEach(async ({ page }) => {
         await page.addInitScript(() => {
+            window.__HEBREW_GAME_TTS_FORCE_ENABLE__ = true;
+
             const spoken = [];
             const listeners = { voiceschanged: [] };
             let voices = [

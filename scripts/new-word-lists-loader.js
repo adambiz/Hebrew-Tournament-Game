@@ -14,6 +14,21 @@ const ROUND_WORD_COUNT_RULES = {
     6: 4
 };
 
+const LOADER_GENERIC_EMOJI_CUES = [
+    '🎯',
+    '✨',
+    '🌟',
+    '🧩',
+    '🚀',
+    '⚡',
+    '🌈',
+    '🎈',
+    '🐾',
+    '🪄',
+    '🏆',
+    '🎮'
+];
+
 function getI18nApi() {
     return window.HebrewGame && window.HebrewGame.i18n
         ? window.HebrewGame.i18n
@@ -72,6 +87,45 @@ function normalizeSpaces(text) {
     return text.replace(/\s+/g, ' ').trim();
 }
 
+function buildDeterministicEmojiCue(seedSource) {
+    const normalizedSeed = normalizeSpaces(seedSource || '');
+    if (!normalizedSeed) return '🎯';
+
+    let hash = 0;
+    for (let i = 0; i < normalizedSeed.length; i++) {
+        hash = (hash * 33 + normalizedSeed.charCodeAt(i)) >>> 0;
+    }
+
+    const paletteSize = LOADER_GENERIC_EMOJI_CUES.length;
+    const primary = LOADER_GENERIC_EMOJI_CUES[hash % paletteSize];
+    const secondary = LOADER_GENERIC_EMOJI_CUES[(Math.floor(hash / paletteSize) + 5) % paletteSize];
+    if (primary === secondary) return primary;
+    return `${primary} ${secondary}`;
+}
+
+function inferEmojiCueFromI18n(wordData) {
+    const i18nApi = getI18nApi();
+    if (!i18nApi || typeof i18nApi.inferEmojiCue !== 'function') {
+        return '';
+    }
+    return normalizeSpaces(i18nApi.inferEmojiCue(wordData) || '');
+}
+
+function resolveEmojiCue(round, german, hebrew, english, emojiRaw) {
+    const existingEmoji = normalizeSpaces(emojiRaw || '');
+    if (existingEmoji) return existingEmoji;
+
+    const inferredEmoji = inferEmojiCueFromI18n({
+        round,
+        german,
+        hebrew,
+        english
+    });
+    if (inferredEmoji) return inferredEmoji;
+
+    return buildDeterministicEmojiCue([round, german, english, hebrew].join(' '));
+}
+
 function buildHeaderIndexMap(headerValues) {
     const map = {};
     headerValues.forEach((headerValue, index) => {
@@ -94,6 +148,7 @@ function validateAndBuildWordData(round, germanRaw, hebrewRaw, rowLabel, optiona
     const english = normalizeSpaces(optionalFields.englishRaw || '');
     const hebrewVocalized = normalizeSpaces(optionalFields.hebrewVocalizedRaw || '');
     const ttsText = normalizeSpaces(optionalFields.ttsTextRaw || '');
+    const emoji = resolveEmojiCue(round, german, hebrew, english, optionalFields.emojiRaw || '');
 
     if (!german || !hebrew) {
         throw new Error(t('loader.rowValuesRequired', { row: rowLabel }));
@@ -123,6 +178,7 @@ function validateAndBuildWordData(round, germanRaw, hebrewRaw, rowLabel, optiona
         english,
         hebrewVocalized,
         ttsText,
+        emoji,
         words: hebrewWords,
         wordCount: hebrewWords.length,
         isPhrase: hebrewWords.length > 1,
@@ -199,7 +255,8 @@ async function loadWordListsFromCSV(csvFilePath = 'data/hebrew-german-words.csv'
                 {
                     englishRaw: getColumnValue(parsed, headerIndexMap, 'english'),
                     hebrewVocalizedRaw: getColumnValue(parsed, headerIndexMap, 'hebrew_vocalized'),
-                    ttsTextRaw: getColumnValue(parsed, headerIndexMap, 'tts_text')
+                    ttsTextRaw: getColumnValue(parsed, headerIndexMap, 'tts_text'),
+                    emojiRaw: getColumnValue(parsed, headerIndexMap, 'emoji')
                 }
             );
 
@@ -269,7 +326,8 @@ function processFallbackWordLists(sourceWordLists) {
                 {
                     englishRaw: item.english,
                     hebrewVocalizedRaw: item.hebrewVocalized || item.hebrew_vocalized,
-                    ttsTextRaw: item.ttsText || item.tts_text
+                    ttsTextRaw: item.ttsText || item.tts_text,
+                    emojiRaw: item.emoji
                 }
             );
 
@@ -314,6 +372,7 @@ function cloneWordEntry(entry) {
         english: entry.english,
         hebrewVocalized: entry.hebrewVocalized,
         ttsText: entry.ttsText,
+        emoji: entry.emoji,
         words: Array.isArray(entry.words) ? entry.words.slice() : [],
         wordCount: entry.wordCount,
         isPhrase: entry.isPhrase,

@@ -1,9 +1,9 @@
 # 1 Against 95 - Hebrew Learning Game
 
-## Bilingual UI (English + German)
+## Trilingual UI (English + German + Hebrew)
 
-- The UI now supports two languages: `English` and `Deutsch`.
-- A language selector is shown on the start screen as two buttons: `English` and `Deutsch`.
+- The UI now supports three languages: `English`, `Deutsch`, and `עברית`.
+- A language selector is shown on the start screen as three buttons: `English`, `Deutsch`, and `עברית`.
 - First load defaults to English (`en`).
 - The selected UI language is persisted in `localStorage` under `hebrewGame_uiLanguage_v1`.
 - On reload, the saved language is restored automatically.
@@ -14,7 +14,21 @@
 - In runtime, the displayed source text is selected by language:
   - `en`: uses `english`, then falls back to `german`, then `hebrew`.
   - `de`: uses `german`, then falls back to `english`, then `hebrew`.
+  - `he`: uses `emoji`, then falls back to `👂🔊`.
+- Hebrew mode is cue-only: source prompts do not show English/German/Hebrew words.
 - This fallback logic is implemented via `window.HebrewGame.i18n.getPromptText(...)`, so prompts are never blank.
+
+### Word CSV Schema
+
+- Main data file: `data/hebrew-german-words.csv`
+- Required columns: `round`, `german`, `hebrew`
+- Optional columns: `english`, `hebrew_vocalized`, `tts_text`, `emoji`
+- `emoji` is used for Hebrew cue-mode prompt display.
+
+### Emoji Cue Generation
+
+- Script: `node scripts/quality/generate-emoji-cues.js`
+- It adds/updates the optional `emoji` column using deterministic token mapping and targeted manual overrides for sentence cues.
 
 ### i18n Runtime API
 
@@ -48,6 +62,7 @@
 │   ├── new-word-lists-loader.js     # CSV loading functionality
 │   ├── quality/
 │   │   ├── check-duplicate-globals.sh # Duplicate top-level declaration check
+│   │   ├── generate-emoji-cues.js     # Builds emoji cue column in CSV
 │   │   └── smoke-test-checklist.md     # Manual smoke tests
 │   └── store.js                     # Power-up store implementation
 ├── styles/
@@ -80,6 +95,8 @@
 
 - Duplicate globals check:
   - `bash scripts/quality/check-duplicate-globals.sh`
+- Emoji cue generation:
+  - `node scripts/quality/generate-emoji-cues.js`
 - Manual smoke test checklist:
   - `scripts/quality/smoke-test-checklist.md`
 

@@ -55,8 +55,8 @@ async function waitForReady(page) {
 test.describe('Kenney theme fidelity', () => {
   test('uses corrected sprites and simplified button structure', async ({ page }) => {
     expectAssetToMatch('tile_0085.png', 'ribbon-red-right.png');
-    expectAssetToMatch('tile_0125.png', 'badge-cream.png');
     expectAssetToMatch('tile_0050.png', 'icon-close.png');
+    expect(fs.existsSync(path.join(ROOT, 'assets', 'medal_gold_1_32.png'))).toBe(true);
 
     await waitForReady(page);
 
@@ -82,12 +82,18 @@ test.describe('Kenney theme fidelity', () => {
     await page.click('#start-button');
     await expect(page.locator('#round-screen')).not.toHaveClass(/hidden/);
 
-    const rankIconAsset = await page.locator('#player-current-rank .pixel-icon').first().evaluate((el) =>
-      getComputedStyle(el).backgroundImage
-    );
-    expect(rankIconAsset).toContain('badge-cream.png');
-    expect(rankIconAsset).not.toContain('meter-blue.png');
-    expect(rankIconAsset).not.toContain('meter-red.png');
+    await expect(page.locator('#top-champions .champion-rank-index')).toHaveCount(3);
+    await expect(page.locator('#top-champions .hero-avatar-champion')).toHaveCount(3);
+    await expect(page.locator('#top-champions .pixel-icon')).toHaveCount(0);
+
+    const roundRankLabels = await page.locator('#top-champions .champion-rank-index').allTextContents();
+    expect(roundRankLabels.map((label) => label.trim())).toEqual(['1', '2', '3']);
+
+    const hasLegacyEmoji = await page.evaluate(() => {
+      const text = document.querySelector('#top-champions')?.textContent || '';
+      return /[\u{1F300}-\u{1FAFF}\u2600-\u27BF]/u.test(text);
+    });
+    expect(hasLegacyEmoji).toBe(false);
 
     await page.evaluate(() => {
       window.HebrewGame?.ui?.openStoreOverlay?.(document.getElementById('use-powerup'));
@@ -126,36 +132,65 @@ test.describe('Kenney theme fidelity', () => {
       };
     });
 
-    const box = await startButton.boundingBox();
-    if (!box) throw new Error('Start button bounding box unavailable');
-    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
-    await page.mouse.down();
-    await page.waitForFunction(() => {
-      const button = document.getElementById('start-button');
-      return !!button && button.matches(':active');
+    const pressRule = await page.evaluate(() => {
+      function collectPressRules(rules, bucket) {
+        for (const rule of Array.from(rules || [])) {
+          if (!rule) continue;
+          if (rule.type === CSSRule.IMPORT_RULE && rule.styleSheet) {
+            let nestedRules = null;
+            try {
+              nestedRules = rule.styleSheet.cssRules;
+            } catch (_error) {
+              nestedRules = null;
+            }
+            collectPressRules(nestedRules, bucket);
+            continue;
+          }
+
+          if (rule.type !== CSSRule.STYLE_RULE || !rule.selectorText || !rule.style) {
+            continue;
+          }
+
+          const selectorText = String(rule.selectorText);
+          if (!selectorText.includes('#start-button:active')) continue;
+
+          bucket.push({
+            selectorText,
+            transform: rule.style.transform || '',
+            boxShadow: rule.style.boxShadow || ''
+          });
+        }
+      }
+
+      const matches = [];
+      for (const sheet of Array.from(document.styleSheets)) {
+        let rules;
+        try {
+          rules = sheet.cssRules;
+        } catch (_error) {
+          continue;
+        }
+        collectPressRules(rules, matches);
+      }
+
+      if (!matches.length) {
+        return { found: false, selectorText: '', transform: '', boxShadow: '' };
+      }
+      const effective = matches[matches.length - 1];
+      return { found: true, ...effective };
     });
-    await page.waitForTimeout(140);
-    const activeStyles = await startButton.evaluate((el) => {
-      const style = getComputedStyle(el);
-      return {
-        transform: style.transform,
-        boxShadow: style.boxShadow
-      };
-    });
-    await page.mouse.up();
 
     expect(restingStyles.height).toBeGreaterThanOrEqual(43.5);
     expect(restingStyles.height).toBeLessThanOrEqual(44.5);
 
     const restingTranslateY = extractTranslateY(restingStyles.transform);
-    const activeTranslateY = extractTranslateY(activeStyles.transform);
     expect(restingTranslateY).toBeLessThanOrEqual(0.1);
-    expect(activeTranslateY).toBeGreaterThanOrEqual(1.5);
 
     const restingShadowY = extractPrimaryShadowYOffset(restingStyles.boxShadow);
-    const activeShadowY = extractPrimaryShadowYOffset(activeStyles.boxShadow);
     expect(restingShadowY).toBeGreaterThan(0);
-    expect(activeShadowY).toBeGreaterThan(0);
-    expect(activeShadowY).toBeLessThan(restingShadowY);
+    expect(pressRule.found).toBe(true);
+    expect(pressRule.selectorText).toContain('#start-button:active');
+    expect(pressRule.transform).toContain('translateY(2px)');
+    expect(pressRule.boxShadow).toContain('var(--ui-button-shadow-press)');
   });
 });

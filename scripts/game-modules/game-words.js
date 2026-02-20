@@ -1297,6 +1297,17 @@ function showCelebrationEffect(type) {
     }
 }
 
+window.addEventListener('hebrewGame:languageChanged', function onLanguageChanged() {
+    if (!gameState || !gameState.currentWord) return;
+
+    const roundScreen = document.getElementById('round-screen');
+    if (!roundScreen || roundScreen.classList.contains('hidden')) return;
+
+    const prompt = document.getElementById('german-word');
+    if (!prompt) return;
+    prompt.textContent = getPromptText(gameState.currentWord);
+});
+
 // Make the submitWord function globally accessible
 window.HebrewGame = window.HebrewGame || {};
 window.HebrewGame.words = window.HebrewGame.words || {};

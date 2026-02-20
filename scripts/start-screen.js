@@ -3,7 +3,9 @@
  */
 (function startScreenModule() {
     const PLAYER_AVATAR_STORAGE_KEY = 'hebrewGame_playerAvatar_v1';
-    const AVATAR_PAGE_SIZE = 12;
+    const AVATAR_PAGE_SIZE_DESKTOP = 12;
+    const AVATAR_PAGE_SIZE_MOBILE = 8;
+    const AVATAR_MOBILE_MEDIA_QUERY = '(max-width: 700px)';
     const TITLE_WAVE_INTERVAL_MS = 8000;
     const TITLE_WAVE_STEP_DELAY_MS = 55;
     const TITLE_WAVE_DURATION_MS = 420;
@@ -18,7 +20,8 @@
     const avatarPickerState = {
         catalog: [],
         selectedPath: null,
-        pageStart: 0
+        pageStart: 0,
+        pageSize: AVATAR_PAGE_SIZE_DESKTOP
     };
     const retroAnimationState = {
         waveLoopIntervalId: null,
@@ -100,13 +103,53 @@
         return avatarPath || null;
     }
 
+    function getAvatarPageSize() {
+        if (
+            typeof window !== 'undefined' &&
+            typeof window.matchMedia === 'function' &&
+            window.matchMedia(AVATAR_MOBILE_MEDIA_QUERY).matches
+        ) {
+            return AVATAR_PAGE_SIZE_MOBILE;
+        }
+        return AVATAR_PAGE_SIZE_DESKTOP;
+    }
+
+    function syncAvatarPageSize(options = {}) {
+        const nextPageSize = getAvatarPageSize();
+        const previousPageSize = avatarPickerState.pageSize || nextPageSize;
+        if (!options.force && nextPageSize === previousPageSize) return false;
+
+        avatarPickerState.pageSize = nextPageSize;
+
+        if (!avatarPickerState.catalog.length) {
+            avatarPickerState.pageStart = 0;
+            return previousPageSize !== nextPageSize;
+        }
+
+        if (avatarPickerState.selectedPath) {
+            const selectedIndex = avatarPickerState.catalog.findIndex(function (avatar) {
+                return avatar.path === avatarPickerState.selectedPath;
+            });
+            if (selectedIndex >= 0) {
+                avatarPickerState.pageStart = Math.floor(selectedIndex / nextPageSize) * nextPageSize;
+                return previousPageSize !== nextPageSize;
+            }
+        }
+
+        const normalized = Math.floor(avatarPickerState.pageStart / nextPageSize) * nextPageSize;
+        const total = avatarPickerState.catalog.length;
+        avatarPickerState.pageStart = ((normalized % total) + total) % total;
+        return previousPageSize !== nextPageSize;
+    }
+
     function getVisibleAvatarOptions() {
         if (!Array.isArray(avatarPickerState.catalog) || avatarPickerState.catalog.length === 0) {
             return [];
         }
 
         const visible = [];
-        for (let i = 0; i < Math.min(AVATAR_PAGE_SIZE, avatarPickerState.catalog.length); i++) {
+        const pageSize = avatarPickerState.pageSize || getAvatarPageSize();
+        for (let i = 0; i < Math.min(pageSize, avatarPickerState.catalog.length); i++) {
             const index = (avatarPickerState.pageStart + i) % avatarPickerState.catalog.length;
             visible.push(avatarPickerState.catalog[index]);
         }
@@ -114,32 +157,33 @@
     }
 
     function getSelectedAvatarPath() {
-        if (avatarPickerState.selectedPath) {
-            return avatarPickerState.selectedPath;
-        }
-        if (!avatarPickerState.catalog.length) {
-            return 'assets/images/3x/portrait-with-border1.png';
-        }
-        return avatarPickerState.catalog[0].path;
+        return avatarPickerState.selectedPath;
     }
 
     function updateSelectedAvatarPreview() {
         const selectedPath = getSelectedAvatarPath();
         const previewImg = document.getElementById('selected-avatar-preview');
-        const previewLabel = document.getElementById('selected-avatar-label');
+        const previewPlaceholder = document.getElementById('selected-avatar-placeholder');
         const avatarId = extractAvatarId(selectedPath);
+        const hasSelection = typeof selectedPath === 'string' && selectedPath.length > 0;
 
         if (previewImg) {
-            previewImg.src = selectedPath;
-            previewImg.alt = avatarId
-                ? t('start.selectedAvatarAltWithId', { id: avatarId })
-                : t('start.selectedAvatarAlt');
+            if (hasSelection) {
+                previewImg.hidden = false;
+                previewImg.src = selectedPath;
+                previewImg.alt = avatarId
+                    ? t('start.selectedAvatarAltWithId', { id: avatarId })
+                    : t('start.selectedAvatarAlt');
+            } else {
+                previewImg.hidden = true;
+                previewImg.removeAttribute('src');
+                previewImg.alt = t('start.avatarEmptyAria');
+            }
         }
 
-        if (previewLabel) {
-            previewLabel.textContent = avatarId
-                ? t('start.avatarLabelWithId', { id: avatarId })
-                : t('start.avatarLabel');
+        if (previewPlaceholder) {
+            previewPlaceholder.hidden = hasSelection;
+            previewPlaceholder.setAttribute('aria-hidden', hasSelection ? 'true' : 'false');
         }
     }
 
@@ -195,7 +239,16 @@
 
     function showNextAvatarPage() {
         if (!avatarPickerState.catalog.length) return;
-        avatarPickerState.pageStart = (avatarPickerState.pageStart + AVATAR_PAGE_SIZE) % avatarPickerState.catalog.length;
+        const pageSize = avatarPickerState.pageSize || getAvatarPageSize();
+        avatarPickerState.pageStart = (avatarPickerState.pageStart + pageSize) % avatarPickerState.catalog.length;
+        renderAvatarGrid();
+    }
+
+    function showPreviousAvatarPage() {
+        if (!avatarPickerState.catalog.length) return;
+        const pageSize = avatarPickerState.pageSize || getAvatarPageSize();
+        const total = avatarPickerState.catalog.length;
+        avatarPickerState.pageStart = ((avatarPickerState.pageStart - pageSize) % total + total) % total;
         renderAvatarGrid();
     }
 
@@ -205,31 +258,43 @@
 
         avatarPickerState.catalog = getAvatarCatalog();
         avatarPickerState.pageStart = 0;
+        avatarPickerState.pageSize = getAvatarPageSize();
 
         const storedAvatar = normalizeAvatarPath(loadStoredPlayerAvatar());
-        const defaultPath = storedAvatar || (avatarPickerState.catalog[0] && avatarPickerState.catalog[0].path);
-        if (defaultPath) {
-            avatarPickerState.selectedPath = defaultPath;
-        }
+        avatarPickerState.selectedPath = storedAvatar || null;
 
-        const selectedIndex = avatarPickerState.catalog.findIndex(function (avatar) {
-            return avatar.path === avatarPickerState.selectedPath;
-        });
-        if (selectedIndex >= 0) {
-            avatarPickerState.pageStart = Math.floor(selectedIndex / AVATAR_PAGE_SIZE) * AVATAR_PAGE_SIZE;
+        if (avatarPickerState.selectedPath) {
+            const selectedIndex = avatarPickerState.catalog.findIndex(function (avatar) {
+                return avatar.path === avatarPickerState.selectedPath;
+            });
+            if (selectedIndex >= 0) {
+                avatarPickerState.pageStart = Math.floor(selectedIndex / avatarPickerState.pageSize) * avatarPickerState.pageSize;
+            }
         }
+        syncAvatarPageSize({ force: true });
 
         updateSelectedAvatarPreview();
         renderAvatarGrid();
 
-        const shuffleButton = document.getElementById('shuffle-avatars');
-        if (shuffleButton) {
-            shuffleButton.addEventListener('click', showNextAvatarPage);
+        const prevPageButton = document.getElementById('avatar-page-prev');
+        if (prevPageButton) {
+            prevPageButton.addEventListener('click', showPreviousAvatarPage);
+        }
+
+        const nextPageButton = document.getElementById('avatar-page-next');
+        if (nextPageButton) {
+            nextPageButton.addEventListener('click', showNextAvatarPage);
         }
 
         window.addEventListener('hebrewGame:languageChanged', function onLanguageChanged() {
             updateSelectedAvatarPreview();
             renderAvatarGrid();
+        });
+
+        window.addEventListener('resize', function onAvatarPickerResize() {
+            if (syncAvatarPageSize()) {
+                renderAvatarGrid();
+            }
         });
     }
 
@@ -300,6 +365,8 @@
         const value = textNode && typeof textNode.nodeValue === 'string'
             ? textNode.nodeValue
             : '';
+        const parentElement = textNode && textNode.parentElement;
+        if (parentElement && parentElement.classList.contains('title-number')) return;
         if (!value.trim()) return;
 
         const fragment = document.createDocumentFragment();
@@ -339,7 +406,13 @@
         let currentNode = walker.nextNode();
         while (currentNode) {
             const parentElement = currentNode.parentElement;
-            const shouldSkip = !!(parentElement && parentElement.classList.contains(TITLE_WAVE_CHAR_CLASS));
+            const shouldSkip = !!(
+                parentElement &&
+                (
+                    parentElement.classList.contains(TITLE_WAVE_CHAR_CLASS) ||
+                    parentElement.classList.contains('title-number')
+                )
+            );
             if (!shouldSkip) {
                 nodesToSplit.push(currentNode);
             }
