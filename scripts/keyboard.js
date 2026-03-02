@@ -222,6 +222,25 @@ function initializePhysicalKeyboard(onKeyPress) {
             }
         }
 
+        // Debug cheat: press 3 to add 10 coins.
+        if (
+            event.key === '3' &&
+            !event.shiftKey &&
+            !event.altKey &&
+            !event.metaKey &&
+            !event.ctrlKey
+        ) {
+            const debugApi = window.HebrewGame && window.HebrewGame.debug ? window.HebrewGame.debug : null;
+            if (debugApi && typeof debugApi.addCoins === 'function') {
+                const didAddCoins = !event.repeat && debugApi.addCoins(10);
+                if (didAddCoins) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    return;
+                }
+            }
+        }
+
         // Handle backspace key directly
         if (event.key === 'Backspace') {
             event.preventDefault();

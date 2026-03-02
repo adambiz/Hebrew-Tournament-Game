@@ -361,6 +361,7 @@ function resetDisabledKeyboardLetters() {
 function applySecondChanceRoundPowerUp() {
     // Activate second chance for the entire round
     gameState.powerUpsActive.secondChanceRound = true;
+    gameState.powerUpsActive.secondChanceRoundUsedThisWord = false;
     
     // Visual feedback
     toast({
@@ -510,8 +511,14 @@ function applyEasierWordPowerUp() {
 
 // Helper function to check if second chance should be applied
 function shouldApplySecondChance() {
-    // Check if either single-word second chance or round-based second chance is active
-    return gameState.powerUpsActive.secondChance || gameState.powerUpsActive.secondChanceRound;
+    // Single-word second chance can always apply once when available.
+    if (gameState.powerUpsActive.secondChance) {
+        return true;
+    }
+
+    // Round-based second chance applies once per word.
+    return gameState.powerUpsActive.secondChanceRound &&
+        !gameState.powerUpsActive.secondChanceRoundUsedThisWord;
 }
 
 // Helper function to consume a second chance
@@ -522,8 +529,9 @@ function consumeSecondChance() {
         return true;
     }
     
-    // If this is a round-based second chance, don't consume it (lasts whole round)
+    // Round-based second chance lasts the whole round, but only one retry per word.
     if (gameState.powerUpsActive.secondChanceRound) {
+        gameState.powerUpsActive.secondChanceRoundUsedThisWord = true;
         return true;
     }
     

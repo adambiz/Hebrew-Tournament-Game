@@ -35,6 +35,7 @@ async function readState(page) {
       currentWordIndex: gs.currentWordIndex,
       roundWordsLength: Array.isArray(gs.roundWords) ? gs.roundWords.length : 0,
       dataReady: !!gs.dataReady,
+      roundScore: gs.roundScore,
       playerCoins: gs.playerCoins,
       roundCoinsEarned: gs.roundCoinsEarned,
       currentWord,
@@ -221,6 +222,8 @@ test.describe('Tournament game loop', () => {
 
     const stateWithSecondChance = await readState(page);
     expect(stateWithSecondChance.powerUpsActive.secondChanceRound).toBe(true);
+    const roundScoreBeforeMistake = stateWithSecondChance.roundScore;
+    const coinsBeforeMistake = stateWithSecondChance.playerCoins;
 
     const wordIndexBeforeMistake = stateWithSecondChance.currentWordIndex;
     await typeCurrentWord(page, { makeMistake: true });
@@ -238,12 +241,17 @@ test.describe('Tournament game loop', () => {
 
     const stateAfterMistake = await readState(page);
     expect(stateAfterMistake.currentWordIndex).toBe(wordIndexBeforeMistake);
+    expect(stateAfterMistake.roundScore).toBe(roundScoreBeforeMistake);
+    expect(stateAfterMistake.playerCoins).toBe(coinsBeforeMistake);
+    await expect(page.locator('.correct-word-container')).toHaveCount(0);
 
     await typeCurrentWord(page, { replaceExisting: true });
     await submitWordAndWaitForProgress(page, 'enter');
 
     const stateAfterRetrySuccess = await readState(page);
     expect(stateAfterRetrySuccess.currentWordIndex).toBeGreaterThan(wordIndexBeforeMistake);
+    expect(stateAfterRetrySuccess.roundScore).toBeGreaterThan(roundScoreBeforeMistake);
+    expect(stateAfterRetrySuccess.playerCoins).toBeGreaterThan(coinsBeforeMistake);
 
     await finishCurrentRound(page);
     await expect(page.locator('#round-results')).not.toHaveClass(/hidden/);

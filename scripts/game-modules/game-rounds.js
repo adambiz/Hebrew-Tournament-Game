@@ -201,6 +201,7 @@ function startNextRound() {
         doublePoints: false,
         secondChance: false,
         secondChanceRound: false,
+        secondChanceRoundUsedThisWord: false,
         disabledLetters: [],
         originalWord: null,
         removedLetters: 0,
@@ -405,6 +406,40 @@ function forceWinCurrentRoundForDebug() {
     }
     announceUi(t('round.debugCheatAnnounce', { round: gameState.currentRound }));
     window.completeRound();
+    return true;
+}
+
+function addCoinsForDebug(amount = 10) {
+    if (!gameState.player || gameState.isRoundTransitioning) return false;
+
+    const parsedAmount = Math.floor(Number(amount) || 0);
+    if (parsedAmount <= 0) return false;
+
+    const currentCoins = Math.floor(Number(gameState.playerCoins) || 0);
+    gameState.playerCoins = Math.max(0, currentCoins + parsedAmount);
+
+    const coinCountElement = document.getElementById('coin-count');
+    if (coinCountElement) {
+        coinCountElement.textContent = String(gameState.playerCoins);
+    }
+
+    const storeCoinsElement = document.getElementById('store-coins');
+    if (storeCoinsElement) {
+        storeCoinsElement.textContent = String(gameState.playerCoins);
+    }
+
+    const overlayStoreCoinsElement = document.getElementById('overlay-store-coins');
+    if (overlayStoreCoinsElement) {
+        overlayStoreCoinsElement.textContent = String(gameState.playerCoins);
+    }
+
+    if (typeof window.logDebug === 'function') {
+        window.logDebug('Debug cheat applied: added coins.', {
+            addedCoins: parsedAmount,
+            playerCoins: gameState.playerCoins
+        });
+    }
+
     return true;
 }
 
@@ -1027,3 +1062,4 @@ window.HebrewGame.ui.closeStoreOverlay = closeStoreOverlay;
 window.HebrewGame.ui.isStoreOverlayOpen = isStoreOverlayOpen;
 window.HebrewGame.ui.updateMainBattleTitle = updateMainBattleTitle;
 window.HebrewGame.debug.forceWinRound = forceWinCurrentRoundForDebug;
+window.HebrewGame.debug.addCoins = addCoinsForDebug;

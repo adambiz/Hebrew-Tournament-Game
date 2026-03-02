@@ -34,6 +34,7 @@ const gameState = {
         // Second chance power-ups
         secondChance: false, // For single word
         secondChanceRound: false, // For entire round
+        secondChanceRoundUsedThisWord: false, // One free retry per word when round bonus is active
         
         // Letter filter power-up
         disabledLetters: [], // Letters disabled by the filter
@@ -587,6 +588,7 @@ function startGame() {
         doublePoints: false,
         secondChance: false,
         secondChanceRound: false,
+        secondChanceRoundUsedThisWord: false,
         disabledLetters: [],
         originalWord: null,
         removedLetters: 0,
@@ -675,6 +677,7 @@ function resetGame() {
         doublePoints: false,
         secondChance: false,
         secondChanceRound: false,
+        secondChanceRoundUsedThisWord: false,
         disabledLetters: [],
         originalWord: null,
         removedLetters: 0,

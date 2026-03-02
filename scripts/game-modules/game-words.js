@@ -166,6 +166,7 @@ function startNextWord() {
     gameState.powerUpsActive.revealedLetters = [];
     
     // Note that secondChanceRound is not reset as it applies to the entire round
+    gameState.powerUpsActive.secondChanceRoundUsedThisWord = false;
     
     window.logDebug('Starting new word:', gameState.currentWord);
     
@@ -454,15 +455,22 @@ function updateHebrewWordDisplay() {
                 
                 // If the letter is typed, show it
                 if (i < typedWord.length) {
-                    // If this is the active position, add a special class
-                    const letterClass = isActivePosition ? 'typed-letter active-letter' : 'typed-letter';
+                    const typedLetter = typedWord[i];
+                    const isRetryPlaceholder = typedLetter === '?';
+                    const letterClassParts = ['typed-letter'];
+                    if (isActivePosition) letterClassParts.push('active-letter');
+                    if (isRetryPlaceholder) letterClassParts.push('incorrect-letter');
+                    const letterClass = letterClassParts.join(' ');
                     
-                    // If this is a revealed letter, style it differently
-                    if (gameState.powerUpsActive.revealedLetters.includes(getAbsoluteLetterIndex(wordIndex, i))) {
-                        letterContainer.innerHTML = `<span class="revealed-letter">${typedWord[i]}</span>`;
+                    // If this is a revealed letter, style it differently unless this is a second-chance retry placeholder.
+                    if (
+                        !isRetryPlaceholder &&
+                        gameState.powerUpsActive.revealedLetters.includes(getAbsoluteLetterIndex(wordIndex, i))
+                    ) {
+                        letterContainer.innerHTML = `<span class="revealed-letter">${typedLetter}</span>`;
                         slotState = 'revealed';
                     } else {
-                        letterContainer.innerHTML = `<span class="${letterClass}">${typedWord[i]}</span>`;
+                        letterContainer.innerHTML = `<span class="${letterClass}">${typedLetter}</span>`;
                         slotState = 'typed';
                     }
                 } else if (gameState.powerUpsActive.revealedLetters.includes(getAbsoluteLetterIndex(wordIndex, i))) {
@@ -539,15 +547,19 @@ function updateHebrewWordDisplay() {
             
             // If the letter is typed or revealed, show it
             if (i < typedWord.length) {
-                // If this is the active position, add a special class
-                const letterClass = isActivePosition ? 'typed-letter active-letter' : 'typed-letter';
+                const typedLetter = typedWord[i];
+                const isRetryPlaceholder = typedLetter === '?';
+                const letterClassParts = ['typed-letter'];
+                if (isActivePosition) letterClassParts.push('active-letter');
+                if (isRetryPlaceholder) letterClassParts.push('incorrect-letter');
+                const letterClass = letterClassParts.join(' ');
                 
-                // If this is a revealed letter, style it differently
-                if (gameState.powerUpsActive.revealedLetters.includes(i)) {
-                    letterContainer.innerHTML = `<span class="revealed-letter">${typedWord[i]}</span>`;
+                // If this is a revealed letter, style it differently unless this is a second-chance retry placeholder.
+                if (!isRetryPlaceholder && gameState.powerUpsActive.revealedLetters.includes(i)) {
+                    letterContainer.innerHTML = `<span class="revealed-letter">${typedLetter}</span>`;
                     slotState = 'revealed';
                 } else {
-                    letterContainer.innerHTML = `<span class="${letterClass}">${typedWord[i]}</span>`;
+                    letterContainer.innerHTML = `<span class="${letterClass}">${typedLetter}</span>`;
                     slotState = 'typed';
                 }
             } else if (gameState.powerUpsActive.revealedLetters.includes(i)) {
@@ -645,20 +657,127 @@ function submitWord() {
     checkWordSequentially();
 }
 
+function getUniqueWrongTypedLetters(letterChecks) {
+    const seen = new Set();
+    const wrongLetters = [];
+
+    letterChecks.forEach(check => {
+        if (check.isCorrect) return;
+        const typedLetter = typeof check.typed === 'string' ? check.typed.trim() : '';
+        if (!typedLetter || seen.has(typedLetter)) return;
+        seen.add(typedLetter);
+        wrongLetters.push(typedLetter);
+    });
+
+    return wrongLetters;
+}
+
+function resetWordFeedbackForRetry() {
+    const letterContainers = document.querySelectorAll('.letter-container');
+    letterContainers.forEach(container => {
+        container.classList.remove('correct-letter', 'incorrect-letter', 'checking-letter');
+
+        const span = container.querySelector('span');
+        if (span) {
+            span.classList.remove('correct-letter', 'incorrect-letter');
+            if (
+                !span.classList.contains('typed-letter') &&
+                !span.classList.contains('revealed-letter') &&
+                !span.classList.contains('letter-placeholder') &&
+                span.textContent &&
+                span.textContent.trim() !== ''
+            ) {
+                span.classList.add('typed-letter');
+            }
+        }
+    });
+
+    const animContainer = document.querySelector('.checking-animation-container');
+    if (animContainer && animContainer.parentNode) {
+        animContainer.parentNode.removeChild(animContainer);
+    }
+}
+
+function prefillSecondChanceRetryInput(letterChecks) {
+    if (!Array.isArray(letterChecks) || !gameState.currentWord) return;
+
+    if (gameState.currentWord.isPhrase) {
+        const prefilledWords = gameState.currentWord.words.map(word => word.split(''));
+
+        letterChecks.forEach(check => {
+            if (check.isCorrect) return;
+            if (!prefilledWords[check.wordIndex]) return;
+            if (check.letterIndex < 0 || check.letterIndex >= prefilledWords[check.wordIndex].length) return;
+            prefilledWords[check.wordIndex][check.letterIndex] = '?';
+        });
+
+        gameState.typedWords = prefilledWords.map(wordChars => wordChars.join(''));
+        gameState.typedWord = "";
+    } else {
+        const prefilledWord = gameState.currentWord.hebrew.split('');
+
+        letterChecks.forEach(check => {
+            if (check.isCorrect) return;
+            if (check.letterIndex < 0 || check.letterIndex >= prefilledWord.length) return;
+            prefilledWord[check.letterIndex] = '?';
+        });
+
+        gameState.typedWord = prefilledWord.join('');
+        gameState.typedWords = null;
+    }
+
+    // Move cursor to first letter for retry as in a normal fresh word.
+    gameState.activeWord = 0;
+    gameState.activeLetterIndex = 0;
+}
+
+function handleSecondChanceRetry(letterChecks) {
+    playWordSfx('secondChance');
+
+    const wrongLetters = getUniqueWrongTypedLetters(letterChecks);
+    const lettersText = wrongLetters.length > 0
+        ? wrongLetters.join(', ')
+        : t('word.secondChanceWrongLettersUnknown');
+    const retryMessage = t('word.secondChanceWrongLettersDesc', { letters: lettersText });
+
+    toast({
+        title: t('word.secondChanceTitle'),
+        description: retryMessage,
+        variant: "default"
+    });
+    announceWordUi(retryMessage);
+
+    // Reset processing flag to allow resubmission
+    setTimeout(() => {
+        isProcessingWordSubmission = false;
+        resetWordFeedbackForRetry();
+        prefillSecondChanceRetryInput(letterChecks);
+        updateHebrewWordDisplay();
+        updateSubmitButtonState();
+
+        const wordInput = document.getElementById('hebrew-word-input');
+        if (wordInput) {
+            wordInput.focus();
+        }
+
+        // Re-enable the submit button
+        const submitButton = document.getElementById('submit-word');
+        if (submitButton) {
+            submitButton.disabled = false;
+            submitButton.classList.add('submit-button-ready');
+        }
+    }, 1500);
+}
+
 // New function for sequential letter checking with animation
 function checkWordSequentially() {
     window.logDebug('Starting sequential word check');
     playWordSfx('checkStart');
     
-    // Create a container for the checking animation
     const wordInput = document.getElementById('hebrew-word-input');
-    const animationContainer = document.createElement('div');
-    animationContainer.className = 'checking-animation-container';
-    wordInput.parentNode.appendChild(animationContainer);
     
     // Set up the sequential checking process
     let letterCheckingDelay = 180; // ms delay between letter checks (FASTER)
-    let totalScore = 0;
     let correctLetters = 0;
     let totalLetters = 0;
     let letterChecks = [];
@@ -708,6 +827,17 @@ function checkWordSequentially() {
             if (isCorrect) correctLetters++;
         }
     }
+
+    const isImperfect = correctLetters < totalLetters;
+    const shouldTriggerSecondChanceRetry = isImperfect && shouldApplySecondChance();
+    if (shouldTriggerSecondChanceRetry) {
+        consumeSecondChance();
+    }
+
+    // Create a container for the checking animation
+    const animationContainer = document.createElement('div');
+    animationContainer.className = 'checking-animation-container';
+    wordInput.parentNode.appendChild(animationContainer);
     
     // Start the sequential animation
     let currentCheckIndex = 0;
@@ -717,7 +847,11 @@ function checkWordSequentially() {
             // All letters checked, finalize the check
             // Wait a bit longer to see the final letter state
             setTimeout(() => {
-                finalizeWordCheck(correctLetters, totalLetters, letterChecks);
+                if (shouldTriggerSecondChanceRetry) {
+                    handleSecondChanceRetry(letterChecks);
+                } else {
+                    finalizeWordCheck(correctLetters, totalLetters, letterChecks);
+                }
             }, 300); // Added delay before finalizing
             return;
         }
@@ -731,10 +865,9 @@ function checkWordSequentially() {
             
             // Create and show the point indicator
             const points = check.isCorrect ? 1 : 0;
-            // IMPORTANT: We don't add to totalScore here to avoid double-counting
-            // totalScore += points;
-            
-            showPointIndicator(letterElement, points);
+            if (!shouldTriggerSecondChanceRetry) {
+                showPointIndicator(letterElement, points);
+            }
             
             // Reveal the letter status (correct or incorrect)
             setTimeout(() => {
@@ -759,6 +892,11 @@ function checkWordSequentially() {
                     if (letterSpan) {
                         letterSpan.classList.add('incorrect-letter');
                         letterSpan.classList.remove('correct-letter');
+                        if (shouldTriggerSecondChanceRetry) {
+                            letterSpan.textContent = '?';
+                            letterSpan.classList.add('typed-letter');
+                            letterSpan.classList.remove('revealed-letter', 'letter-placeholder');
+                        }
                     }
                 }
 
@@ -1050,72 +1188,8 @@ function handlePerfectWord(finalPoints, totalPossiblePoints, letterChecks, coins
 // Handle an imperfectly typed word (some letters wrong or missing)
 function handleImperfectWord(finalPoints, correctLetters, totalPossiblePoints, letterChecks) {
     // Check if player has a second chance (either per-word or per-round)
-    if (gameState.powerUpsActive.secondChance || gameState.powerUpsActive.secondChanceRound) {
-        playWordSfx('secondChance');
-
-        // Use the second chance
-        const isRoundPowerUp = gameState.powerUpsActive.secondChanceRound;
-        
-        // Only consume the single-word power-up, keep the round-based one active
-        if (!isRoundPowerUp) {
-            gameState.powerUpsActive.secondChance = false;
-        }
-        
-        // Provide feedback
-        toast({
-            title: t('word.secondChanceTitle'),
-            description: isRoundPowerUp ? 
-                t('word.secondChanceRoundDesc') : 
-                t('word.secondChanceSingleDesc'),
-            variant: "default"
-        });
-        
-        // Reset processing flag to allow resubmission
-        setTimeout(() => {
-            isProcessingWordSubmission = false;
-            
-            // Reset the letter classes
-            const letterContainers = document.querySelectorAll('.letter-container');
-            letterContainers.forEach(container => {
-                container.classList.remove('correct-letter', 'incorrect-letter', 'checking-letter');
-                
-                // Reset the span classes too
-                const span = container.querySelector('span');
-                if (span) {
-                    span.classList.remove('correct-letter', 'incorrect-letter');
-                    if (
-                        !span.classList.contains('typed-letter') &&
-                        !span.classList.contains('revealed-letter') &&
-                        !span.classList.contains('letter-placeholder') &&
-                        span.textContent &&
-                        span.textContent.trim() !== ''
-                    ) {
-                        span.classList.add('typed-letter');
-                    }
-                }
-            });
-            
-            // Remove any checking animation container
-            const animContainer = document.querySelector('.checking-animation-container');
-            if (animContainer && animContainer.parentNode) {
-                animContainer.parentNode.removeChild(animContainer);
-            }
-            
-            // Don't clear what the user has typed - just let them continue
-            updateHebrewWordDisplay();
-            
-            // Re-enable the submit button
-            const submitButton = document.getElementById('submit-word');
-            if (submitButton) {
-                submitButton.disabled = false;
-                // Only add the ready class if the word is still complete
-                if ((gameState.currentWord.isPhrase && isEntirePhraseComplete()) || 
-                    (!gameState.currentWord.isPhrase && gameState.typedWord.length === gameState.currentWord.hebrew.length)) {
-                    submitButton.classList.add('submit-button-ready');
-                }
-            }
-        }, 1500);
-        
+    if (shouldApplySecondChance() && consumeSecondChance()) {
+        handleSecondChanceRetry(letterChecks);
         return;
     }
 

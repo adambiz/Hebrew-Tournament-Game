@@ -880,6 +880,8 @@ test.describe('Regression QA and stability hardening', () => {
 
     let state = await readState(page);
     expect(state.powerUpsActive.secondChanceRound).toBe(true);
+    const roundScoreBeforeMistake = state.roundScore;
+    const coinsBeforeMistake = state.playerCoins;
 
     const wordIndexBeforeMistake = state.currentWordIndex;
     await typeCurrentWord(page, { makeMistake: true });
@@ -897,12 +899,38 @@ test.describe('Regression QA and stability hardening', () => {
 
     state = await readState(page);
     expect(state.currentWordIndex).toBe(wordIndexBeforeMistake);
+    expect(state.roundScore).toBe(roundScoreBeforeMistake);
+    expect(state.playerCoins).toBe(coinsBeforeMistake);
+    await expect(page.locator('.correct-word-container')).toHaveCount(0);
 
     await typeCurrentWord(page, { replaceExisting: true });
     await submitCurrentWordAndWait(page);
 
     const stateAfterRetry = await readState(page);
     expect(stateAfterRetry.currentWordIndex).toBeGreaterThan(wordIndexBeforeMistake);
+    expect(stateAfterRetry.roundScore).toBeGreaterThan(roundScoreBeforeMistake);
+    expect(stateAfterRetry.playerCoins).toBeGreaterThan(coinsBeforeMistake);
+
+    // Verify no third free retry on the same word: second wrong attempt should finalize and advance.
+    const wordIndexBeforeSecondWrong = stateAfterRetry.currentWordIndex;
+    await typeCurrentWord(page, { makeMistake: true });
+    await page.locator('#submit-word').click({ force: true });
+    await page.waitForFunction(
+      (targetWordIndex) => {
+        const gs = window.HebrewGame?.debug?.getGameState?.();
+        const submitButton = document.getElementById('submit-word');
+        return !!gs && gs.currentWordIndex === targetWordIndex && !!submitButton && !submitButton.disabled;
+      },
+      wordIndexBeforeSecondWrong,
+      { timeout: 20000 }
+    );
+
+    const stateBeforeFinalWrongSubmit = await readState(page);
+    expect(stateBeforeFinalWrongSubmit.currentWordIndex).toBe(wordIndexBeforeSecondWrong);
+
+    await submitCurrentWordAndWait(page);
+    const stateAfterSecondWrong = await readState(page);
+    expect(stateAfterSecondWrong.currentWordIndex).toBeGreaterThan(wordIndexBeforeSecondWrong);
 
     await page.evaluate(() => {
       const gs = window.HebrewGame?.debug?.getGameState?.();
