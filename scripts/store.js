@@ -63,6 +63,31 @@ function initializePlayerPowerUps() {
     });
 }
 
+function getInventorySnapshot() {
+    const snapshot = {};
+    powerUps.forEach(function (powerUp) {
+        snapshot[powerUp.id] = Math.max(0, Math.floor(Number(playerPowerUps[powerUp.id]) || 0));
+    });
+    return snapshot;
+}
+
+function setInventorySnapshot(snapshot) {
+    initializePlayerPowerUps();
+    if (!snapshot || typeof snapshot !== 'object' || Array.isArray(snapshot)) {
+        return getInventorySnapshot();
+    }
+
+    powerUps.forEach(function (powerUp) {
+        playerPowerUps[powerUp.id] = Math.max(0, Math.floor(Number(snapshot[powerUp.id]) || 0));
+    });
+
+    if (typeof updatePowerUpButtonVisibility === 'function') {
+        updatePowerUpButtonVisibility();
+    }
+
+    return getInventorySnapshot();
+}
+
 // Calculate price for the current round
 function calculatePowerUpPrice(powerUp, roundNumber) {
     // Price is fixed based on the basePrice
@@ -309,3 +334,5 @@ window.HebrewGame.powerups = window.HebrewGame.powerups || {};
 window.HebrewGame.powerups.generatePowerUpsPanel = generatePowerUpsPanel;
 window.HebrewGame.powerups.initializePlayerPowerUps = initializePlayerPowerUps;
 window.HebrewGame.powerups.purchasePowerUp = purchasePowerUp;
+window.HebrewGame.powerups.getInventorySnapshot = getInventorySnapshot;
+window.HebrewGame.powerups.setInventorySnapshot = setInventorySnapshot;

@@ -1040,6 +1040,9 @@ function endGame(context = {}) {
     renderFinalLeaderboard(savedScores, gameState.player.name);
     renderFinalPodium(rankedContestants);
     updateFinalResultCopy(playerRank, reason);
+    if (coreApi && typeof coreApi.clearAutosaveSnapshot === 'function') {
+        coreApi.clearAutosaveSnapshot();
+    }
 
     window.showScreen('game-over');
     playRoundSfx('gameComplete', { rank: playerRank, reason });
@@ -1061,5 +1064,6 @@ window.HebrewGame.ui.openStoreOverlay = openStoreOverlay;
 window.HebrewGame.ui.closeStoreOverlay = closeStoreOverlay;
 window.HebrewGame.ui.isStoreOverlayOpen = isStoreOverlayOpen;
 window.HebrewGame.ui.updateMainBattleTitle = updateMainBattleTitle;
+window.HebrewGame.ui.updateTournamentDisplay = updateTournamentDisplay;
 window.HebrewGame.debug.forceWinRound = forceWinCurrentRoundForDebug;
 window.HebrewGame.debug.addCoins = addCoinsForDebug;

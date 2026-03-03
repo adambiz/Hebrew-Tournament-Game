@@ -179,3 +179,59 @@ body[data-ui-language="he"] .store-item-unaffordable::after {
     white-space: normal;
     overflow-wrap: anywhere;
 }
+
+.game-overlay.recovery-overlay {
+    z-index: 1400;
+}
+
+.overlay-content.resume-overlay {
+    width: min(680px, 100%);
+    max-height: 92vh;
+    overflow: auto;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(180deg, #ffffff 0%, #f6fbff 100%);
+    border: var(--border-strong);
+    box-shadow: var(--shadow-lg);
+    padding: var(--space-4);
+    display: grid;
+    gap: var(--space-2);
+}
+
+.overlay-content.resume-overlay .pixel-title-plate {
+    margin: 0;
+    text-align: center;
+    font-size: clamp(1.25rem, 3.8vw, 1.8rem);
+}
+
+.overlay-content.resume-overlay .pixel-chip {
+    margin: 0;
+    text-align: center;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+.resume-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+    margin-top: var(--space-1);
+}
+
+.resume-actions .game-button {
+    width: 100%;
+    min-height: 52px;
+    padding: 10px 14px;
+    line-height: 1.2;
+    white-space: normal;
+    overflow-wrap: anywhere;
+}
+
+body[data-ui-language="he"] .overlay-content.resume-overlay {
+    direction: rtl;
+    text-align: right;
+}
+
+body[data-ui-language="he"] .overlay-content.resume-overlay .pixel-title-plate,
+body[data-ui-language="he"] .overlay-content.resume-overlay .pixel-chip {
+    text-align: right;
+}

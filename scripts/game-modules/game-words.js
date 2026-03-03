@@ -1371,6 +1371,45 @@ function showCelebrationEffect(type) {
     }
 }
 
+function refreshWordUiFromState() {
+    if (!gameState || !gameState.currentWord) return false;
+
+    if (gameState.currentWord.isPhrase) {
+        if (!Array.isArray(gameState.typedWords)) {
+            gameState.typedWords = gameState.currentWord.words.map(function () { return ''; });
+        }
+        gameState.typedWords = gameState.currentWord.words.map(function (word, index) {
+            return String(gameState.typedWords[index] || '').slice(0, word.length);
+        });
+        gameState.typedWord = "";
+        gameState.activeWord = Math.max(0, Math.min(gameState.currentWord.words.length - 1, Number(gameState.activeWord) || 0));
+        const activeWordLength = gameState.currentWord.words[gameState.activeWord].length;
+        gameState.activeLetterIndex = Math.max(0, Math.min(activeWordLength, Number(gameState.activeLetterIndex) || 0));
+    } else {
+        const expectedWordLength = gameState.currentWord.hebrew.length;
+        gameState.typedWord = String(gameState.typedWord || '').slice(0, expectedWordLength);
+        gameState.typedWords = null;
+        gameState.activeWord = 0;
+        gameState.activeLetterIndex = Math.max(0, Math.min(expectedWordLength, Number(gameState.activeLetterIndex) || 0));
+    }
+
+    const submitButton = document.getElementById('submit-word');
+    if (submitButton) {
+        submitButton.classList.remove('hidden');
+    }
+
+    updateHebrewWordDisplay();
+    updateSubmitButtonState();
+
+    if (gameState.powerUpsActive && gameState.powerUpsActive.letterFilterActive) {
+        if (typeof updateLetterFilteringForActiveWord === 'function') {
+            updateLetterFilteringForActiveWord();
+        }
+    }
+
+    return true;
+}
+
 window.addEventListener('hebrewGame:languageChanged', function onLanguageChanged() {
     if (!gameState || !gameState.currentWord) return;
 
@@ -1387,6 +1426,7 @@ window.HebrewGame = window.HebrewGame || {};
 window.HebrewGame.words = window.HebrewGame.words || {};
 window.HebrewGame.words.submitWord = submitWord;
 window.HebrewGame.words.setActiveLetter = setActiveLetter;
+window.HebrewGame.words.refreshWordUiFromState = refreshWordUiFromState;
 window.submitWord = function submitWordCompat() {
     return window.HebrewGame.words.submitWord.apply(null, arguments);
 };

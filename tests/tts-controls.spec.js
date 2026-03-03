@@ -182,6 +182,11 @@ test.describe('Hebrew TTS controls', () => {
             const state = window.HebrewGame?.debug?.getGameState?.();
             return !!state && state.dataReady === true;
         }, { timeout: 20000 });
+        const resumeOverlay = page.locator('#resume-overlay');
+        if (await resumeOverlay.count()) {
+            await expect(resumeOverlay).toBeVisible();
+            await page.click('#resume-restart');
+        }
         await expect(page.locator('#start-button')).toBeEnabled();
         await startRound(page, 'Precedence Tester Reloaded');
 

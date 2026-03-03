@@ -72,6 +72,27 @@
     .store-items-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
+
+    .game-overlay.recovery-overlay {
+        padding:
+            calc(var(--space-4) + env(safe-area-inset-top, 0px))
+            calc(var(--space-4) + env(safe-area-inset-right, 0px))
+            calc(var(--space-4) + env(safe-area-inset-bottom, 0px))
+            calc(var(--space-4) + env(safe-area-inset-left, 0px));
+    }
+
+    .overlay-content.resume-overlay {
+        width: min(640px, calc(100vw - 32px));
+        padding: var(--space-5);
+    }
+
+    .resume-actions {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .resume-actions .game-button {
+        min-height: 52px;
+    }
 }
 
 @media (min-width: 760px) and (max-width: 1180px) {
